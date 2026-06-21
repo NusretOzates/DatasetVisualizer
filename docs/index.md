@@ -15,6 +15,7 @@ Per-dataset schema and visualization notes:
 - [MMLU-Pro](datasets/mmlu_pro.md)
 - [GPQA Diamond](datasets/gpqa_diamond.md)
 - [Global-MMLU](datasets/global_mmlu.md)
+- [Humanity's Last Exam](datasets/hle.md)
 - [LiveCodeBench v6](datasets/livecodebench.md)
 - [SWE-Bench](datasets/swe_bench.md)
 - [ArXiv Math 0526](datasets/arxivmath.md)

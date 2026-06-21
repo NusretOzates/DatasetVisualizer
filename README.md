@@ -31,6 +31,7 @@ uv run dataset-viz
 | Reasoning | MMLU-Pro | `TIGER-Lab/MMLU-Pro` |
 | Reasoning | GPQA Diamond | `Idavidrein/gpqa` (`gpqa_diamond`) |
 | Reasoning | Global-MMLU | `CohereLabs/Global-MMLU` |
+| Reasoning | Humanity's Last Exam | `cais/hle` |
 | Code | LiveCodeBench v6 | `livecodebench/code_generation_lite` (`test6.jsonl`) |
 | Code | SWE-Bench Verified | `SWE-bench/SWE-bench_Verified` |
 | Code | SWE-Bench Multilingual | `SWE-bench/SWE-bench_Multilingual` |
@@ -43,7 +44,7 @@ Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
 ## Cache
 
-Downloaded data is cached under `data/cache/<loader_key>/` (gitignored). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse the cache via Streamlit `@st.cache_data`.
+Downloaded data is cached under `data/cache/<loader_key>/` (gitignored). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `hle`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse the cache via Streamlit `@st.cache_data`.
 
 ## Inspect CLI
 
@@ -54,6 +55,7 @@ uv run python scripts/inspect_dataset.py mmlu
 uv run python scripts/inspect_dataset.py mmlu_pro
 uv run python scripts/inspect_dataset.py gpqa_diamond
 uv run python scripts/inspect_dataset.py global_mmlu
+uv run python scripts/inspect_dataset.py hle
 uv run python scripts/inspect_dataset.py livecodebench_v6
 uv run python scripts/inspect_dataset.py swe_bench_verified
 uv run python scripts/inspect_dataset.py swe_bench_multilingual

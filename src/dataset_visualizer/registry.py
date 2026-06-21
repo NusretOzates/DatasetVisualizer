@@ -13,6 +13,7 @@ from dataset_visualizer.config import AppConfig, DatasetEntry, get_dataset_by_id
 from dataset_visualizer.loaders.arxivmath import load_problems
 from dataset_visualizer.loaders.global_mmlu import load_global_mmlu
 from dataset_visualizer.loaders.gpqa import load_gpqa_diamond
+from dataset_visualizer.loaders.hle import load_hle
 from dataset_visualizer.loaders.livecodebench import load_livecodebench
 from dataset_visualizer.loaders.mmlu import load_mmlu
 from dataset_visualizer.loaders.mmlu_pro import load_mmlu_pro
@@ -31,6 +32,7 @@ LOADER_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "arxivmath": load_problems,
     "global_mmlu": load_global_mmlu,
     "gpqa": load_gpqa_diamond,
+    "hle": load_hle,
     "livecodebench": load_livecodebench,
     "mmlu": load_mmlu,
     "mmlu_pro": load_mmlu_pro,

@@ -250,6 +250,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `mmlu_pro` | reasoning | `mmlu_pro` | mcq_cot | `mmlu_pro` |
 | `gpqa_diamond` | reasoning | `gpqa` | mcq | `gpqa` |
 | `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `global_mmlu` |
+| `hle` | reasoning | `hle` | academic_qa | `hle` |
 | `livecodebench_v6` | code | `livecodebench` | code_problem | `livecodebench` |
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `swe_bench` |
 | `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `swe_bench` |

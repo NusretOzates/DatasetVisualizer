@@ -25,6 +25,13 @@ categories:
       icon: "🌍"
       archetype: mcq_multilingual
       hf_id: CohereLabs/Global-MMLU
+    - id: hle
+      label: Humanity's Last Exam
+      loader: hle
+      icon: "🎓"
+      archetype: academic_qa
+      hf_id: cais/hle
+      row_count: 2500
   code:
     - id: livecodebench_v6
       label: LiveCodeBench v6
