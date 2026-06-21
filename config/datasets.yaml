@@ -25,6 +25,12 @@ categories:
       icon: "🌍"
       archetype: mcq_multilingual
       hf_id: CohereLabs/Global-MMLU
+    - id: mmmlu
+      label: MMMLU
+      loader: mmmlu
+      icon: "🌐"
+      archetype: mcq_multilingual
+      hf_id: openai/MMMLU
     - id: aime_2026
       label: AIME 2026
       loader: aime_2026
