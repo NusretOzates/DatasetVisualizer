@@ -28,6 +28,22 @@ class DatasetEntry(BaseModel):
     docs: str | None = None
     row_count: int | None = None
 
+    @field_validator("row_count", mode="before")
+    @classmethod
+    def _non_negative_row_count(cls, value: object) -> object:
+        if value is None:
+            return None
+        if isinstance(value, bool):
+            msg = "row_count must be a non-negative integer, not a boolean."
+            raise ValueError(msg)
+        if not isinstance(value, int):
+            msg = "row_count must be a non-negative integer."
+            raise ValueError(msg)
+        if value < 0:
+            msg = "row_count must be non-negative."
+            raise ValueError(msg)
+        return value
+
     @field_validator("id", "label", "loader")
     @classmethod
     def _non_empty(cls, value: str) -> str:
