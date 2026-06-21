@@ -37,7 +37,7 @@ uv run dataset-viz
 | Code | SWE-Bench PRO | `Contextbench/SWE-bench_Pro` |
 | Math | ArXiv Math 0526 | `MathArena/arxivmath-0526` + `MathArena/arxivmath-0526_outputs` |
 
-Configuration lives in [`config/datasets.yaml`](config/datasets.yaml). Add datasets by following [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md).
+Configuration lives in [`config/datasets.yaml`](config/datasets.yaml). To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md).
 
 Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
