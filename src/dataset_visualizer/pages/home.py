@@ -24,7 +24,10 @@ def _row_count(loader_name: str) -> str:
     try:
         df = load_dataset_frame(loader_name)
         if df is not None:
-            return f"{len(df):,}"
+            count = f"{len(df):,}"
+            if loader_name == "arxivmath":
+                return f"{count} problems"
+            return count
     except Exception:
         return "error"
     return "—"
@@ -50,4 +53,4 @@ for category, datasets in config.categories.items():
             }
         )
 
-st.dataframe(rows, use_container_width=True, hide_index=True)
+st.dataframe(rows, width="stretch", hide_index=True)

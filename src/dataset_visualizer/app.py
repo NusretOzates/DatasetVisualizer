@@ -16,7 +16,7 @@ def main() -> None:
     """Run the Dataset Visualizer Streamlit app."""
     st.set_page_config(page_title="Dataset Visualizer", layout="wide")
     config = load_config()
-    home = st.Page(str(PAGES_ROOT / "home.py"), title="Home", icon=":house:", default=True)
+    home = st.Page(str(PAGES_ROOT / "home.py"), title="Home", icon="🏠", default=True)
     nav = build_navigation(config)
     pg = st.navigation({"": [home], **nav})
     pg.run()

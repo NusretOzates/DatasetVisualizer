@@ -10,12 +10,14 @@ dependencies = [
     "pandas>=2.0.0",
     "plotly>=6.0.0",
     "pydantic>=2.0.0",
+    "python-dotenv>=1.2.2",
     "pyyaml>=6.0.0",
     "streamlit>=1.58.0",
+    "watchdog>=6.0.0",
 ]
 
 [project.scripts]
-dataset-viz = "dataset_visualizer.app:main"
+dataset-viz = "dataset_visualizer.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -57,6 +59,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["PLR2004", "D103"]
+"scripts/**/*.py" = ["D103", "PLR0911"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -66,4 +69,4 @@ quote-style = "double"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "scripts"]

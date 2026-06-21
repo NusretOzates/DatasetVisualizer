@@ -17,16 +17,16 @@ categories:
       hf_id: org/my-dataset
 ```
 
-New top-level category keys appear automatically in the sidebar (title-cased).
+New top-level category keys appear automatically in the sidebar (title-cased). The `id` field is the page filename stem (`pages/<category>/<id>.py`) and the inspect CLI argument.
 
 ## 2. Implement loader
 
 Create `src/dataset_visualizer/loaders/<loader>.py`:
 
 - Use `@st.cache_data` with a spinner message
-- Call `cache_dir("<dataset_id>")` from `loaders/base.py`
+- Call `cache_dir("<cache_key>")` from `loaders/base.py` (usually matches the loader name)
 - Return a normalized `pandas.DataFrame`
-- Register the function in `LOADER_REGISTRY` in `registry.py`
+- Register the function in `LOADER_REGISTRY` in [`registry.py`](../src/dataset_visualizer/registry.py)
 
 ## 3. Create page
 
@@ -34,12 +34,28 @@ Create `src/dataset_visualizer/pages/<category>/<id>.py`:
 
 - Compose `render_dataset_page()` from `components/page_layout.py`
 - Implement `render_overview()` and `render_sample()` callbacks
-- Reuse shared components (`mcq_viewer`, `charts`, etc.) where possible
+- Reuse shared components where possible:
+  - `mcq_viewer` — MMLU-style MCQ
+  - `code_problem_viewer` — LiveCodeBench-style code problems
+  - `charts` — Plotly overview charts
 
-Copy the closest existing page for your dataset archetype (MCQ → `mmlu.py`, code → `livecodebench_v6.py`, etc.).
+Copy the closest existing page for your dataset archetype:
 
-## 4. Add tests
+| Archetype | Copy from |
+|-----------|-----------|
+| MCQ | `pages/reasoning/mmlu.py` |
+| MCQ + CoT | `pages/reasoning/mmlu_pro.py` |
+| Code generation | `pages/code/livecodebench_v6.py` |
+| Math + model runs | `pages/math/arxivmath_0526.py` |
 
-Create `tests/test_loaders_<id>.py` with mocked Hugging Face downloads. Use small fixtures under `tests/fixtures/`.
+## 4. Add tests and docs
 
-Optionally add `docs/datasets/<id>.md` with schema notes after inspecting real data.
+Create `tests/test_loaders_<loader>.py` with mocked Hugging Face downloads. Use small fixtures under `tests/fixtures/`.
+
+Add `docs/datasets/<short_name>.md` with schema notes. Run the inspect CLI on real data to populate fields:
+
+```bash
+uv run python scripts/inspect_dataset.py <dataset_id>
+```
+
+Link the new doc from [`docs/index.md`](index.md).

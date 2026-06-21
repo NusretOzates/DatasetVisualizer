@@ -17,17 +17,26 @@ Internal developer documentation for the Dataset Visualizer project.
 config/datasets.yaml  →  config.py (Pydantic)
                       →  registry.py (loaders + navigation)
                       →  app.py (st.navigation)
-pages/<category>/<id>.py  →  loaders/<id>.py  →  data/cache/<id>/
+pages/<category>/<id>.py  →  loaders/<loader>.py  →  data/cache/<cache_key>/
 ```
 
 Shared UI building blocks live under `src/dataset_visualizer/components/`:
 
 - `page_layout.py` — Overview + Sample Inspector tabs
 - `sample_navigator.py` — index slider, prev/next, ID search
-- `charts.py` — Plotly bar, histogram, pie, timeline
+- `charts.py` — Plotly bar, histogram, pie, timeline, scatter
 - `mcq_viewer.py` — multiple-choice question rendering
+- `code_problem_viewer.py` — code problem statement and test cases
 
-Navigation is **config-driven**: new datasets require a YAML entry, loader, and page module — not changes to `app.py`.
+Navigation is **config-driven**: new datasets require a YAML entry, loader, registry line, and page module — not changes to `app.py`.
+
+## Inspect CLI
+
+```bash
+uv run python scripts/inspect_dataset.py <dataset_id>
+```
+
+Valid ids match `config/datasets.yaml` entries: `mmlu`, `mmlu_pro`, `livecodebench_v6`, `arxivmath_0526`.
 
 ## Run
 

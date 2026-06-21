@@ -42,24 +42,36 @@ def sample_navigator(
     if state_key not in st.session_state:
         st.session_state[state_key] = 0
 
+    max_idx = max(0, total - 1)
+    st.session_state[state_key] = min(st.session_state[state_key], max_idx)
+
     col_prev, col_slider, col_next = st.columns([1, 4, 1])
 
     with col_prev:
-        if st.button("◀ Prev", key=f"{key_prefix}_prev"):
-            st.session_state[state_key] = max(0, st.session_state[state_key] - 1)
+        if st.button(
+            "◀ Prev",
+            key=f"{key_prefix}_prev",
+            disabled=st.session_state[state_key] <= 0,
+        ):
+            st.session_state[state_key] -= 1
+            st.rerun()
 
     with col_next:
-        if st.button("Next ▶", key=f"{key_prefix}_next"):
-            st.session_state[state_key] = min(total - 1, st.session_state[state_key] + 1)
+        if st.button(
+            "Next ▶",
+            key=f"{key_prefix}_next",
+            disabled=st.session_state[state_key] >= max_idx,
+        ):
+            st.session_state[state_key] += 1
+            st.rerun()
 
     with col_slider:
         st.session_state[state_key] = st.slider(
             "Sample index",
             min_value=0,
-            max_value=total - 1,
-            value=min(st.session_state[state_key], total - 1),
-            key=f"{key_prefix}_slider",
+            max_value=max_idx,
+            value=st.session_state[state_key],
         )
 
-    idx = st.session_state[state_key]
+    idx = int(st.session_state[state_key])
     return navigable.iloc[idx], idx, total

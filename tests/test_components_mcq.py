@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from dataset_visualizer.components.mcq_viewer import format_options, resolve_correct_letter
@@ -33,3 +34,10 @@ def test_format_options_filters_na() -> None:
 def test_format_options_empty_input() -> None:
     assert format_options(None) == []
     assert format_options([]) == []
+
+
+def test_format_options_numpy_array() -> None:
+    choices = np.array(["Option A", "Option B", "Option C", "Option D"])
+    options = format_options(choices)
+    assert len(options) == 4
+    assert options[0] == ("A", "Option A")

@@ -10,7 +10,10 @@ import pandas as pd
 import streamlit as st
 
 from dataset_visualizer.config import AppConfig, DatasetEntry, get_dataset_by_id, load_config
+from dataset_visualizer.loaders.arxivmath import load_problems
+from dataset_visualizer.loaders.livecodebench import load_livecodebench
 from dataset_visualizer.loaders.mmlu import load_mmlu
+from dataset_visualizer.loaders.mmlu_pro import load_mmlu_pro
 
 if TYPE_CHECKING:
     from streamlit.navigation.page import StreamlitPage
@@ -18,7 +21,10 @@ if TYPE_CHECKING:
 PAGES_ROOT = Path(__file__).resolve().parent / "pages"
 
 LOADER_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+    "arxivmath": load_problems,
+    "livecodebench": load_livecodebench,
     "mmlu": load_mmlu,
+    "mmlu_pro": load_mmlu_pro,
 }
 
 

@@ -24,3 +24,7 @@
 ## Loader
 
 `load_dataset("cais/mmlu", "all", split="test")` by default. Page sidebar allows `test`, `validation`, or `dev`.
+
+## Cache
+
+`data/cache/mmlu/`
