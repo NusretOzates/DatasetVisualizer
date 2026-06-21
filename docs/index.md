@@ -17,6 +17,7 @@ Per-dataset schema and visualization notes:
 - [Global-MMLU](datasets/global_mmlu.md)
 - [MMMLU](datasets/mmmlu.md)
 - [AIME 2026](datasets/aime_2026.md)
+- [Humanity's Last Exam](datasets/hle.md)
 - [LiveCodeBench v6](datasets/livecodebench.md)
 - [SWE-Bench](datasets/swe_bench.md)
 - [ArXiv Math 0526](datasets/arxivmath.md)

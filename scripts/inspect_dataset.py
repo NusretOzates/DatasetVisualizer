@@ -22,6 +22,7 @@ LOADER_CACHE_KEYS: dict[str, str] = {
     "gpqa": "gpqa",
     "global_mmlu": "global_mmlu",
     "mmmlu": "mmmlu",
+    "hle": "hle",
     "livecodebench": "livecodebench",
     "arxivmath": "arxivmath",
     "swe_bench_verified": "swe_bench",

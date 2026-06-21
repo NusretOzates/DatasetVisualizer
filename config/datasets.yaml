@@ -38,6 +38,13 @@ categories:
       archetype: math_competition
       hf_id: MathArena/aime_2026
       row_count: 30
+    - id: hle
+      label: Humanity's Last Exam
+      loader: hle
+      icon: "🎓"
+      archetype: academic_qa
+      hf_id: cais/hle
+      row_count: 2500
   code:
     - id: livecodebench_v6
       label: LiveCodeBench v6
