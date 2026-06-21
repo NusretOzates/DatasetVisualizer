@@ -16,6 +16,7 @@ from dataset_visualizer.registry import LOADER_REGISTRY
 MAX_VALUE_LEN = 200
 
 LOADER_CACHE_KEYS: dict[str, str] = {
+    "aime_2026": "aime_2026",
     "mmlu": "mmlu",
     "mmlu_pro": "mmlu_pro",
     "gpqa": "gpqa",
