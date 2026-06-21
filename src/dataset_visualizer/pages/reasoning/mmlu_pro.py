@@ -95,6 +95,7 @@ render_dataset_page(
     id_column="question_id",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="mmlu_pro",
     sidebar_filters=_sidebar_filters,
     key_prefix="mmlu_pro",
 )

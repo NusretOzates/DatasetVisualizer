@@ -17,6 +17,7 @@ class DatasetEntry(BaseModel):
     id: str
     label: str
     loader: str
+    description: str
     icon: str | None = None
     archetype: str | None = None
     hf_id: str | None = None
@@ -44,11 +45,11 @@ class DatasetEntry(BaseModel):
             raise ValueError(msg)
         return value
 
-    @field_validator("id", "label", "loader")
+    @field_validator("id", "label", "loader", "description")
     @classmethod
     def _non_empty(cls, value: str) -> str:
         if not value.strip():
-            msg = "Dataset entry fields id, label, and loader must be non-empty."
+            msg = "Dataset entry fields id, label, loader, and description must be non-empty."
             raise ValueError(msg)
         return value
 

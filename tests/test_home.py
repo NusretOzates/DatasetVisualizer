@@ -15,6 +15,7 @@ def _entry(**overrides: object) -> DatasetEntry:
         "id": "gpqa_diamond",
         "label": "GPQA Diamond",
         "loader": "gpqa",
+        "description": "Graduate-level science MCQ benchmark.",
     }
     data.update(overrides)
     return DatasetEntry.model_validate(data)

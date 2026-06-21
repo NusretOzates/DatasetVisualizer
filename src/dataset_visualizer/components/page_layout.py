@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from dataset_visualizer.components.sample_navigator import sample_navigator
+from dataset_visualizer.config import get_dataset_by_id, load_config
 
 
 def render_dataset_page(
@@ -16,6 +17,7 @@ def render_dataset_page(
     id_column: str,
     render_overview: Callable[[pd.DataFrame], None],
     render_sample: Callable[[pd.Series], None],
+    dataset_id: str,
     sidebar_filters: Callable[[pd.DataFrame], pd.DataFrame] | None = None,
     key_prefix: str = "page",
 ) -> None:
@@ -27,10 +29,14 @@ def render_dataset_page(
         id_column: Column used for sample ID search.
         render_overview: Callback for the Overview tab content.
         render_sample: Callback for a single sample row.
+        dataset_id: Config dataset id used to render the page description.
         sidebar_filters: Optional callback that returns a filtered DataFrame.
         key_prefix: Widget key prefix passed to the sample navigator.
     """
     st.title(title)
+    entry = get_dataset_by_id(load_config(), dataset_id)
+    if entry is not None:
+        st.markdown(entry.description)
 
     filtered = sidebar_filters(df) if sidebar_filters else df
 
