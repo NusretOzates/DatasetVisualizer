@@ -156,6 +156,7 @@ render_dataset_page(
     id_column="id",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="hle",
     sidebar_filters=_sidebar_filters,
     key_prefix="hle",
 )

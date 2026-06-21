@@ -76,6 +76,7 @@ render_dataset_page(
     id_column="instance_id",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="swe_bench_pro",
     sidebar_filters=_sidebar_filters,
     key_prefix="swe_pro",
 )

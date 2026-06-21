@@ -6,12 +6,18 @@ categories:
       icon: "🧠"
       archetype: mcq
       hf_id: cais/mmlu
+      description: >
+        Massive Multitask Language Understanding benchmark covering 57 subjects
+        across STEM, humanities, and social sciences via multiple-choice questions.
     - id: mmlu_pro
       label: MMLU-Pro
       loader: mmlu_pro
       icon: "🧠"
       archetype: mcq_cot
       hf_id: TIGER-Lab/MMLU-Pro
+      description: >
+        Harder multiple-choice benchmark with more difficult questions and
+        chain-of-thought reasoning, extending the original MMLU format.
     - id: gpqa_diamond
       label: GPQA Diamond
       loader: gpqa
@@ -19,18 +25,27 @@ categories:
       archetype: mcq
       hf_id: Idavidrein/gpqa
       row_count: 198
+      description: >
+        Graduate-level science multiple-choice questions from the GPQA Diamond
+        subset; gated on Hugging Face and requires accepted dataset terms.
     - id: global_mmlu
       label: Global-MMLU
       loader: global_mmlu
       icon: "🌍"
       archetype: mcq_multilingual
       hf_id: CohereLabs/Global-MMLU
+      description: >
+        Multilingual extension of MMLU from Cohere Labs with per-locale configs
+        for cross-lingual multiple-choice evaluation.
     - id: mmmlu
       label: MMMLU
       loader: mmmlu
       icon: "🌐"
       archetype: mcq_multilingual
       hf_id: openai/MMMLU
+      description: >
+        OpenAI's Multilingual Massive Multitask Language Understanding benchmark
+        with 14 locale-specific configs for non-English multiple-choice evaluation.
     - id: aime_2026
       label: AIME 2026
       loader: aime_2026
@@ -38,6 +53,9 @@ categories:
       archetype: math_competition
       hf_id: MathArena/aime_2026
       row_count: 30
+      description: >
+        2026 American Invitational Mathematics Examination problems with integer
+        answers from 0 to 999, drawn from the competition math benchmark.
     - id: hle
       label: Humanity's Last Exam
       loader: hle
@@ -45,6 +63,9 @@ categories:
       archetype: academic_qa
       hf_id: cais/hle
       row_count: 2500
+      description: >
+        Comprehensive academic benchmark of 2,500 challenging questions across
+        many subjects, including multimodal items; created by CAIS and Scale AI.
   code:
     - id: livecodebench_v6
       label: LiveCodeBench v6
@@ -54,24 +75,36 @@ categories:
       hf_repo: livecodebench/code_generation_lite
       files:
         - test6.jsonl
+      description: >
+        LiveCodeBench code-generation benchmark (v6 test split) with programming
+        problems, starter code, and public test cases.
     - id: swe_bench_verified
       label: SWE-Bench Verified
       loader: swe_bench_verified
       icon: "🐛"
       archetype: issue_resolution
       hf_id: SWE-bench/SWE-bench_Verified
+      description: >
+        Verified real-world GitHub issues for evaluating automated software
+        repair agents on Python repositories.
     - id: swe_bench_multilingual
       label: SWE-Bench Multilingual
       loader: swe_bench_multilingual
       icon: "🌐"
       archetype: issue_resolution
       hf_id: SWE-bench/SWE-bench_Multilingual
+      description: >
+        Multilingual SWE-Bench variant spanning nine programming languages for
+        cross-language issue-resolution evaluation.
     - id: swe_bench_pro
       label: SWE-Bench PRO
       loader: swe_bench_pro
       icon: "🏢"
       archetype: issue_resolution
       hf_id: Contextbench/SWE-bench_Pro
+      description: >
+        Enterprise-scale SWE-Bench PRO tasks with harder, production-style
+        software engineering issues and richer metadata.
   math:
     - id: arxivmath_0526
       label: ArXiv Math 0526
@@ -80,3 +113,6 @@ categories:
       archetype: math_competition
       problems_hf_id: MathArena/arxivmath-0526
       outputs_hf_id: MathArena/arxivmath-0526_outputs
+      description: >
+        ArXiv math competition problems from May 2026 with optional joined model
+        output runs for comparing generated solutions.

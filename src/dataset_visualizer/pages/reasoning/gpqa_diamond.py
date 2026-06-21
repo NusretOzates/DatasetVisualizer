@@ -40,5 +40,6 @@ render_dataset_page(
     id_column="question",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="gpqa_diamond",
     key_prefix="gpqa",
 )

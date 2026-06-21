@@ -4,10 +4,10 @@
 
 ## Checklist
 
-- [ ] **Config** — add entry to [`config/datasets.yaml`](../config/datasets.yaml) (`id`, `label`, `loader`, `icon`, `archetype`, HF metadata)
+- [ ] **Config** — add entry to [`config/datasets.yaml`](../config/datasets.yaml) (`id`, `label`, `loader`, `description`, `icon`, `archetype`, HF metadata)
 - [ ] **Loader** — `src/dataset_visualizer/loaders/<module>.py` with `@st.cache_data`, `cache_dir()`, normalized `DataFrame`, zero-arg defaults
 - [ ] **Registry** — import + `LOADER_REGISTRY` line in [`registry.py`](../src/dataset_visualizer/registry.py)
-- [ ] **Page** — `src/dataset_visualizer/pages/<category>/<id>.py` using `render_dataset_page()`
+- [ ] **Page** — `src/dataset_visualizer/pages/<category>/<id>.py` using `render_dataset_page()` with `dataset_id="<id>"` (renders the config `description` under the title)
 - [ ] **Inspect CLI** — `LOADER_CACHE_KEYS` in [`scripts/inspect_dataset.py`](../scripts/inspect_dataset.py) if cache key ≠ loader name
 - [ ] **Tests** — `tests/test_loaders_<module>.py` with mocked HF calls and `load_*.clear()`
 - [ ] **Docs** — `docs/datasets/<name>.md`, link from [`index.md`](index.md), update [`README.md`](../README.md) table

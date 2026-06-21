@@ -72,5 +72,6 @@ render_dataset_page(
     id_column="problem_idx",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="aime_2026",
     key_prefix="aime_2026",
 )

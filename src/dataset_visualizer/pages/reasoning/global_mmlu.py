@@ -113,6 +113,7 @@ render_dataset_page(
     id_column="sample_id",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="global_mmlu",
     sidebar_filters=_sidebar_filters,
     key_prefix="global_mmlu",
 )

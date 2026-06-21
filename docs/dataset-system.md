@@ -26,7 +26,7 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 
 | # | File | What to add |
 |---|------|-------------|
-| 1 | `config/datasets.yaml` | YAML entry (`id`, `label`, `loader`, …) |
+| 1 | `config/datasets.yaml` | YAML entry (`id`, `label`, `loader`, `description`, …) |
 | 2 | `src/dataset_visualizer/loaders/<module>.py` | Loader function(s) returning normalized `DataFrame` |
 | 3 | `src/dataset_visualizer/registry.py` | Import + `LOADER_REGISTRY["<loader>"] = <function>` |
 | 4 | `src/dataset_visualizer/pages/<category>/<id>.py` | Streamlit page calling `render_dataset_page()` |
@@ -56,13 +56,14 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 
 ## Config schema (`DatasetEntry`)
 
-Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `loader`.
+Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `loader`, `description`.
 
 | Field | Required | Purpose |
 |-------|----------|---------|
 | `id` | yes | Page filename stem, inspect CLI argument, must be globally unique |
 | `label` | yes | Sidebar and page title |
 | `loader` | yes | Key in `LOADER_REGISTRY` |
+| `description` | yes | Short paragraph shown at the top of the dataset page (1–3 sentences) |
 | `icon` | no | Streamlit sidebar emoji |
 | `archetype` | no | Informational; guides which page template to copy |
 | `hf_id` | no | Shown on home page |
@@ -84,6 +85,9 @@ categories:
       icon: "🧠"
       archetype: mcq
       hf_id: org/my-benchmark
+      description: >
+        One- to three-sentence summary of what the benchmark measures and any
+        access notes (gated, multilingual, etc.).
 ```
 
 ## Loader contract
@@ -164,6 +168,7 @@ render_dataset_page(
     id_column: str,                          # Column for sample ID search
     render_overview: Callable[[pd.DataFrame], None],
     render_sample: Callable[[pd.Series], None],
+    dataset_id: str,                         # Config id; renders description from YAML
     sidebar_filters: Callable[[pd.DataFrame], pd.DataFrame] | None = None,
     key_prefix: str = "page",                # Unique Streamlit widget keys
 )
@@ -171,7 +176,7 @@ render_dataset_page(
 
 Behavior:
 
-- Renders **Overview** and **Sample Inspector** tabs.
+- Renders the page **title**, then the config **`description`** paragraph, then **Overview** and **Sample Inspector** tabs.
 - `sidebar_filters` runs inside the sidebar; return a filtered copy of `df`.
 - Split/language selectors that change **which data is downloaded** belong in the page **before** calling the loader (see Global-MMLU pattern), not as post-hoc filters on a huge frame.
 
@@ -210,6 +215,7 @@ render_dataset_page(
     id_column="sample_id",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="my_benchmark",
     key_prefix="my_bench",
 )
 ```

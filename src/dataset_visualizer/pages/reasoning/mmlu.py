@@ -60,6 +60,7 @@ render_dataset_page(
     id_column="subject",
     render_overview=_render_overview,
     render_sample=_render_sample,
+    dataset_id="mmlu",
     sidebar_filters=_sidebar_filters,
     key_prefix="mmlu",
 )

@@ -229,6 +229,7 @@ render_dataset_page(
     id_column="problem_idx",
     render_overview=_overview_callback,
     render_sample=_sample_callback,
+    dataset_id="arxivmath_0526",
     sidebar_filters=_sidebar_filters,
     key_prefix="arxivmath",
 )
