@@ -16,6 +16,7 @@ from dataset_visualizer.loaders.gpqa import load_gpqa_diamond
 from dataset_visualizer.loaders.livecodebench import load_livecodebench
 from dataset_visualizer.loaders.mmlu import load_mmlu
 from dataset_visualizer.loaders.mmlu_pro import load_mmlu_pro
+from dataset_visualizer.loaders.mmmlu import load_mmmlu
 from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_multilingual,
     load_swe_bench_pro,
@@ -34,6 +35,7 @@ LOADER_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "livecodebench": load_livecodebench,
     "mmlu": load_mmlu,
     "mmlu_pro": load_mmlu_pro,
+    "mmmlu": load_mmmlu,
     "swe_bench_multilingual": load_swe_bench_multilingual,
     "swe_bench_pro": load_swe_bench_pro,
     "swe_bench_verified": load_swe_bench_verified,

@@ -222,7 +222,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 |-----------|-----------------------------------|------------|----------------|-------------|
 | `mcq` | `question`, `choices` (list[str]), `answer_letter` (A–D) | `mcq_viewer`, `charts` | `mmlu`, `gpqa_diamond` | `subject` or `sample_id` |
 | `mcq_cot` | Above + `cot_content` or chain-of-thought field | `mcq_viewer`, expander for CoT | `mmlu_pro` | `question_id` |
-| `mcq_multilingual` | MCQ columns + `language`, `split` | `mcq_viewer`, language selectbox before load | `global_mmlu` | `sample_id` |
+| `mcq_multilingual` | MCQ columns + `language`, `split` | `mcq_viewer`, language selectbox before load | `global_mmlu`, `mmmlu` | `sample_id` |
 | `code_problem` | `question_content`, `starter_code`, `public_test_cases` (parsed list), metadata | `code_problem_viewer`, `charts` | `livecodebench_v6` | `question_id` |
 | `issue_resolution` | `instance_id`, `repo`, `problem_statement`, `patch`, `test_patch`, `fail_to_pass`/`pass_to_pass` (parsed lists) | `issue_viewer`, `charts` | `swe_bench_verified` | `instance_id` |
 | `math_competition` | Problem fields + optional joined model outputs | Custom expanders | `arxivmath_0526` | `problem_idx` |
@@ -250,6 +250,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `mmlu_pro` | reasoning | `mmlu_pro` | mcq_cot | `mmlu_pro` |
 | `gpqa_diamond` | reasoning | `gpqa` | mcq | `gpqa` |
 | `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `global_mmlu` |
+| `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mmmlu` |
 | `livecodebench_v6` | code | `livecodebench` | code_problem | `livecodebench` |
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `swe_bench` |
 | `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `swe_bench` |
