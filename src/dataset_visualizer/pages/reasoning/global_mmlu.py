@@ -15,6 +15,7 @@ from dataset_visualizer.loaders.global_mmlu import (
     list_global_mmlu_languages,
     load_global_mmlu,
 )
+from dataset_visualizer.row_values import has_display_value
 
 SPLIT_OPTIONS = ("dev", "test")
 POPULAR_LANGUAGES = ("en", "es", "fr", "de", "zh", "ja", "ko", "pt", "ar", "hi")
@@ -57,7 +58,7 @@ def _render_sample(row: pd.Series) -> None:
     render_mcq(row)
     with st.expander("Annotations"):
         for field in ("required_knowledge", "culture", "region", "country", "time_sensitive"):
-            if field in row.index and pd.notna(row[field]):
+            if field in row.index and has_display_value(row[field]):
                 st.write(f"**{field}:** {row[field]}")
     with st.expander("Raw JSON"):
         st.json(json.loads(row.to_json()))
