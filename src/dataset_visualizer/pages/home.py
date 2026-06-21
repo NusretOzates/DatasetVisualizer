@@ -5,7 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dataset_visualizer.config import load_config
-from dataset_visualizer.registry import LOADER_REGISTRY, load_dataset_frame
+from dataset_visualizer.row_count import row_count
 
 
 def _hf_source(entry: object) -> str:
@@ -14,22 +14,6 @@ def _hf_source(entry: object) -> str:
         value = getattr(entry, attr, None)
         if value:
             return str(value)
-    return "—"
-
-
-def _row_count(loader_name: str) -> str:
-    """Return row count from loader if registered, otherwise a placeholder."""
-    if loader_name not in LOADER_REGISTRY:
-        return "—"
-    try:
-        df = load_dataset_frame(loader_name)
-        if df is not None:
-            count = f"{len(df):,}"
-            if loader_name == "arxivmath":
-                return f"{count} problems"
-            return count
-    except Exception:
-        return "error"
     return "—"
 
 
@@ -49,7 +33,7 @@ for category, datasets in config.categories.items():
                 "Dataset": entry.label,
                 "HF Source": _hf_source(entry),
                 "Archetype": entry.archetype or "—",
-                "Rows": _row_count(entry.loader),
+                "Rows": row_count(entry),
             }
         )
 

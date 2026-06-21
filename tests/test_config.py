@@ -22,6 +22,27 @@ def test_dataset_entry_requires_core_fields() -> None:
         DatasetEntry.model_validate({"id": "", "label": "X", "loader": "x"})
 
 
+def test_dataset_entry_accepts_optional_row_count() -> None:
+    entry = DatasetEntry.model_validate(
+        {"id": "gpqa_diamond", "label": "GPQA Diamond", "loader": "gpqa", "row_count": 198}
+    )
+    assert entry.row_count == 198
+
+
+def test_dataset_entry_rejects_negative_row_count() -> None:
+    with pytest.raises(ValidationError):
+        DatasetEntry.model_validate(
+            {"id": "gpqa_diamond", "label": "GPQA Diamond", "loader": "gpqa", "row_count": -1}
+        )
+
+
+def test_dataset_entry_rejects_boolean_row_count() -> None:
+    with pytest.raises(ValidationError):
+        DatasetEntry.model_validate(
+            {"id": "gpqa_diamond", "label": "GPQA Diamond", "loader": "gpqa", "row_count": True}
+        )
+
+
 def test_duplicate_dataset_ids_rejected(tmp_path: Path) -> None:
     data = {
         "categories": {

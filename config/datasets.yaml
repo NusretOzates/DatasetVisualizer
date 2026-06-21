@@ -18,6 +18,7 @@ categories:
       icon: "💎"
       archetype: mcq
       hf_id: Idavidrein/gpqa
+      row_count: 198
     - id: global_mmlu
       label: Global-MMLU
       loader: global_mmlu
