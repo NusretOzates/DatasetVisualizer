@@ -44,7 +44,7 @@ Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
 ## Cache
 
-Downloaded data is cached under `data/cache/<loader_key>/` (gitignored). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse the cache via Streamlit `@st.cache_data`.
+Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse Streamlit `@st.cache_data` and the Hugging Face cache.
 
 ## Inspect CLI
 
