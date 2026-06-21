@@ -9,7 +9,7 @@ from dataset_visualizer.registry import load_dataset_frame
 def format_row_count(count: int, loader_name: str) -> str:
     """Format a row count for the home page table."""
     formatted = f"{count:,}"
-    if loader_name == "arxivmath":
+    if loader_name in {"arxivmath", "aime_2026"}:
         return f"{formatted} problems"
     return formatted
 

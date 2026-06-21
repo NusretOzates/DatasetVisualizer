@@ -25,6 +25,19 @@ categories:
       icon: "🌍"
       archetype: mcq_multilingual
       hf_id: CohereLabs/Global-MMLU
+    - id: mmmlu
+      label: MMMLU
+      loader: mmmlu
+      icon: "🌐"
+      archetype: mcq_multilingual
+      hf_id: openai/MMMLU
+    - id: aime_2026
+      label: AIME 2026
+      loader: aime_2026
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: MathArena/aime_2026
+      row_count: 30
     - id: hle
       label: Humanity's Last Exam
       loader: hle

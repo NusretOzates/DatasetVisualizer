@@ -31,6 +31,8 @@ uv run dataset-viz
 | Reasoning | MMLU-Pro | `TIGER-Lab/MMLU-Pro` |
 | Reasoning | GPQA Diamond | `Idavidrein/gpqa` (`gpqa_diamond`) |
 | Reasoning | Global-MMLU | `CohereLabs/Global-MMLU` |
+| Reasoning | MMMLU | `openai/MMMLU` |
+| Reasoning | AIME 2026 | `MathArena/aime_2026` |
 | Reasoning | Humanity's Last Exam | `cais/hle` |
 | Code | LiveCodeBench v6 | `livecodebench/code_generation_lite` (`test6.jsonl`) |
 | Code | SWE-Bench Verified | `SWE-bench/SWE-bench_Verified` |
@@ -44,7 +46,7 @@ Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
 ## Cache
 
-Downloaded data is cached under `data/cache/<loader_key>/` (gitignored). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `hle`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse the cache via Streamlit `@st.cache_data`.
+Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `aime_2026`, `hle`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse Streamlit `@st.cache_data` and the Hugging Face cache.
 
 ## Inspect CLI
 
@@ -55,6 +57,8 @@ uv run python scripts/inspect_dataset.py mmlu
 uv run python scripts/inspect_dataset.py mmlu_pro
 uv run python scripts/inspect_dataset.py gpqa_diamond
 uv run python scripts/inspect_dataset.py global_mmlu
+uv run python scripts/inspect_dataset.py mmmlu
+uv run python scripts/inspect_dataset.py aime_2026
 uv run python scripts/inspect_dataset.py hle
 uv run python scripts/inspect_dataset.py livecodebench_v6
 uv run python scripts/inspect_dataset.py swe_bench_verified

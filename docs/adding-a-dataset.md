@@ -22,10 +22,11 @@ See the [archetype reference](dataset-system.md#archetype-reference) in `dataset
 |-----------|----------------|
 | MCQ | `mmlu` |
 | MCQ + CoT | `mmlu_pro` |
-| MCQ multilingual | `global_mmlu` |
+| MCQ multilingual | `global_mmlu`, `mmmlu` |
 | Code generation | `livecodebench_v6` |
 | Issue resolution | `swe_bench_verified` |
 | Math + model runs | `arxivmath_0526` |
+| Math final-answer | `aime_2026` |
 
 ## Verify
 
