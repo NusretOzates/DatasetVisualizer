@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pandas as pd
 import pytest
 
@@ -84,3 +86,25 @@ def test_load_hle(monkeypatch: pytest.MonkeyPatch) -> None:
     assert not df.loc[0, "has_image"]
     assert df.loc[1, "has_image"]
     assert df.loc[1, "answer_type"] == ANSWER_TYPE_MULTIPLE_CHOICE
+
+
+def test_hle_row_to_dict_is_json_displayable() -> None:
+    """Regression: ``Series.to_json()`` fails on ``image_preview`` JPEG bytes."""
+    row = pd.Series(
+        {
+            **SAMPLE_ROW,
+            "image": "data:image/png;base64,abc",
+            "image_preview": {"bytes": b"\xff\xd8\xff\xe0\x00\x10JFIF", "path": None},
+            "rationale_image": None,
+            "has_image": True,
+            "split": "test",
+        }
+    )
+
+    with pytest.raises(OverflowError):
+        row.to_json()
+
+    payload = json.dumps(row.to_dict(), default=repr)
+    parsed = json.loads(payload)
+    assert parsed["id"] == "q1"
+    assert "bytes" in parsed["image_preview"]

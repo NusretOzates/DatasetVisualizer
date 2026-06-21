@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 import pandas as pd
 import streamlit as st
 
@@ -93,7 +91,7 @@ def _render_sample(row: pd.Series) -> None:
                 st.image(rationale_image, caption="Rationale image")
 
     with st.expander("Raw JSON"):
-        st.json(json.loads(row.to_json()))
+        st.json(row.to_dict())
 
 
 def _sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
