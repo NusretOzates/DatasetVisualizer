@@ -26,6 +26,7 @@ class DatasetEntry(BaseModel):
     outputs_hf_id: str | None = None
     license: str | None = None
     docs: str | None = None
+    row_count: int | None = None
 
     @field_validator("id", "label", "loader")
     @classmethod

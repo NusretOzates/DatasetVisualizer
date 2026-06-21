@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from dataset_visualizer.config import load_config
+from dataset_visualizer.config import DatasetEntry, load_config
 from dataset_visualizer.registry import LOADER_REGISTRY, load_dataset_frame
 
 
@@ -17,19 +17,28 @@ def _hf_source(entry: object) -> str:
     return "—"
 
 
-def _row_count(loader_name: str) -> str:
-    """Return row count from loader if registered, otherwise a placeholder."""
-    if loader_name not in LOADER_REGISTRY:
-        return "—"
-    try:
-        df = load_dataset_frame(loader_name)
-        if df is not None:
-            count = f"{len(df):,}"
-            if loader_name == "arxivmath":
-                return f"{count} problems"
-            return count
-    except Exception:
-        return "error"
+def _format_row_count(count: int, loader_name: str) -> str:
+    """Format a row count for the home page table."""
+    formatted = f"{count:,}"
+    if loader_name == "arxivmath":
+        return f"{formatted} problems"
+    return formatted
+
+
+def _row_count(entry: DatasetEntry) -> str:
+    """Return row count from loader, falling back to config when loading fails."""
+    loader_name = entry.loader
+    if loader_name in LOADER_REGISTRY:
+        try:
+            df = load_dataset_frame(loader_name)
+            if df is not None:
+                return _format_row_count(len(df), loader_name)
+        except Exception:
+            if entry.row_count is not None:
+                return _format_row_count(entry.row_count, loader_name)
+            return "error"
+    if entry.row_count is not None:
+        return _format_row_count(entry.row_count, loader_name)
     return "—"
 
 
@@ -49,7 +58,7 @@ for category, datasets in config.categories.items():
                 "Dataset": entry.label,
                 "HF Source": _hf_source(entry),
                 "Archetype": entry.archetype or "—",
-                "Rows": _row_count(entry.loader),
+                "Rows": _row_count(entry),
             }
         )
 
