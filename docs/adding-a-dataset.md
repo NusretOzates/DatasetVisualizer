@@ -1,61 +1,36 @@
 # Adding a Dataset
 
-Follow these four steps to register a new dataset. No changes to `app.py` are required after the initial framework.
+**Start here:** [`dataset-system.md`](dataset-system.md) — full reference with contracts, templates, archetype table, and pitfalls. You should not need to read loader/page source files if you follow that doc.
 
-## 1. Register in config
+## Checklist
 
-Add an entry under an existing or new category in [`config/datasets.yaml`](../config/datasets.yaml):
+- [ ] **Config** — add entry to [`config/datasets.yaml`](../config/datasets.yaml) (`id`, `label`, `loader`, `icon`, `archetype`, HF metadata)
+- [ ] **Loader** — `src/dataset_visualizer/loaders/<module>.py` with `@st.cache_data`, `cache_dir()`, normalized `DataFrame`, zero-arg defaults
+- [ ] **Registry** — import + `LOADER_REGISTRY` line in [`registry.py`](../src/dataset_visualizer/registry.py)
+- [ ] **Page** — `src/dataset_visualizer/pages/<category>/<id>.py` using `render_dataset_page()`
+- [ ] **Inspect CLI** — `LOADER_CACHE_KEYS` in [`scripts/inspect_dataset.py`](../scripts/inspect_dataset.py) if cache key ≠ loader name
+- [ ] **Tests** — `tests/test_loaders_<module>.py` with mocked HF calls and `load_*.clear()`
+- [ ] **Docs** — `docs/datasets/<name>.md`, link from [`index.md`](index.md), update [`README.md`](../README.md) table
 
-```yaml
-categories:
-  reasoning:
-    - id: my_dataset
-      label: My Dataset
-      loader: my_dataset
-      icon: ":brain:"
-      archetype: mcq
-      hf_id: org/my-dataset
-```
+`app.py` does **not** need changes.
 
-New top-level category keys appear automatically in the sidebar (title-cased). The `id` field is the page filename stem (`pages/<category>/<id>.py`) and the inspect CLI argument.
+## Pick an archetype
 
-## 2. Implement loader
+See the [archetype reference](dataset-system.md#archetype-reference) in `dataset-system.md` for normalized columns, components, and which existing `id` to mirror.
 
-Create `src/dataset_visualizer/loaders/<loader>.py`:
+| Archetype | Reference `id` |
+|-----------|----------------|
+| MCQ | `mmlu` |
+| MCQ + CoT | `mmlu_pro` |
+| MCQ multilingual | `global_mmlu` |
+| Code generation | `livecodebench_v6` |
+| Issue resolution | `swe_bench_verified` |
+| Math + model runs | `arxivmath_0526` |
 
-- Use `@st.cache_data` with a spinner message
-- Call `cache_dir("<cache_key>")` from `loaders/base.py` (usually matches the loader name)
-- Return a normalized `pandas.DataFrame`
-- Register the function in `LOADER_REGISTRY` in [`registry.py`](../src/dataset_visualizer/registry.py)
-
-## 3. Create page
-
-Create `src/dataset_visualizer/pages/<category>/<id>.py`:
-
-- Compose `render_dataset_page()` from `components/page_layout.py`
-- Implement `render_overview()` and `render_sample()` callbacks
-- Reuse shared components where possible:
-  - `mcq_viewer` — MMLU-style MCQ
-  - `code_problem_viewer` — LiveCodeBench-style code problems
-  - `charts` — Plotly overview charts
-
-Copy the closest existing page for your dataset archetype:
-
-| Archetype | Copy from |
-|-----------|-----------|
-| MCQ | `pages/reasoning/mmlu.py` |
-| MCQ + CoT | `pages/reasoning/mmlu_pro.py` |
-| Code generation | `pages/code/livecodebench_v6.py` |
-| Math + model runs | `pages/math/arxivmath_0526.py` |
-
-## 4. Add tests and docs
-
-Create `tests/test_loaders_<loader>.py` with mocked Hugging Face downloads. Use small fixtures under `tests/fixtures/`.
-
-Add `docs/datasets/<short_name>.md` with schema notes. Run the inspect CLI on real data to populate fields:
+## Verify
 
 ```bash
+uv run pytest
+uv run ruff check src tests scripts
 uv run python scripts/inspect_dataset.py <dataset_id>
 ```
-
-Link the new doc from [`docs/index.md`](index.md).

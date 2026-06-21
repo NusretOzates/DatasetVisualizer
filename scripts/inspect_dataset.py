@@ -18,8 +18,13 @@ MAX_VALUE_LEN = 200
 LOADER_CACHE_KEYS: dict[str, str] = {
     "mmlu": "mmlu",
     "mmlu_pro": "mmlu_pro",
+    "gpqa": "gpqa",
+    "global_mmlu": "global_mmlu",
     "livecodebench": "livecodebench",
     "arxivmath": "arxivmath",
+    "swe_bench_verified": "swe_bench",
+    "swe_bench_multilingual": "swe_bench",
+    "swe_bench_pro": "swe_bench",
 }
 
 
