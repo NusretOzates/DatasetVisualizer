@@ -12,6 +12,18 @@ categories:
       icon: "🧠"
       archetype: mcq_cot
       hf_id: TIGER-Lab/MMLU-Pro
+    - id: gpqa_diamond
+      label: GPQA Diamond
+      loader: gpqa
+      icon: "💎"
+      archetype: mcq
+      hf_id: Idavidrein/gpqa
+    - id: global_mmlu
+      label: Global-MMLU
+      loader: global_mmlu
+      icon: "🌍"
+      archetype: mcq_multilingual
+      hf_id: CohereLabs/Global-MMLU
   code:
     - id: livecodebench_v6
       label: LiveCodeBench v6
@@ -21,6 +33,24 @@ categories:
       hf_repo: livecodebench/code_generation_lite
       files:
         - test6.jsonl
+    - id: swe_bench_verified
+      label: SWE-Bench Verified
+      loader: swe_bench_verified
+      icon: "🐛"
+      archetype: issue_resolution
+      hf_id: SWE-bench/SWE-bench_Verified
+    - id: swe_bench_multilingual
+      label: SWE-Bench Multilingual
+      loader: swe_bench_multilingual
+      icon: "🌐"
+      archetype: issue_resolution
+      hf_id: SWE-bench/SWE-bench_Multilingual
+    - id: swe_bench_pro
+      label: SWE-Bench PRO
+      loader: swe_bench_pro
+      icon: "🏢"
+      archetype: issue_resolution
+      hf_id: Contextbench/SWE-bench_Pro
   math:
     - id: arxivmath_0526
       label: ArXiv Math 0526

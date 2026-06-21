@@ -8,7 +8,10 @@ Internal developer documentation for the Dataset Visualizer project.
 - [Datasets](datasets/)
   - [MMLU](datasets/mmlu.md)
   - [MMLU-Pro](datasets/mmlu_pro.md)
+  - [GPQA Diamond](datasets/gpqa_diamond.md)
+  - [Global-MMLU](datasets/global_mmlu.md)
   - [LiveCodeBench v6](datasets/livecodebench.md)
+  - [SWE-Bench](datasets/swe_bench.md)
   - [ArXiv Math 0526](datasets/arxivmath.md)
 
 ## Architecture
@@ -36,7 +39,7 @@ Navigation is **config-driven**: new datasets require a YAML entry, loader, regi
 uv run python scripts/inspect_dataset.py <dataset_id>
 ```
 
-Valid ids match `config/datasets.yaml` entries: `mmlu`, `mmlu_pro`, `livecodebench_v6`, `arxivmath_0526`.
+Valid ids match `config/datasets.yaml` entries: `mmlu`, `mmlu_pro`, `gpqa_diamond`, `global_mmlu`, `livecodebench_v6`, `swe_bench_verified`, `swe_bench_multilingual`, `swe_bench_pro`, `arxivmath_0526`.
 
 ## Run
 

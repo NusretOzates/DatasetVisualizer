@@ -45,7 +45,9 @@ Copy the closest existing page for your dataset archetype:
 |-----------|-----------|
 | MCQ | `pages/reasoning/mmlu.py` |
 | MCQ + CoT | `pages/reasoning/mmlu_pro.py` |
+| MCQ multilingual | `pages/reasoning/global_mmlu.py` |
 | Code generation | `pages/code/livecodebench_v6.py` |
+| Issue resolution | `pages/code/swe_bench_verified.py` |
 | Math + model runs | `pages/math/arxivmath_0526.py` |
 
 ## 4. Add tests and docs
