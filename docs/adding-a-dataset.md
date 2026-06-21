@@ -26,6 +26,7 @@ See the [archetype reference](dataset-system.md#archetype-reference) in `dataset
 | Code generation | `livecodebench_v6` |
 | Issue resolution | `swe_bench_verified` |
 | Math + model runs | `arxivmath_0526` |
+| Math final-answer | `aime_2026` |
 
 ## Verify
 
