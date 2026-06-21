@@ -1,0 +1,8 @@
+[
+  {
+    "question": "What is the capital of France?",
+    "choices": ["London", "Paris", "Berlin", "Madrid"],
+    "answer": 1,
+    "subject": "geography"
+  }
+]

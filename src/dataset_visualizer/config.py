@@ -1,0 +1,90 @@
+"""Load and validate application configuration from YAML."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import yaml
+from pydantic import BaseModel, Field, field_validator
+
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "datasets.yaml"
+
+
+class DatasetEntry(BaseModel):
+    """Metadata for a single dataset registered in the app."""
+
+    id: str
+    label: str
+    loader: str
+    icon: str | None = None
+    archetype: str | None = None
+    hf_id: str | None = None
+    hf_repo: str | None = None
+    files: list[str] | None = None
+    problems_hf_id: str | None = None
+    outputs_hf_id: str | None = None
+    license: str | None = None
+    docs: str | None = None
+
+    @field_validator("id", "label", "loader")
+    @classmethod
+    def _non_empty(cls, value: str) -> str:
+        if not value.strip():
+            msg = "Dataset entry fields id, label, and loader must be non-empty."
+            raise ValueError(msg)
+        return value
+
+
+class AppConfig(BaseModel):
+    """Top-level application configuration."""
+
+    categories: dict[str, list[DatasetEntry]] = Field(default_factory=dict)
+
+    @field_validator("categories")
+    @classmethod
+    def _validate_categories(
+        cls, value: dict[str, list[DatasetEntry]]
+    ) -> dict[str, list[DatasetEntry]]:
+        seen_ids: set[str] = set()
+        for category, datasets in value.items():
+            if not category.strip():
+                msg = "Category keys must be non-empty."
+                raise ValueError(msg)
+            for entry in datasets:
+                if entry.id in seen_ids:
+                    msg = f"Duplicate dataset id: {entry.id}"
+                    raise ValueError(msg)
+                seen_ids.add(entry.id)
+        return value
+
+
+def load_config(path: Path | None = None) -> AppConfig:
+    """Load and validate datasets configuration from YAML.
+
+    Args:
+        path: Path to datasets.yaml. Defaults to the project config file.
+
+    Returns:
+        Validated AppConfig instance.
+
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        ValidationError: If the YAML does not satisfy the schema.
+    """
+    config_path = path or DEFAULT_CONFIG_PATH
+    if not config_path.exists():
+        msg = f"Config file not found: {config_path}"
+        raise FileNotFoundError(msg)
+
+    raw: dict[str, Any] = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    return AppConfig.model_validate(raw)
+
+
+def get_dataset_by_id(config: AppConfig, dataset_id: str) -> DatasetEntry | None:
+    """Look up a dataset entry by its id across all categories."""
+    for datasets in config.categories.values():
+        for entry in datasets:
+            if entry.id == dataset_id:
+                return entry
+    return None

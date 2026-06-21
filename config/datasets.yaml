@@ -1,0 +1,31 @@
+categories:
+  reasoning:
+    - id: mmlu
+      label: MMLU
+      loader: mmlu
+      icon: ":brain:"
+      archetype: mcq
+      hf_id: cais/mmlu
+    - id: mmlu_pro
+      label: MMLU-Pro
+      loader: mmlu_pro
+      icon: ":brain:"
+      archetype: mcq_cot
+      hf_id: TIGER-Lab/MMLU-Pro
+  code:
+    - id: livecodebench_v6
+      label: LiveCodeBench v6
+      loader: livecodebench
+      icon: ":computer:"
+      archetype: code_problem
+      hf_repo: livecodebench/code_generation_lite
+      files:
+        - test6.jsonl
+  math:
+    - id: arxivmath_0526
+      label: ArXiv Math 0526
+      loader: arxivmath
+      icon: ":1234:"
+      archetype: math_competition
+      problems_hf_id: MathArena/arxivmath-0526
+      outputs_hf_id: MathArena/arxivmath-0526_outputs
