@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 
 ANSWER_LETTERS = tuple(chr(ord("A") + i) for i in range(26))
 
@@ -59,33 +58,3 @@ def format_options(choices: object) -> list[tuple[str, str]]:
         options.append((ANSWER_LETTERS[letter_idx], label))
         letter_idx += 1
     return options
-
-
-def render_mcq(
-    row: pd.Series,
-    *,
-    question_col: str = "question",
-    choices_col: str = "choices",
-    answer_col: str = "answer_letter",
-) -> None:
-    """Render a multiple-choice question with the correct answer highlighted."""
-    question = row.get(question_col, "")
-    st.markdown("**Question**")
-    st.write(question)
-
-    choices = row.get(choices_col)
-    correct = resolve_correct_letter(row, answer_col=answer_col)
-    options = format_options(choices)
-
-    if not options:
-        st.warning("No options available for this sample.")
-        return
-
-    for letter, text in options:
-        if letter == correct:
-            st.success(f"**{letter}.** {text}")
-        else:
-            st.write(f"{letter}. {text}")
-
-    if correct:
-        st.caption(f"Correct answer: **{correct}**")

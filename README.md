@@ -1,27 +1,52 @@
 # Dataset Visualizer
 
-Interactive Streamlit app for exploring Hugging Face benchmark datasets with overview charts and per-sample inspection.
+Interactive explorer for Hugging Face benchmark datasets. The app uses a **Gradio Server** backend ([`gradio.Server`](https://huggingface.co/blog/introducing-gradio-server)) and a **Next.js** React frontend.
 
 ## Setup
 
 ```bash
 uv sync
 cp .env.example .env
+cd frontend && npm install
 ```
 
 Set `HF_TOKEN` in `.env` to your [Hugging Face access token](https://huggingface.co/settings/tokens). The app loads `.env` at startup; `huggingface_hub` uses `HF_TOKEN` automatically for faster downloads and higher rate limits. Without a token, downloads still work but may be slower.
 
-## Run
+## Run (development)
 
-```bash
-uv run streamlit run src/dataset_visualizer/app.py
-```
-
-Optional CLI entry point:
+Start the Gradio API backend:
 
 ```bash
 uv run dataset-viz
 ```
+
+In a second terminal, start the Next.js frontend (proxies API calls to port 7860):
+
+```bash
+cd frontend
+NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+Optional direct backend launch:
+
+```bash
+uv run python src/dataset_visualizer/server.py
+```
+
+## Production build
+
+Build the static Next.js export and serve it from the Gradio server:
+
+```bash
+cd frontend
+NEXT_PUBLIC_API_URL=http://localhost:7860 npm run build
+cd ..
+uv run dataset-viz
+```
+
+The backend serves `frontend/out/` at `/` when the build exists.
 
 ## Datasets
 
@@ -46,7 +71,7 @@ Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
 ## Cache
 
-Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `aime_2026`, `hle`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse Streamlit `@st.cache_data` and the Hugging Face cache.
+Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `aime_2026`, `hle`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse in-process loader caching and the Hugging Face cache.
 
 ## Inspect CLI
 
@@ -75,6 +100,7 @@ Prints columns, dtypes, row count, one truncated sample row, and the on-disk cac
 uv run pytest
 uv run ruff check src tests scripts
 uv run ruff format src tests scripts
+cd frontend && npm run lint
 ```
 
 See [`docs/index.md`](docs/index.md) for architecture and per-dataset notes.

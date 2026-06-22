@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 MMLU_HF_ID = "cais/mmlu"
 MMLU_CONFIG = "all"
@@ -22,7 +22,7 @@ def _normalize_answer(answer: int | str) -> str:
     return str(answer)
 
 
-@st.cache_data(show_spinner="Downloading MMLU …")
+@loader_cache(show_spinner="Downloading MMLU …")
 def load_mmlu(split: str = "test", config: str = MMLU_CONFIG) -> pd.DataFrame:
     """Load and normalize the MMLU benchmark dataset.
 

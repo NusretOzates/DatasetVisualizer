@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 from datasets import get_dataset_config_names, load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 MMMLU_HF_ID = "openai/MMMLU"
 DEFAULT_LOCALE = "DE_DE"
@@ -35,7 +35,7 @@ def list_mmmlu_locales() -> list[str]:
     return sorted(name for name in get_dataset_config_names(MMMLU_HF_ID) if name != "default")
 
 
-@st.cache_data(show_spinner="Downloading MMMLU …")
+@loader_cache(show_spinner="Downloading MMMLU …")
 def load_mmmlu(locale: str = DEFAULT_LOCALE, split: str = MMMLU_SPLIT) -> pd.DataFrame:
     """Load and normalize MMMLU for a single locale config.
 

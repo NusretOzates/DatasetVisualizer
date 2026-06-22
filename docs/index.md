@@ -26,24 +26,24 @@ Per-dataset schema and visualization notes:
 
 ```
 config/datasets.yaml  →  config.py (Pydantic)
-                      →  registry.py (LOADER_REGISTRY + build_navigation)
-                      →  app.py (st.navigation — no per-dataset edits)
+                      →  registry.py (LOADER_REGISTRY)
+                      →  api/service.py (dataset handlers + JSON payloads)
+                      →  server.py (gradio.Server API)
+                      →  frontend/ (Next.js React UI)
 
-pages/<category>/<id>.py  →  loaders/<loader>.py  →  data/cache/<cache_key>/
+loaders/<loader>.py  →  data/cache/<cache_key>/
 ```
 
 Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset-system.md).
 
-## Shared components
+## Shared modules
 
 | Module | Purpose |
 |--------|---------|
-| `page_layout.py` | Overview + Sample Inspector tabs (`render_dataset_page`) |
-| `sample_navigator.py` | Index slider, prev/next, ID search |
-| `charts.py` | Plotly bar, histogram, pie, timeline, scatter |
-| `mcq_viewer.py` | Multiple-choice rendering |
-| `code_problem_viewer.py` | Code problems and test cases |
-| `issue_viewer.py` | SWE-bench issues, patches, test lists |
+| `api/service.py` | Dataset loading, filters, overview payloads, sample API |
+| `api/chart_data.py` | Chart JSON builders for the React frontend |
+| `api/serializers.py` | DataFrame/row JSON serialization |
+| `components/mcq_viewer.py` | MCQ helper functions (letter resolution, option formatting) |
 
 Column contracts per archetype: [dataset-system.md § Component column contracts](dataset-system.md#component-column-contracts).
 
@@ -57,6 +57,14 @@ uv run python scripts/inspect_dataset.py <dataset_id>
 
 ## Run
 
+Backend (Gradio API on port 7860):
+
 ```bash
-uv run streamlit run src/dataset_visualizer/app.py
+uv run dataset-viz
+```
+
+Frontend (Next.js on port 3000):
+
+```bash
+cd frontend && NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
 ```

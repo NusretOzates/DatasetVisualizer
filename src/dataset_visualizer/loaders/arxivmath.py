@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 PROBLEMS_HF_ID = "MathArena/arxivmath-0526"
 OUTPUTS_HF_ID = "MathArena/arxivmath-0526_outputs"
 
 
-@st.cache_data(show_spinner="Downloading ArXiv Math problems …")
+@loader_cache(show_spinner="Downloading ArXiv Math problems …")
 def load_problems(split: str = "train") -> pd.DataFrame:
     """Load and normalize the ArXiv Math 0526 problems dataset.
 
@@ -29,7 +29,7 @@ def load_problems(split: str = "train") -> pd.DataFrame:
     return df
 
 
-@st.cache_data(show_spinner="Downloading ArXiv Math model outputs …")
+@loader_cache(show_spinner="Downloading ArXiv Math model outputs …")
 def load_outputs(split: str = "train") -> pd.DataFrame:
     """Load and normalize the ArXiv Math 0526 model outputs dataset.
 
