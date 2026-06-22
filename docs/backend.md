@@ -19,7 +19,7 @@ src/dataset_visualizer/
 ├── api/
 │   ├── dataset_registry.py  # DATASET_REGISTRY — single registration per dataset id
 │   ├── service.py           # Catalog, meta, filters, overview, samples (orchestration)
-│   ├── filters.py           # Schema-driven apply_filters()
+│   ├── filters.py           # Schema-driven apply_filters() + build_filter_options()
 │   ├── overview.py          # Per-dataset overview builders
 │   ├── chart_data.py        # Chart JSON builders
 │   └── serializers.py       # DataFrame/row → JSON

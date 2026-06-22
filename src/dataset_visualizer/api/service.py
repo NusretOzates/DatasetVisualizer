@@ -10,7 +10,7 @@ import pandas as pd
 
 from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor
 from dataset_visualizer.api.filters import apply_filters, build_filter_options
-from dataset_visualizer.api.serializers import serialize_row
+from dataset_visualizer.api.serializers import serialize_row, serialize_value
 from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
 from dataset_visualizer.loaders.livecodebench import decode_private_test_cases
 from dataset_visualizer.row_count import row_count

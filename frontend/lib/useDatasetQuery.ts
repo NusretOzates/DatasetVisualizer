@@ -51,14 +51,13 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
 
         const initialFilters = buildInitialFilters(datasetMeta, options);
         const initialParamsKey = JSON.stringify(initialParams);
-        const initialQueryKey = JSON.stringify({ params: initialParams, filters: initialFilters });
 
         setMeta(datasetMeta);
         setParams(initialParams);
         setFilterOptions(options);
         setFilters(initialFilters);
         paramsKeyRef.current = initialParamsKey;
-        queryKeyRef.current = initialQueryKey;
+        queryKeyRef.current = null;
         setInitialized(true);
       } catch (err) {
         if (!cancelled) {

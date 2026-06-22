@@ -121,3 +121,12 @@ def test_find_sample_by_id_column(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_decode_private_tests_api_empty() -> None:
     assert decode_private_tests_api("") == {"cases": []}
+
+
+def test_decode_private_tests_api_returns_serialized_cases(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "dataset_visualizer.api.service.decode_private_test_cases",
+        lambda _raw: [{"input": "1", "output": "2"}],
+    )
+    result = decode_private_tests_api("encoded")
+    assert result == {"cases": [{"input": "1", "output": "2"}]}

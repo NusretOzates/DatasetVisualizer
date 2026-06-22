@@ -41,6 +41,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
       .then(async (result) => {
         if (cancelled) return;
         setPayload(result);
+        setIndex(result.index);
         const rawPrivateTests = result.row?.private_test_cases;
         if (
           meta.supports_private_tests &&
