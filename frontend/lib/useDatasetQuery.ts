@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { DatasetMeta, FilterOptions, OverviewPayload } from "@/lib/types";
 import { fetchDatasetMeta, fetchFilterOptions, fetchOverview } from "@/lib/api";
 import {
-  buildInitialFilters,
   defaultControlValues,
   reconcileFilters,
   type FilterValues,
@@ -30,7 +29,7 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const paramsKeyRef = useRef<string | null>(null);
-  const queryKeyRef = useRef<string | null>(null);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,24 +39,16 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
     setOverview(null);
     setMeta(null);
     paramsKeyRef.current = null;
-    queryKeyRef.current = null;
 
     async function initialize() {
       try {
         const datasetMeta = await fetchDatasetMeta(datasetId);
-        const initialParams = defaultControlValues(datasetMeta);
-        const options = await fetchFilterOptions(datasetId, initialParams);
         if (cancelled) return;
-
-        const initialFilters = buildInitialFilters(datasetMeta, options);
-        const initialParamsKey = JSON.stringify(initialParams);
-
         setMeta(datasetMeta);
-        setParams(initialParams);
-        setFilterOptions(options);
-        setFilters(initialFilters);
-        paramsKeyRef.current = initialParamsKey;
-        queryKeyRef.current = null;
+        setParams(defaultControlValues(datasetMeta));
+        setFilters({});
+        setFilterOptions({});
+        paramsKeyRef.current = null;
         setInitialized(true);
       } catch (err) {
         if (!cancelled) {
@@ -76,54 +67,43 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
   useEffect(() => {
     if (!initialized || !meta) return;
 
-    const paramsKey = JSON.stringify(params);
-    if (paramsKeyRef.current === paramsKey) return;
-    paramsKeyRef.current = paramsKey;
-
+    const datasetMeta = meta;
+    const requestId = ++requestIdRef.current;
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
-    fetchFilterOptions(datasetId, params)
-      .then((options) => {
-        if (cancelled) return;
-        setFilterOptions(options);
-        setFilters((current) => reconcileFilters(meta, options, current));
-      })
-      .catch((err: Error) => {
-        if (!cancelled) setError(err.message);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    async function refresh() {
+      setLoading(true);
+      setError(null);
+      setOverview(null);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [datasetId, initialized, meta, params]);
+      try {
+        const paramsKey = JSON.stringify(params);
+        let activeFilters = filters;
 
-  useEffect(() => {
-    if (!initialized || !meta) return;
+        if (paramsKeyRef.current !== paramsKey) {
+          paramsKeyRef.current = paramsKey;
+          const options = await fetchFilterOptions(datasetId, params);
+          if (cancelled || requestId !== requestIdRef.current) return;
+          activeFilters = reconcileFilters(datasetMeta, options, filters);
+          setFilterOptions(options);
+          setFilters(activeFilters);
+        }
 
-    const queryKey = JSON.stringify({ params, filters });
-    if (queryKeyRef.current === queryKey) return;
-    queryKeyRef.current = queryKey;
+        const result = await fetchOverview(datasetId, params, activeFilters);
+        if (cancelled || requestId !== requestIdRef.current) return;
+        setOverview(result);
+      } catch (err) {
+        if (!cancelled && requestId === requestIdRef.current) {
+          setError(err instanceof Error ? err.message : "Failed to load dataset");
+        }
+      } finally {
+        if (!cancelled && requestId === requestIdRef.current) {
+          setLoading(false);
+        }
+      }
+    }
 
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    fetchOverview(datasetId, params, filters)
-      .then((result) => {
-        if (!cancelled) setOverview(result);
-      })
-      .catch((err: Error) => {
-        if (!cancelled) setError(err.message);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
+    void refresh();
     return () => {
       cancelled = true;
     };

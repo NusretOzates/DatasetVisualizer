@@ -1,7 +1,7 @@
 "use client";
 
 import type { FilterControlSpec, FilterOptions, SelectControlSpec } from "@/lib/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,6 @@ export function ControlPanel({ controls, values, onChange }: ControlPanelProps) 
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Dataset controls</CardTitle>
-        <CardDescription>Options that change which data is loaded from Hugging Face.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {controls.map((control) => (
@@ -109,7 +108,6 @@ export function FilterPanel({ filters, options, values, onChange }: FilterPanelP
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Filters</CardTitle>
-        <CardDescription>Narrow the loaded dataset before viewing charts and samples.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filters.map((filter) => {

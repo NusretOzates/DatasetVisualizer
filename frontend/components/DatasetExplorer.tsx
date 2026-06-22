@@ -10,6 +10,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { AlertCircle } from "lucide-react";
 
 type DatasetExplorerProps = {
@@ -54,7 +59,6 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
         {!meta && loading ? (
           <div className="space-y-4">
             <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-28 w-full" />
             <Skeleton className="h-64 w-full" />
           </div>
         ) : null}
@@ -66,12 +70,6 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
               values={params}
               onChange={setParam}
             />
-            <FilterPanel
-              filters={meta.filters}
-              options={filterOptions}
-              values={filters}
-              onChange={setFilter}
-            />
 
             <Tabs defaultValue="overview" className="space-y-4">
               <TabsList>
@@ -80,14 +78,31 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4">
-                {loading && !overview ? (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <Skeleton key={index} className="h-24 w-full" />
-                    ))}
+                {loading ? (
+                  <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      {Array.from({ length: 4 }).map((_, index) => (
+                        <Skeleton key={index} className="h-24 w-full" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-80 w-full" />
                   </div>
                 ) : null}
-                {overview ? <OverviewTab overview={overview} /> : null}
+                {!loading && overview ? <OverviewTab overview={overview} /> : null}
+
+                {meta.filters.length > 0 ? (
+                  <Collapsible>
+                    <CollapsibleTrigger>Filter dataset</CollapsibleTrigger>
+                    <CollapsibleContent className="pt-3">
+                      <FilterPanel
+                        filters={meta.filters}
+                        options={filterOptions}
+                        values={filters}
+                        onChange={setFilter}
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : null}
               </TabsContent>
 
               <TabsContent value="sample">
