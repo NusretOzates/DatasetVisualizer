@@ -111,7 +111,14 @@ def _mount_frontend() -> None:
         return FileResponse(FRONTEND_DIST / "index.html")
 
     @app.get("/dataset/{dataset_id}")
+    @app.get("/dataset/{dataset_id}/")
     async def dataset_page(dataset_id: str) -> FileResponse:
+        page = FRONTEND_DIST / "dataset" / dataset_id / "index.html"
+        if page.is_file():
+            return FileResponse(page)
+        not_found = FRONTEND_DIST / "404.html"
+        if not_found.is_file():
+            return FileResponse(not_found)
         return FileResponse(FRONTEND_DIST / "index.html")
 
 

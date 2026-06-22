@@ -22,10 +22,31 @@ async function getClient(): Promise<Client> {
   return clientPromise;
 }
 
+function unwrapPredictResult<T>(result: unknown): T {
+  if (result === null || typeof result !== "object") {
+    return result as T;
+  }
+
+  const payload = result as { data?: unknown };
+  if (payload.data === undefined) {
+    return result as T;
+  }
+
+  if (Array.isArray(payload.data)) {
+    return payload.data[0] as T;
+  }
+
+  if (typeof payload.data === "object" && payload.data !== null && "0" in payload.data) {
+    return (payload.data as Record<string, unknown>)["0"] as T;
+  }
+
+  return payload.data as T;
+}
+
 async function predict<T>(apiName: string, payload: Record<string, unknown>): Promise<T> {
   const client = await getClient();
   const result = await client.predict(apiName, payload);
-  return ((result as { data?: T }).data ?? result) as T;
+  return unwrapPredictResult<T>(result);
 }
 
 export async function fetchCatalog(): Promise<Catalog> {
