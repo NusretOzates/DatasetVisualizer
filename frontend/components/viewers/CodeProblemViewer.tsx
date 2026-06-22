@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 
 type CodeProblemViewerProps = {
   row: Record<string, unknown>;
+  privateTests?: Record<string, unknown>[] | null;
+  privateTestsLoading?: boolean;
+  privateTestLimit?: number;
 };
 
 function formatTestValue(raw: string, testtype: string): string {
@@ -75,7 +78,12 @@ function TestCases({
   );
 }
 
-export function CodeProblemViewer({ row }: CodeProblemViewerProps) {
+export function CodeProblemViewer({
+  row,
+  privateTests = null,
+  privateTestsLoading = false,
+  privateTestLimit = 10,
+}: CodeProblemViewerProps) {
   const publicTests = Array.isArray(row.public_test_cases)
     ? (row.public_test_cases as Record<string, unknown>[])
     : [];
@@ -103,6 +111,15 @@ export function CodeProblemViewer({ row }: CodeProblemViewerProps) {
         </div>
       ) : null}
       <TestCases cases={publicTests} title="Public test cases" />
+      {privateTestsLoading ? (
+        <p className="text-sm text-muted-foreground">Loading private test cases…</p>
+      ) : privateTests ? (
+        <TestCases
+          cases={privateTests}
+          title="Private test cases"
+          limit={privateTestLimit}
+        />
+      ) : null}
     </div>
   );
 }

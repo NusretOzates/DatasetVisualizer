@@ -27,6 +27,7 @@ export function renderSample(
   meta: DatasetMeta,
   payload: { row: Record<string, unknown> | null; extras: Record<string, unknown> },
   privateTests: Record<string, unknown>[] | null,
+  privateTestsLoading = false,
 ): ReactNode {
   if (!payload.row) {
     return <p className="text-sm text-muted-foreground">No sample available.</p>;
@@ -39,6 +40,11 @@ export function renderSample(
   }
 
   return (
-    <Viewer row={payload.row} extras={payload.extras} privateTests={privateTests} />
+    <Viewer
+      row={payload.row}
+      extras={payload.extras}
+      privateTests={privateTests}
+      privateTestsLoading={privateTestsLoading}
+    />
   );
 }

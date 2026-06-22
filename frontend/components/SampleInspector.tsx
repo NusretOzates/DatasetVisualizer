@@ -31,6 +31,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
   const [payload, setPayload] = useState<SamplePayload | null>(null);
   const [privateTests, setPrivateTests] = useState<Record<string, unknown>[] | null>(null);
   const [privateTestsError, setPrivateTestsError] = useState<string | null>(null);
+  const [privateTestsLoading, setPrivateTestsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +40,8 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
     setLoading(true);
     setError(null);
     setPrivateTestsError(null);
+    setPrivateTests(null);
+    setPrivateTestsLoading(Boolean(meta.supports_private_tests));
     fetchSample(datasetId, index, params, filters)
       .then(async (result) => {
         if (cancelled) return;
@@ -65,10 +68,13 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
                   : "Failed to decode private test cases",
               );
             }
+          } finally {
+            if (!cancelled) setPrivateTestsLoading(false);
           }
         } else if (!cancelled) {
           setPrivateTests(null);
           setPrivateTestsError(null);
+          setPrivateTestsLoading(false);
         }
       })
       .catch((err: Error) => {
@@ -184,7 +190,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
       {payload ? (
         <Card>
           <CardContent className="pt-6">
-            {renderSample(meta, payload, privateTests)}
+            {renderSample(meta, payload, privateTests, privateTestsLoading)}
           </CardContent>
         </Card>
       ) : null}

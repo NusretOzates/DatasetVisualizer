@@ -70,7 +70,7 @@ Defined in `components/viewers/registry.tsx` (dispatched by API `viewer`, with `
 |----------|-----------|-------|
 | `mcq` | `McqViewer` | Also used for multilingual MCQ datasets |
 | `mcq_cot` | `McqCotViewer` | MCQ + chain-of-thought collapsible |
-| `code_problem` | `CodeProblemSampleViewer` | Public tests + optional private tests |
+| `code_problem` | `CodeProblemSampleViewer` | Public tests plus decoded private tests (first 10 shown) |
 | `issue_resolution` | `IssueViewer` | SWE-bench style patches and test lists |
 | `academic_qa` | `HleViewer` | HLE questions, images, answer types |
 | `math_competition` | `MathViewer` | Competition problems + solution extras |
