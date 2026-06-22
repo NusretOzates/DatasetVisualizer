@@ -5,31 +5,30 @@
 ## Checklist
 
 - [ ] **Config** — add entry to [`config/datasets.yaml`](../config/datasets.yaml) (`id`, `label`, `loader`, `description`, `icon`, `archetype`, HF metadata)
-- [ ] **Loader** — `src/dataset_visualizer/loaders/<module>.py` with `@loader_cache`, `cache_dir()`, normalized `DataFrame`, zero-arg defaults
-- [ ] **Registry** — import + `LOADER_REGISTRY` line in [`registry.py`](../src/dataset_visualizer/registry.py)
-- [ ] **API handlers** — wire `_load_context`, `_id_column`, controls, filters, overview in [`api/service.py`](../src/dataset_visualizer/api/service.py)
-- [ ] **Frontend route** — add `id` to `DATASET_IDS` in [`frontend/app/dataset/[id]/page.tsx`](../frontend/app/dataset/[id]/page.tsx)
-- [ ] **Frontend viewer** — only if no existing archetype viewer fits; see [`frontend.md`](frontend.md)
-- [ ] **Inspect CLI** — `LOADER_CACHE_KEYS` in [`scripts/inspect_dataset.py`](../scripts/inspect_dataset.py) if cache key ≠ loader name
-- [ ] **Tests** — `tests/test_loaders_<module>.py` with mocked HF calls and `load_*.clear()`
+- [ ] **Loader** — `src/dataset_visualizer/loaders/<module>.py` with `@loader_cache`, `cache_dir()`, normalized `DataFrame`, safe defaults for `loader({})`
+- [ ] **API registry** — `DatasetDescriptor` entry in [`api/dataset_registry.py`](../src/dataset_visualizer/api/dataset_registry.py) (`loader`, `overview`, `viewer`, controls, filters, …)
+- [ ] **Overview builder** — `overview_<dataset>()` in [`api/overview.py`](../src/dataset_visualizer/api/overview.py) (or reuse an existing builder)
+- [ ] **Frontend viewer** — only if no existing `viewer` key fits; register in [`components/viewers/registry.tsx`](../frontend/components/viewers/registry.tsx)
+- [ ] **Inspect CLI** — `LOADER_CACHE_KEYS` in [`scripts/inspect_dataset.py`](../scripts/inspect_dataset.py) if cache key ≠ config `loader` field
+- [ ] **Tests** — `tests/test_loaders_<module>.py` with mocked HF calls and `load_*.clear()`; optional smoke tests in `tests/test_api_service.py`
 - [ ] **Docs** — `docs/datasets/<name>.md`, link from [`index.md`](index.md), update [`README.md`](../README.md) table
 
-`server.py` and `app.py` do **not** need changes for standard datasets.
+`server.py` does **not** need changes for standard datasets. Frontend routes are generated from `get_catalog` at build time — no manual route list.
 
 ## Pick an archetype
 
-See the [archetype reference](dataset-system.md#archetype-reference) in `dataset-system.md` for normalized columns, API overview helpers, and which existing `id` to mirror.
+See the [archetype reference](dataset-system.md#archetype-reference) in `dataset-system.md` for normalized columns, overview helpers, and which existing `id` to mirror.
 
-| Archetype | Reference `id` | Mirror in `api/service.py` |
-|-----------|----------------|----------------------------|
-| MCQ | `mmlu` | `_overview_mmlu` |
-| MCQ + CoT | `mmlu_pro` | `_overview_mmlu_pro` |
-| MCQ multilingual | `global_mmlu`, `mmmlu` | `_overview_global_mmlu` |
-| Code generation | `livecodebench_v6` | `_overview_livecodebench` |
-| Issue resolution | `swe_bench_verified` | `_overview_swe_bench` |
-| Academic QA | `hle` | `_overview_hle` |
-| Math + model runs | `arxivmath_0526` | `_overview_arxivmath` |
-| Math final-answer | `aime_2026` | `_overview_aime` |
+| Archetype | Reference `id` | Mirror in `dataset_registry.py` |
+|-----------|----------------|--------------------------------|
+| MCQ | `mmlu` | `viewer="mcq"`, `overview_mmlu` |
+| MCQ + CoT | `mmlu_pro` | `viewer="mcq_cot"`, `overview_mmlu_pro` |
+| MCQ multilingual | `global_mmlu`, `mmmlu` | `viewer="mcq"`, `overview_global_mmlu` / `overview_mmmlu` |
+| Code generation | `livecodebench_v6` | `viewer="code_problem"`, `overview_livecodebench` |
+| Issue resolution | `swe_bench_verified` | `viewer="issue_resolution"`, `overview_swe_bench` |
+| Academic QA | `hle` | `viewer="academic_qa"`, `overview_hle` |
+| Math + model runs | `arxivmath_0526` | `viewer="arxiv_math"`, `overview_arxivmath` |
+| Math final-answer | `aime_2026` | `viewer="math_competition"`, `overview_aime` |
 
 ## Verify
 
@@ -37,7 +36,13 @@ See the [archetype reference](dataset-system.md#archetype-reference) in `dataset
 uv run pytest
 uv run ruff check src tests scripts
 uv run python scripts/inspect_dataset.py <dataset_id>
-cd frontend && npm run build
+```
+
+Frontend (backend must be running for static route export):
+
+```bash
+uv run dataset-viz   # terminal 1
+cd frontend && NEXT_PUBLIC_API_URL=http://localhost:7860 npm run build
 ```
 
 Run the app:
@@ -46,3 +51,7 @@ Run the app:
 uv run dataset-viz
 # optional dev frontend: cd frontend && NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
 ```
+
+## Documentation
+
+Update [`dataset-system.md`](dataset-system.md), this checklist, and [`README.md`](../README.md) whenever you add or change dataset registration steps.

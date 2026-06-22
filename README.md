@@ -37,13 +37,13 @@ uv run python src/dataset_visualizer/server.py
 
 ## Production build
 
-Build the static Next.js export and serve it from the Gradio server:
+Build the static Next.js export and serve it from the Gradio server. Start the backend first so the build can fetch the catalog for static routes:
 
 ```bash
+uv run dataset-viz   # terminal 1 — keep running
 cd frontend
 NEXT_PUBLIC_API_URL=http://localhost:7860 npm run build
 cd ..
-uv run dataset-viz
 ```
 
 The backend serves `frontend/out/` at `/` when the build exists.
@@ -65,7 +65,7 @@ The backend serves `frontend/out/` at `/` when the build exists.
 | Code | SWE-Bench PRO | `Contextbench/SWE-bench_Pro` |
 | Math | ArXiv Math 0526 | `MathArena/arxivmath-0526` + `MathArena/arxivmath-0526_outputs` |
 
-Configuration lives in [`config/datasets.yaml`](config/datasets.yaml). To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md).
+Configuration lives in [`config/datasets.yaml`](config/datasets.yaml). To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**
 
 Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 

@@ -6,6 +6,8 @@ This is a Python 3.12 project managed with **uv**. The product is a **Gradio Ser
 
 Standard commands are documented in `README.md` (Setup/Run/Development) and `docs/index.md`; prefer those instead of duplicating them here.
 
+**Always update documentation** (`docs/`, and `README.md` when user-facing) when you change architecture, setup, dataset registration, or developer workflows.
+
 Non-obvious notes:
 
 - **`HF_TOKEN` is read from the environment, not just `.env`.** `src/dataset_visualizer/loaders/base.py`

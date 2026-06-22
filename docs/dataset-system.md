@@ -9,15 +9,17 @@ The app is a **config-driven dataset explorer** with a **Gradio Server** backend
 ```
 config/datasets.yaml
        │
-       ├─► config.py              validates DatasetEntry (Pydantic)
-       ├─► registry.py            LOADER_REGISTRY (inspect CLI + home row counts)
-       ├─► loaders/<module>.py    @loader_cache + cache_dir() + normalization
-       ├─► api/service.py         controls, filters, overview, samples per dataset id
-       ├─► server.py              gradio.Server + @app.api() routes
-       └─► frontend/              Next.js UI (@gradio/client → server APIs)
+       ├─► config.py                    validates DatasetEntry (Pydantic)
+       ├─► api/dataset_registry.py      DATASET_REGISTRY (single registration per id)
+       ├─► loaders/<module>.py          @loader_cache + cache_dir() + normalization
+       ├─► api/service.py               orchestration (catalog, meta, samples)
+       ├─► api/filters.py               schema-driven filtering
+       ├─► api/overview.py              per-dataset overview builders
+       ├─► server.py                    gradio.Server + @app.api() routes
+       └─► frontend/                    Next.js UI (@gradio/client → server APIs)
 ```
 
-Navigation is automatic: `get_catalog()` reads YAML categories and the React sidebar renders one link per dataset entry. **No per-dataset edits** are needed in `server.py` or the frontend router beyond registering handler logic in `api/service.py` and adding the dataset id to `frontend/app/dataset/[id]/page.tsx` → `DATASET_IDS` for static export.
+Navigation is automatic: `get_catalog()` reads YAML categories and the React sidebar renders one link per dataset entry. **No per-dataset edits** are needed in `server.py`. Frontend routes are generated at build time from `get_catalog()` via `generateStaticParams()` — no manual route list.
 
 ## Complete touchpoint checklist
 
@@ -27,16 +29,16 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 |---|------|-------------|
 | 1 | `config/datasets.yaml` | YAML entry (`id`, `label`, `loader`, `description`, …) |
 | 2 | `src/dataset_visualizer/loaders/<module>.py` | Loader function(s) returning normalized `DataFrame` |
-| 3 | `src/dataset_visualizer/registry.py` | Import + `LOADER_REGISTRY["<loader>"] = <function>` |
-| 4 | `src/dataset_visualizer/api/service.py` | Handler wiring: `_load_context`, `_id_column`, controls, filters, overview, sample extras |
-| 5 | `frontend/app/dataset/[id]/page.tsx` | Add `id` to `DATASET_IDS` (required for `output: "export"`) |
-| 6 | `frontend/components/` | New viewer only if archetype is not covered (see [Frontend viewers](#frontend-viewers)) |
-| 7 | `scripts/inspect_dataset.py` | `LOADER_CACHE_KEYS` entry (if cache key ≠ loader name) |
-| 8 | `tests/test_loaders_<module>.py` | Mocked HF download tests |
-| 9 | `tests/test_api_service.py` | Optional smoke test for overview/meta if behavior is non-trivial |
-| 10 | `docs/datasets/<name>.md` + link in `docs/index.md` | Schema notes |
+| 3 | `src/dataset_visualizer/api/dataset_registry.py` | `DatasetDescriptor` with loader, overview, viewer, controls, filters |
+| 4 | `src/dataset_visualizer/api/overview.py` | `overview_<dataset>()` builder (or reuse existing) |
+| 5 | `frontend/components/viewers/` | New viewer + `registry.tsx` entry only if `viewer` key is new |
+| 6 | `scripts/inspect_dataset.py` | `LOADER_CACHE_KEYS` entry (if cache key ≠ config `loader` field) |
+| 7 | `tests/test_loaders_<module>.py` | Mocked HF download tests |
+| 8 | `tests/test_api_service.py` | Optional smoke test for overview/meta if behavior is non-trivial |
+| 9 | `docs/datasets/<name>.md` + link in `docs/index.md` | Schema notes |
+| 10 | `README.md` | Dataset table row when user-facing |
 
-**Also update** `README.md` dataset table when adding a user-facing dataset.
+**Also update** `docs/dataset-system.md`, `docs/adding-a-dataset.md`, `docs/backend.md`, or `docs/frontend.md` when registration steps or architecture change.
 
 **Do not edit** `server.py` for new datasets unless you add a brand-new API endpoint. Existing routes are dataset-agnostic.
 
@@ -45,15 +47,17 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 | Concept | Convention | Example |
 |---------|------------|---------|
 | Config `id` | `snake_case`; unique globally; version/variant in name | `swe_bench_verified`, `livecodebench_v6` |
-| Config `loader` | `snake_case`; registry key; often without version | `livecodebench`, `swe_bench_verified` |
+| Config `loader` | `snake_case`; documents loader module; used by inspect CLI cache mapping | `livecodebench`, `swe_bench_verified` |
+| Registry key | Same as config `id` | `mmlu`, `gpqa_diamond` |
 | Loader module | `loaders/<module>.py` | `loaders/swe_bench.py` |
 | Loader function | `load_<dataset>()` or `load_<family>_<variant>()` | `load_swe_bench_verified()` |
 | Cache directory | `data/cache/<key>/` via `cache_dir("<key>")` | `swe_bench` (shared by three SWE loaders) |
-| `archetype` | Free-form tag; drives React sample viewer selection | `mcq`, `issue_resolution` |
+| `archetype` | Free-form tag in YAML; shown in UI badges | `mcq`, `issue_resolution` |
+| API `viewer` | Key in `DatasetDescriptor`; drives React viewer | `mcq`, `code_problem`, `arxiv_math` |
 | Inspect CLI arg | Config `id`, **not** loader name | `swe_bench_verified` |
 | API `dataset_id` | Same as config `id` | `mmlu`, `gpqa_diamond` |
 
-**`id` vs `loader`:** Multiple config entries may share one loader module but each needs a **distinct** `loader` registry key if defaults differ (see [Variant datasets](#variant-datasets-one-module-multiple-registry-keys) below).
+**`id` vs `loader`:** The config `loader` field documents which loader module backs the dataset and maps to `LOADER_CACHE_KEYS` in the inspect CLI. API registration always uses config `id` as the `DATASET_REGISTRY` key. Multiple config entries may share one loader module (e.g. three SWE-bench variants) but each needs its own `DatasetDescriptor`.
 
 ## Config schema (`DatasetEntry`)
 
@@ -63,10 +67,10 @@ Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `
 |-------|----------|---------|
 | `id` | yes | API key, frontend route, inspect CLI argument; must be globally unique |
 | `label` | yes | Sidebar and page title |
-| `loader` | yes | Key in `LOADER_REGISTRY` |
+| `loader` | yes | Loader module name; inspect CLI cache mapping |
 | `description` | yes | Shown at the top of the dataset page (1–3 sentences) |
 | `icon` | no | Sidebar emoji in React nav |
-| `archetype` | no | Guides overview/sample viewer selection |
+| `archetype` | no | UI badge; fallback when `viewer` is absent |
 | `hf_id` | no | Shown on home page |
 | `hf_repo` | no | HF repo when not a standard `datasets` id |
 | `files` | no | File list within `hf_repo` |
@@ -74,6 +78,7 @@ Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `
 | `outputs_hf_id` | no | Secondary HF id (multi-repo datasets) |
 | `license` | no | License string for home page |
 | `docs` | no | Link to extended documentation |
+| `row_count` | no | Fallback for home page when loader fails |
 
 Example entry:
 
@@ -99,7 +104,7 @@ categories:
 2. Call `cache_dir("<cache_key>")` early (creates `data/cache/<cache_key>/`).
 3. Download via `datasets.load_dataset` and/or `huggingface_hub.hf_hub_download`.
 4. Return a **normalized** `pandas.DataFrame` with stable column names for API handlers and frontend viewers.
-5. Expose **zero-argument defaults** on the function registered in `LOADER_REGISTRY` — the inspect CLI calls `loader()` with no kwargs.
+5. Work with **default arguments** — the inspect CLI and home-page row counts call `descriptor.loader({})`.
 6. Parse JSON-in-string columns in the loader, not in the API layer.
 
 ### Minimal loader template
@@ -135,42 +140,75 @@ def load_my_benchmark(split: str = "test") -> pd.DataFrame:
     return df
 ```
 
-### Registry entry (`registry.py`)
+### Registry entry (`api/dataset_registry.py`)
 
 ```python
+from dataset_visualizer.api.overview import overview_my_benchmark
 from dataset_visualizer.loaders.my_benchmark import load_my_benchmark
 
-LOADER_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+def _controls_my_benchmark() -> list[dict[str, Any]]:
+    return [
+        {
+            "name": "split",
+            "label": "Split",
+            "type": "select",
+            "options": ["test", "dev"],
+            "default": "test",
+        }
+    ]
+
+DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
     # …
-    "my_benchmark": load_my_benchmark,  # key must match config `loader`
+    "my_benchmark": DatasetDescriptor(
+        id_column="sample_id",
+        viewer="mcq",
+        loader=lambda p: (load_my_benchmark(split=p.get("split", "test")), {}),
+        overview=overview_my_benchmark,
+        controls=_controls_my_benchmark,
+        filters=[
+            {"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"},
+        ],
+    ),
 }
 ```
+
+The `loader` callable receives UI control values as a dict and returns `(DataFrame, extras_dict)`. Use `extras` for joined data (e.g. ArXiv model outputs).
 
 ### Inspect CLI cache mapping (`scripts/inspect_dataset.py`)
 
 ```python
 LOADER_CACHE_KEYS: dict[str, str] = {
   # …
-  "my_benchmark": "my_benchmark",  # omit if loader name == cache key
+  "my_benchmark": "my_benchmark",  # omit if config loader field == cache key
 }
 ```
 
-The CLI runs `loader()` then prints `cache_dir(LOADER_CACHE_KEYS.get(entry.loader, entry.loader))`.
+The CLI calls `get_descriptor(dataset_id).loader({})` then prints `cache_dir(LOADER_CACHE_KEYS.get(entry.loader, entry.loader))`.
 
-## API handler contract (`api/service.py`)
+## API handler contract
 
-Dataset-specific UI logic lives in `api/service.py`, not in Streamlit pages. When adding a dataset, wire these functions (search for a similar `id` and copy the pattern):
+Dataset-specific behaviour is registered in `api/dataset_registry.py` and implemented in focused modules:
 
-| Function | Purpose |
-|----------|---------|
-| `_load_context()` | Map `dataset_id` → loader call + optional `extras` (e.g. ArXiv outputs) |
-| `_id_column()` | Column used for sample ID search in the inspector |
-| `_controls_for_dataset()` | Pre-load selectors (split, language, locale) returned by `get_dataset_meta` |
-| `_filter_schema()` | Filter definitions (multiselect, text, radio, date_range) |
-| `_apply_filters()` | Apply filter payload to a DataFrame |
-| `_build_overview()` | Dispatch to `_overview_<dataset>()` builder |
-| `_overview_<dataset>()` | Return `{"metrics": [...], "charts": [...], "tables": [...]}` |
-| `_sample_extras()` | Optional per-row payload (model runs, solution text, etc.) |
+| Module | Responsibility |
+|--------|----------------|
+| `api/dataset_registry.py` | `DatasetDescriptor` per config `id` |
+| `api/service.py` | Catalog, meta, filter options, overview, samples (no per-id branches) |
+| `api/filters.py` | `apply_filters(df, schema, filters)` — multiselect, text, radio (`value_map`), date_range |
+| `api/overview.py` | `overview_<dataset>(df, extras)` builders |
+| `api/serializers.py` | JSON-safe row/value serialization |
+
+### Filter schema
+
+Supported `type` values:
+
+| Type | Schema fields | Behaviour |
+|------|---------------|-----------|
+| `multiselect` | `column` | Subset rows where column value is in selected list |
+| `text` | `column` | Prefix match on string column |
+| `radio` | `column`, `options`, `value_map` (optional) | Map option label → column value (e.g. HLE modality on `has_image`) |
+| `date_range` | `column` | Inclusive start/end dates on datetime column |
+
+Filter options for multiselect/radio/date_range are built in `service._filter_options_from_df()` from the loaded DataFrame.
 
 ### Overview payload shape
 
@@ -202,7 +240,7 @@ Build charts with helpers in `api/chart_data.py`. Serialize table rows with `api
 | Endpoint | Purpose |
 |----------|---------|
 | `get_catalog` | Navigation + home table rows |
-| `get_dataset_meta` | Description, archetype, controls, filter schema, `id_column` |
+| `get_dataset_meta` | Description, archetype, `viewer`, controls, filter schema, `id_column` |
 | `get_filter_options` | Unique values for multiselect/date filters after load |
 | `get_overview` | Metrics, charts, tables for filtered data |
 | `get_sample` | Row at index + extras |
@@ -211,31 +249,10 @@ Build charts with helpers in `api/chart_data.py`. Serialize table rows with `api
 
 The React frontend calls these via `@gradio/client` (`frontend/lib/api.ts`).
 
-### Minimal API wiring template
-
-After adding the loader and config entry, extend `api/service.py`:
+### Minimal overview builder (`api/overview.py`)
 
 ```python
-# _id_column
-"my_benchmark": "sample_id",
-
-# _load_context loaders dict
-"my_benchmark": lambda p: (load_my_benchmark(split=p.get("split", "test")), {}),
-
-# _controls_for_dataset (if needed)
-if dataset_id == "my_benchmark":
-    return [{"name": "split", "label": "Split", "type": "select",
-             "options": ["test", "dev"], "default": "test"}]
-
-# _filter_schema
-"my_benchmark": [{"name": "subjects", "label": "Subject",
-                   "type": "multiselect", "column": "subject"}],
-
-# _apply_filters — add multiselect branch if needed
-# _build_overview builders dict
-"my_benchmark": _overview_my_benchmark,
-
-def _overview_my_benchmark(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
+def overview_my_benchmark(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     return {
         "metrics": [{"label": "Total rows", "value": f"{len(df):,}"}],
         "charts": [value_counts_chart(df["subject"], title="Rows per subject")],
@@ -243,42 +260,45 @@ def _overview_my_benchmark(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[st
     }
 ```
 
+Wire it in `dataset_registry.py` as `overview=overview_my_benchmark`.
+
 ## Frontend viewers
 
-Sample rendering is archetype-driven in `frontend/components/SampleInspector.tsx`:
+Sample rendering uses the API `viewer` field (fallback: YAML `archetype`) via `components/viewers/registry.tsx`:
 
-| Archetype | React component | Normalized columns |
-|-----------|-----------------|-------------------|
-| `mcq`, `mcq_multilingual` | `McqViewer` | `question`, `choices`, `answer_letter` |
-| `mcq_cot` | `McqViewer` + CoT expander | above + `cot_content`; uses `options` column |
-| `code_problem` | `CodeProblemViewer` | `question_content`, `starter_code`, `public_test_cases` |
+| `viewer` | React component | Normalized columns |
+|----------|-----------------|-------------------|
+| `mcq` | `McqViewer` | `question`, `choices`, `answer_letter` |
+| `mcq_cot` | `McqCotViewer` | above + `cot_content`; uses `options` column |
+| `code_problem` | `CodeProblemSampleViewer` | `question_content`, `starter_code`, `public_test_cases` |
 | `issue_resolution` | `IssueViewer` | `instance_id`, `repo`, `problem_statement`, patches, test lists |
 | `academic_qa` | `HleViewer` | `question`, `answer`, `has_image`, `answer_type` |
-| `math_competition` | `MathViewer` or `ArxivMathViewer` | `problem`, `problem_idx`, `answer` |
+| `math_competition` | `MathViewer` | `problem`, `problem_idx`, `answer` |
+| `arxiv_math` | `ArxivMathViewer` | problem fields + model-run tables from extras |
 
-Add a dedicated viewer under `frontend/components/viewers/` only when an existing archetype viewer cannot render your samples.
+Add a dedicated viewer under `frontend/components/viewers/` only when an existing viewer cannot render your samples. Register it in `registry.tsx`.
 
 ### Static export requirement
 
-`frontend/next.config.ts` uses `output: "export"`. Every dataset route must be listed in `DATASET_IDS` inside `frontend/app/dataset/[id]/page.tsx` or the production build fails.
+`frontend/next.config.ts` uses `output: "export"`. Dataset routes are generated by `generateStaticParams()` in `app/dataset/[id]/page.tsx`, which calls `fetchCatalog()` at build time. **Start the backend** (or set `NEXT_PUBLIC_API_URL` to a running server) before `npm run build` so new datasets get exported routes.
 
 ## Archetype reference
 
 Pick the archetype closest to your dataset. The table lists **normalized columns** the loader must produce, **where to mirror logic**, and the sample `id_column`.
 
-| Archetype | Normalized columns (loader output) | API overview helper | Reference `id` | `id_column` |
-|-----------|-----------------------------------|---------------------|----------------|-------------|
-| `mcq` | `question`, `choices` (list[str]), `answer_letter` (A–D) | `_overview_mmlu` | `mmlu`, `gpqa_diamond` | `subject` or `question` |
-| `mcq_cot` | Above + `cot_content`, `options` | `_overview_mmlu_pro` | `mmlu_pro` | `question_id` |
-| `mcq_multilingual` | MCQ columns + `language`, `split` | `_overview_global_mmlu` | `global_mmlu`, `mmmlu` | `sample_id` |
-| `code_problem` | `question_content`, `starter_code`, `public_test_cases` (parsed list) | `_overview_livecodebench` | `livecodebench_v6` | `question_id` |
-| `issue_resolution` | `instance_id`, `repo`, `problem_statement`, `patch`, test lists | `_overview_swe_bench` | `swe_bench_verified` | `instance_id` |
-| `academic_qa` | `question`, `answer`, `answer_type`, `has_image` | `_overview_hle` | `hle` | `id` |
-| `math_competition` | Problem fields + optional joined outputs | `_overview_aime` / `_overview_arxivmath` | `aime_2026`, `arxivmath_0526` | `problem_idx` |
+| Archetype | Normalized columns (loader output) | Overview helper | Reference `id` | `viewer` | `id_column` |
+|-----------|-----------------------------------|-----------------|----------------|----------|-------------|
+| `mcq` | `question`, `choices` (list[str]), `answer_letter` (A–D) | `overview_mmlu` | `mmlu`, `gpqa_diamond` | `mcq` | `subject` or `question` |
+| `mcq_cot` | Above + `cot_content`, `options` | `overview_mmlu_pro` | `mmlu_pro` | `mcq_cot` | `question_id` |
+| `mcq_multilingual` | MCQ columns + `language`/`locale`, `split` | `overview_global_mmlu` / `overview_mmmlu` | `global_mmlu`, `mmmlu` | `mcq` | `sample_id` |
+| `code_problem` | `question_content`, `starter_code`, `public_test_cases` (parsed list) | `overview_livecodebench` | `livecodebench_v6` | `code_problem` | `question_id` |
+| `issue_resolution` | `instance_id`, `repo`, `problem_statement`, `patch`, test lists | `overview_swe_bench` | `swe_bench_verified` | `issue_resolution` | `instance_id` |
+| `academic_qa` | `question`, `answer`, `answer_type`, `has_image` | `overview_hle` | `hle` | `academic_qa` | `id` |
+| `math_competition` | Problem fields + optional joined outputs | `overview_aime` / `overview_arxivmath` | `aime_2026`, `arxivmath_0526` | `math_competition` / `arxiv_math` | `problem_idx` |
 
 ### Column contracts (Python helpers)
 
-**`components/mcq_viewer.py`** — `resolve_correct_letter()`, `format_options()`:
+**`utils/mcq.py`** — `resolve_correct_letter()`, `format_options()`:
 
 - `choices`: `list[str]` with 2–26 non-empty options (filters `"N/A"`).
 - `answer_letter`: single letter; or raw `answer` int index 0–3.
@@ -289,20 +309,20 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 
 ## Registered datasets (lookup)
 
-| `id` | Category | `loader` | Archetype | Cache key |
-|------|----------|----------|-----------|-----------|
-| `mmlu` | reasoning | `mmlu` | mcq | `mmlu` |
-| `mmlu_pro` | reasoning | `mmlu_pro` | mcq_cot | `mmlu_pro` |
-| `gpqa_diamond` | reasoning | `gpqa` | mcq | `gpqa` |
-| `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `global_mmlu` |
-| `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mmmlu` |
-| `aime_2026` | reasoning | `aime_2026` | math_competition | `aime_2026` |
-| `hle` | reasoning | `hle` | academic_qa | `hle` |
-| `livecodebench_v6` | code | `livecodebench` | code_problem | `livecodebench` |
-| `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `swe_bench` |
-| `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `swe_bench` |
-| `swe_bench_pro` | code | `swe_bench_pro` | issue_resolution | `swe_bench` |
-| `arxivmath_0526` | math | `arxivmath` | math_competition | `arxivmath` |
+| `id` | Category | Config `loader` | Archetype | `viewer` | Cache key |
+|------|----------|-------------------|-----------|----------|-----------|
+| `mmlu` | reasoning | `mmlu` | mcq | `mcq` | `mmlu` |
+| `mmlu_pro` | reasoning | `mmlu_pro` | mcq_cot | `mcq_cot` | `mmlu_pro` |
+| `gpqa_diamond` | reasoning | `gpqa` | mcq | `mcq` | `gpqa` |
+| `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `mcq` | `global_mmlu` |
+| `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mcq` | `mmmlu` |
+| `aime_2026` | reasoning | `aime_2026` | math_competition | `math_competition` | `aime_2026` |
+| `hle` | reasoning | `hle` | academic_qa | `academic_qa` | `hle` |
+| `livecodebench_v6` | code | `livecodebench` | code_problem | `code_problem` | `livecodebench` |
+| `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `issue_resolution` | `swe_bench` |
+| `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `issue_resolution` | `swe_bench` |
+| `swe_bench_pro` | code | `swe_bench_pro` | issue_resolution | `issue_resolution` | `swe_bench` |
+| `arxivmath_0526` | math | `arxivmath` | math_competition | `arxiv_math` | `arxivmath` |
 
 ## Test contract
 
@@ -329,44 +349,48 @@ def test_load_my_benchmark(monkeypatch: pytest.MonkeyPatch) -> None:
 
 Also test private normalization helpers (`_parse_*`, `_normalize_*_frame`) with unit inputs — no mocking needed.
 
-Optional API smoke test in `tests/test_api_service.py`:
+Optional API smoke test in `tests/test_api_service.py` — patch `_load_context` or the descriptor loader:
 
 ```python
 def test_get_overview_my_benchmark(monkeypatch):
-    monkeypatch.setattr("dataset_visualizer.api.service.load_my_benchmark", lambda **kw: sample_df)
+    monkeypatch.setattr(
+        "dataset_visualizer.api.service._load_context",
+        lambda dataset_id, params: DatasetContext(df=sample_df, extras={}),
+    )
     overview = get_overview("my_benchmark", {"split": "test"}, {})
     assert overview["metrics"]
 ```
 
 Run: `uv run pytest`
 
-## Variant datasets (one module, multiple registry keys)
+## Variant datasets (one module, multiple descriptors)
 
 When several config entries share download logic but differ in HF source or normalization (e.g. SWE-Bench Verified / Multilingual / PRO):
 
 1. One loader module with a shared `_load_*()` helper and **separate** `@loader_cache` functions per variant.
-2. **Separate** `LOADER_REGISTRY` keys matching each config `loader` field.
-3. **Separate** handler branches in `api/service.py` (`_load_context`, overview, filters) — one per config `id`.
-4. Add each config `id` to `DATASET_IDS` in the frontend.
-5. Shared `LOADER_CACHE_KEYS` mapping all registry keys to one cache dir if appropriate.
+2. **Separate** `DatasetDescriptor` entries — one per config `id`.
+3. Shared `LOADER_CACHE_KEYS` mapping all config `loader` values to one cache dir if appropriate.
+4. Rebuild the frontend with the backend running so each new `id` is exported.
 
-Do **not** rely on a single loader with a `variant` config field unless you also update the inspect CLI to pass that variant (it currently does not).
+Do **not** rely on a single descriptor with a `variant` param unless the inspect CLI and `loader({})` defaults handle it (they use empty params today).
 
 ## Common pitfalls
 
 | Pitfall | Fix |
 |---------|-----|
 | Dataset missing from sidebar | Check `config/datasets.yaml` entry; `get_catalog()` reads it automatically |
-| Frontend build fails on `/dataset/[id]` | Add `id` to `DATASET_IDS` in `frontend/app/dataset/[id]/page.tsx` |
-| `get_dataset_meta` raises unknown id | Config `id` must match keys wired in `api/service.py` |
-| Inspect CLI: "No loader registered" | `config.loader` must match `LOADER_REGISTRY` key exactly |
-| Inspect CLI loads wrong data | Registered loader must work with `loader()` — no required kwargs |
+| Frontend build missing `/dataset/[id]` | Start backend before `npm run build`; `generateStaticParams` calls `get_catalog` |
+| `get_dataset_meta` raises unknown id | Add `DatasetDescriptor` in `api/dataset_registry.py` for that config `id` |
+| Inspect CLI: "No API descriptor registered" | Register the config `id` in `DATASET_REGISTRY` |
+| Inspect CLI loads wrong data | `descriptor.loader({})` must work with empty params |
 | Gated HF datasets (e.g. GPQA) | Set `HF_TOKEN` in `.env`; document gating in dataset doc |
 | Huge multilingual splits | Expose language/split as **controls** (pre-load), default to smaller split (`dev`) |
 | JSON columns as strings | Parse in loader (`json.loads`, `ast.literal_eval`); store as `list`/`dict` in DataFrame |
 | SWE-bench column casing | Verified/Multilingual: `FAIL_TO_PASS`; PRO: `fail_to_pass` — normalize in loader |
 | Tests flaky across runs | Always call `load_<name>.clear()` after monkeypatching |
 | Frontend cannot reach API | Dev: set `NEXT_PUBLIC_API_URL=http://localhost:7860`; prod: served from same origin |
+| Overview stale after control change | Frontend refetches overview when `{params, filters}` changes |
+| Docs out of date | Update `docs/` and `README.md` with every architecture or workflow change |
 
 ## Documentation for a new dataset
 
@@ -389,11 +413,11 @@ uv run python scripts/inspect_dataset.py <dataset_id>
 
 1. Read archetype row in [Archetype reference](#archetype-reference) above.
 2. Copy loader template from this doc; adjust normalization columns.
-3. Wire handler branches in `api/service.py` (mirror closest existing dataset).
-4. Add `id` to `DATASET_IDS` in the frontend.
-5. Walk the [touchpoint checklist](#complete-touchpoint-checklist).
-6. Add tests using the [test contract](#test-contract).
-7. Run `uv run pytest`, `uv run ruff check src tests scripts`, and `cd frontend && npm run build`.
+3. Add `DatasetDescriptor` in `api/dataset_registry.py` and overview builder in `api/overview.py`.
+4. Walk the [touchpoint checklist](#complete-touchpoint-checklist).
+5. Add tests using the [test contract](#test-contract).
+6. Update docs (`docs/datasets/`, `docs/index.md`, `README.md`).
+7. Run `uv run pytest`, `uv run ruff check src tests scripts`, and `cd frontend && npm run build` (with backend running).
 8. Verify with inspect CLI and the running app.
 
-Only open an existing loader/API handler when your dataset diverges from the archetype table (extra joins, custom decoding, gated access workarounds).
+Only open an existing loader when your dataset diverges from the archetype table (extra joins, custom decoding, gated access workarounds).

@@ -8,7 +8,6 @@ The API layer uses [`gradio.Server`](https://huggingface.co/blog/introducing-gra
 |---------|--------|------|
 | `uv run dataset-viz` | `cli.py` → `server.py` | 7860 (default) |
 | `uv run python src/dataset_visualizer/server.py` | `server.py` | 7860 |
-| `uv run python src/dataset_visualizer/app.py` | `app.py` → `server.py` | 7860 |
 
 Override port with the `PORT` environment variable.
 
@@ -16,15 +15,35 @@ Override port with the `PORT` environment variable.
 
 ```
 src/dataset_visualizer/
-├── server.py           # gradio.Server, @app.api routes, static frontend mount
+├── server.py              # gradio.Server, CORS, @app.api routes, static frontend mount
 ├── api/
-│   ├── service.py      # Dataset handlers (load, filter, overview, samples)
-│   ├── chart_data.py   # Chart JSON builders
-│   └── serializers.py  # DataFrame/row → JSON
-├── loaders/            # HF download + normalization + @loader_cache
-├── registry.py         # LOADER_REGISTRY (inspect CLI, home row counts)
-└── config.py           # Pydantic models for datasets.yaml
+│   ├── dataset_registry.py  # DATASET_REGISTRY — single registration per dataset id
+│   ├── service.py           # Catalog, meta, filters, overview, samples (orchestration)
+│   ├── filters.py           # Schema-driven apply_filters()
+│   ├── overview.py          # Per-dataset overview builders
+│   ├── chart_data.py        # Chart JSON builders
+│   └── serializers.py       # DataFrame/row → JSON
+├── loaders/                 # HF download + normalization + @loader_cache
+├── row_count.py             # Home-page row counts via DATASET_REGISTRY
+└── config.py                # Pydantic models for datasets.yaml
 ```
+
+## Dataset registration (`api/dataset_registry.py`)
+
+Each config `id` has one `DatasetDescriptor`:
+
+| Field | Purpose |
+|-------|---------|
+| `id_column` | Sample ID search column for `find_sample` |
+| `viewer` | Frontend viewer key (`mcq`, `code_problem`, …) |
+| `loader` | `Callable[[dict], tuple[DataFrame, dict]]` — params from UI controls |
+| `overview` | `Callable[[DataFrame, dict], dict]` — metrics/charts/tables |
+| `controls` | Zero-arg callable returning pre-load select controls |
+| `filters` | Filter schema (multiselect, text, radio, date_range) |
+| `sample_extras` | Optional per-row extras (model runs, solutions, …) |
+| `supports_private_tests` | Enables LiveCodeBench private-test decoding in the UI |
+
+Row counts (`row_count.py`), the inspect CLI (`scripts/inspect_dataset.py`), and API handlers all use `get_descriptor(dataset_id)` — there is no separate loader registry.
 
 ## API endpoints
 
@@ -33,14 +52,16 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 | API name | Parameters | Returns |
 |----------|------------|---------|
 | `get_catalog` | — | Categories, dataset list, home table rows |
-| `get_dataset_meta` | `dataset_id` | Description, archetype, controls, filters, `id_column` |
+| `get_dataset_meta` | `dataset_id` | Description, archetype, `viewer`, controls, filters, `id_column` |
 | `get_filter_options` | `dataset_id`, `params_json` | Unique filter values after load |
 | `get_overview` | `dataset_id`, `params_json`, `filters_json` | Metrics, charts, tables |
 | `get_sample` | `dataset_id`, `index`, `params_json`, `filters_json` | Row + extras at index |
 | `find_sample` | `dataset_id`, `id_value`, `params_json`, `filters_json` | Row + extras by id column |
 | `decode_private_tests` | `raw` | Decoded LiveCodeBench private test cases |
 
-`params_json` and `filters_json` are JSON strings (or dicts) matching the control/filter names defined in `api/service.py`.
+`params_json` and `filters_json` are JSON strings (or dicts) matching control/filter names from `get_dataset_meta`.
+
+Filter application and option discovery are schema-driven in `api/filters.py` and `api/service.py` — no per-dataset `if dataset_id == …` branches for standard filter types.
 
 ## Caching
 
@@ -48,14 +69,14 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 - **On-disk:** `data/cache/<key>/` via `cache_dir()` — created on first load, shown by inspect CLI.
 - **Hugging Face:** standard HF hub cache for downloaded datasets.
 
-## Static frontend
+## CORS and static frontend
+
+CORS middleware is registered at module level in `server.py`. Allowed origins default to `http://localhost:3000`; override with comma-separated `CORS_ORIGINS`.
 
 When `frontend/out/` exists (after `npm run build`), `server.py` mounts:
 
 - `/_next/*` — Next.js static assets
 - `/` and `/dataset/{id}` — `index.html` (client-side routing)
-
-CORS is enabled for local Next.js dev on port 3000.
 
 ## Adding a new API endpoint
 
@@ -68,3 +89,7 @@ def api_my_endpoint(arg: str) -> dict:
 ```
 
 Register the handler in `api/service.py` and add a wrapper in `frontend/lib/api.ts`.
+
+## Adding a new dataset
+
+Register a `DatasetDescriptor` in `api/dataset_registry.py`. See [dataset-system.md](dataset-system.md) and [adding-a-dataset.md](adding-a-dataset.md). `server.py` does not need changes for standard datasets.
