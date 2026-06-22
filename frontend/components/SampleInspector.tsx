@@ -1,12 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ControlSpec, DatasetMeta, SamplePayload } from "@/lib/types";
+import type { DatasetMeta, SamplePayload } from "@/lib/types";
 import { decodePrivateTests, fetchSample, findSample } from "@/lib/api";
 import { McqViewer } from "./viewers/McqViewer";
 import { CodeProblemViewer } from "./viewers/CodeProblemViewer";
 import { IssueViewer } from "./viewers/IssueViewer";
 import { ArxivMathViewer, HleViewer, MathViewer } from "./viewers/SpecialViewers";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 type SampleInspectorProps = {
   datasetId: string;
@@ -22,7 +35,7 @@ function renderSample(
   privateTests: Record<string, unknown>[] | null,
 ) {
   if (!payload.row) {
-    return <p className="muted">No sample available.</p>;
+    return <p className="text-sm text-muted-foreground">No sample available.</p>;
   }
 
   const row = payload.row;
@@ -39,13 +52,18 @@ function renderSample(
   }
   if (archetype === "code_problem") {
     return (
-      <div>
+      <div className="space-y-4">
         <CodeProblemViewer row={row} />
         {privateTests ? (
-          <details>
-            <summary>Private test cases</summary>
-            <CodeProblemViewer row={{ public_test_cases: privateTests }} />
-          </details>
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
+              <ChevronDown className="size-4" />
+              Private test cases
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              <CodeProblemViewer row={{ public_test_cases: privateTests }} />
+            </CollapsibleContent>
+          </Collapsible>
         ) : null}
       </div>
     );
@@ -55,13 +73,18 @@ function renderSample(
   }
   if (archetype === "mcq_cot") {
     return (
-      <div>
+      <div className="space-y-4">
         <McqViewer row={row} choicesCol="options" answerCol="answer" />
         {row.cot_content ? (
-          <details>
-            <summary>Chain-of-thought</summary>
-            <pre className="code-block">{String(row.cot_content)}</pre>
-          </details>
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
+              <ChevronDown className="size-4" />
+              Chain-of-thought
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              <pre className="code-block">{String(row.cot_content)}</pre>
+            </CollapsibleContent>
+          </Collapsible>
         ) : null}
       </div>
     );
@@ -132,49 +155,97 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
   }
 
   return (
-    <div>
-      <div className="navigator panel">
-        <button type="button" disabled={index <= 0 || loading} onClick={() => setIndex(index - 1)}>
-          Previous
-        </button>
-        <label>
-          Sample {total ? index + 1 : 0} / {total}
-          <input
-            type="range"
-            min={0}
-            max={Math.max(total - 1, 0)}
-            value={index}
-            onChange={(event) => setIndex(Number(event.target.value))}
-            disabled={!total || loading}
-          />
-        </label>
-        <button
-          type="button"
-          disabled={!total || index >= total - 1 || loading}
-          onClick={() => setIndex(index + 1)}
-        >
-          Next
-        </button>
-        <label>
-          Find by {meta.id_column}
-          <input
-            value={idSearch}
-            onChange={(event) => setIdSearch(event.target.value)}
-            placeholder={`Search ${meta.id_column}`}
-          />
-        </label>
-        <button type="button" onClick={handleSearch} disabled={loading}>
-          Search
-        </button>
-      </div>
-      {error ? <div className="error">{error}</div> : null}
-      {loading && !payload ? <p className="muted">Loading sample…</p> : null}
-      {payload ? renderSample(datasetId, meta, payload, privateTests) : null}
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Navigate samples</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={index <= 0 || loading}
+              onClick={() => setIndex(index - 1)}
+            >
+              <ChevronLeft className="size-4" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!total || index >= total - 1 || loading}
+              onClick={() => setIndex(index + 1)}
+            >
+              Next
+              <ChevronRight className="size-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground tabular-nums">
+              Sample {total ? index + 1 : 0} of {total}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Sample index</Label>
+            <Slider
+              value={[index]}
+              min={0}
+              max={Math.max(total - 1, 0)}
+              step={1}
+              disabled={!total || loading}
+              onValueChange={(value) => setIndex(value[0] ?? 0)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="id-search">Find by {meta.id_column}</Label>
+              <Input
+                id="id-search"
+                value={idSearch}
+                placeholder={`Search ${meta.id_column}`}
+                onChange={(event) => setIdSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") void handleSearch();
+                }}
+              />
+            </div>
+            <Button onClick={() => void handleSearch()} disabled={loading}>
+              <Search className="size-4" />
+              Search
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {error ? (
+        <Alert variant="destructive">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Failed to load sample</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {loading && !payload ? <Skeleton className="h-64 w-full" /> : null}
+
+      {payload ? (
+        <Card>
+          <CardContent className="pt-6">
+            {renderSample(datasetId, meta, payload, privateTests)}
+          </CardContent>
+        </Card>
+      ) : null}
+
       {payload?.row ? (
-        <details>
-          <summary>Raw JSON</summary>
-          <pre className="code-block">{JSON.stringify(payload.row, null, 2)}</pre>
-        </details>
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <ChevronDown className="size-4" />
+            Raw JSON
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-3">
+            <pre className="code-block">{JSON.stringify(payload.row, null, 2)}</pre>
+          </CollapsibleContent>
+        </Collapsible>
       ) : null}
     </div>
   );

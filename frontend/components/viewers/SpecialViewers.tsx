@@ -2,6 +2,31 @@
 
 import { useState } from "react";
 import { McqViewer } from "./McqViewer";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ExternalLink } from "lucide-react";
 
 type HleViewerProps = {
   row: Record<string, unknown>;
@@ -13,35 +38,53 @@ export function HleViewer({ row }: HleViewerProps) {
   const modality = hasImage ? "Multimodal" : "Text only";
 
   return (
-    <div>
-      <p className="muted">
-        ID: {String(row.id ?? "—")} · Category: {String(row.category ?? "—")} · Subject:{" "}
-        {String(row.raw_subject ?? "—")} · Type: {answerType} · Modality: {modality}
-      </p>
-      <h3>Question</h3>
-      <p>{String(row.question ?? "")}</p>
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline">ID: {String(row.id ?? "—")}</Badge>
+        <Badge variant="outline">{String(row.category ?? "—")}</Badge>
+        <Badge variant="outline">{modality}</Badge>
+        <Badge variant="secondary">{answerType}</Badge>
+      </div>
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground">Question</h3>
+        <p className="mt-2 text-base leading-relaxed">{String(row.question ?? "")}</p>
+      </div>
       {hasImage && row.image ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={String(row.image)} alt="Question" style={{ maxWidth: "100%" }} />
+        <img
+          src={String(row.image)}
+          alt="Question"
+          className="max-h-96 rounded-lg border object-contain"
+        />
       ) : null}
       {row.answer ? (
-        <div className="mcq-option correct">
+        <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
           <strong>
             {answerType === "multipleChoice" ? "Correct answer" : "Exact answer"}:
           </strong>{" "}
           {String(row.answer)}
         </div>
       ) : null}
-      {row.author_name ? <p className="muted">Contributor: {String(row.author_name)}</p> : null}
+      {row.author_name ? (
+        <p className="text-sm text-muted-foreground">Contributor: {String(row.author_name)}</p>
+      ) : null}
       {row.rationale ? (
-        <details>
-          <summary>Rationale</summary>
-          <p>{String(row.rationale)}</p>
-          {row.rationale_image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={String(row.rationale_image)} alt="Rationale" style={{ maxWidth: "100%" }} />
-          ) : null}
-        </details>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="rationale">
+            <AccordionTrigger>Rationale</AccordionTrigger>
+            <AccordionContent className="space-y-3">
+              <p className="text-sm leading-relaxed">{String(row.rationale)}</p>
+              {row.rationale_image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={String(row.rationale_image)}
+                  alt="Rationale"
+                  className="max-h-64 rounded-lg border object-contain"
+                />
+              ) : null}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       ) : null}
       {answerType === "multipleChoice" ? <McqViewer row={row} answerCol="answer" /> : null}
     </div>
@@ -57,19 +100,29 @@ export function MathViewer({ row, solution }: MathViewerProps) {
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <div>
-      <p className="muted">Problem: {String(row.problem_idx ?? "—")}</p>
-      <h3>Problem</h3>
-      <p>{String(row.problem ?? "")}</p>
-      <button type="button" onClick={() => setRevealed(true)}>
+    <div className="space-y-4">
+      <Badge variant="outline">Problem {String(row.problem_idx ?? "—")}</Badge>
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground">Problem</h3>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+          {String(row.problem ?? "")}
+        </p>
+      </div>
+      <Button variant="secondary" size="sm" onClick={() => setRevealed(true)}>
         Reveal gold answer
-      </button>
-      {revealed ? <div className="mcq-option correct">{String(row.answer ?? "")}</div> : null}
+      </Button>
+      {revealed ? (
+        <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          {String(row.answer ?? "")}
+        </div>
+      ) : null}
       {solution ? (
-        <details>
-          <summary>Solution / working</summary>
-          <p>{solution}</p>
-        </details>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="solution">
+            <AccordionTrigger>Solution / working</AccordionTrigger>
+            <AccordionContent className="whitespace-pre-wrap text-sm">{solution}</AccordionContent>
+          </AccordionItem>
+        </Accordion>
       ) : null}
     </div>
   );
@@ -82,14 +135,14 @@ type ArxivMathViewerProps = {
 
 export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
   const [revealed, setRevealed] = useState(false);
-  const [attemptIndex, setAttemptIndex] = useState(0);
+  const [attemptIndex, setAttemptIndex] = useState("0");
   const modelRuns = Array.isArray(extras.model_runs)
     ? (extras.model_runs as Record<string, unknown>[])
     : [];
   const fullRuns = Array.isArray(extras.full_runs)
     ? (extras.full_runs as Record<string, unknown>[])
     : [];
-  const selectedRun = modelRuns[attemptIndex];
+  const selectedRun = modelRuns[Number(attemptIndex)];
   const fullRun = fullRuns.find(
     (run) =>
       run.model_name === selectedRun?.model_name &&
@@ -97,95 +150,128 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
   );
 
   return (
-    <div>
-      <p className="muted">
-        Problem: {String(row.problem_idx ?? "—")} · arXiv: {String(row.source ?? "—")}
-      </p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-        <div>
-          <h3>Problem</h3>
-          <p>{String(row.problem ?? "")}</p>
-          <button type="button" onClick={() => setRevealed(true)}>
-            Reveal gold answer
-          </button>
-          {revealed ? <div className="mcq-option correct">{String(row.answer ?? "")}</div> : null}
-        </div>
-        <div>
-          <h3>Paper</h3>
-          <p>
-            <strong>{String(row.title ?? "—")}</strong>
-          </p>
-          <p>{String(row.authors ?? "—")}</p>
-          {row.source ? (
-            <a href={`https://arxiv.org/abs/${String(row.source)}`} target="_blank" rel="noreferrer">
-              View on arXiv
-            </a>
-          ) : null}
-        </div>
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline">Problem {String(row.problem_idx ?? "—")}</Badge>
+        <Badge variant="outline">arXiv: {String(row.source ?? "—")}</Badge>
       </div>
-      {modelRuns.length ? (
-        <div className="panel" style={{ marginTop: "1rem" }}>
-          <h4>Model runs</h4>
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  {Object.keys(modelRuns[0]).map((column) => (
-                    <th key={column}>{column}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {modelRuns.map((run, index) => (
-                  <tr key={index}>
-                    {Object.keys(modelRuns[0]).map((column) => (
-                      <td key={column}>{String(run[column] ?? "")}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground">Problem</h3>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+              {String(row.problem ?? "")}
+            </p>
           </div>
-          <label>
-            Inspect attempt
-            <select
-              value={attemptIndex}
-              onChange={(event) => setAttemptIndex(Number(event.target.value))}
-            >
-              {modelRuns.map((run, index) => (
-                <option key={index} value={index}>
-                  {String(run.model_name)} · attempt {String(run.idx_answer)}
-                </option>
-              ))}
-            </select>
-          </label>
-          {selectedRun ? (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              <div>
-                <strong>Parsed answer</strong>
-                <pre className="code-block">{String(selectedRun.parsed_answer ?? "")}</pre>
-              </div>
-              <div>
-                <strong>Gold answer</strong>
-                <pre className="code-block">{String(selectedRun.gold_answer ?? "")}</pre>
-              </div>
+          <Button variant="secondary" size="sm" onClick={() => setRevealed(true)}>
+            Reveal gold answer
+          </Button>
+          {revealed ? (
+            <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              {String(row.answer ?? "")}
             </div>
           ) : null}
-          {fullRun ? (
-            <>
-              <details>
-                <summary>Full model response</summary>
-                <pre className="code-block">{String(fullRun.answer ?? "")}</pre>
-              </details>
-              <details>
-                <summary>User message</summary>
-                <pre className="code-block">{String(fullRun.user_message ?? "")}</pre>
-              </details>
-            </>
-          ) : null}
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Paper</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p className="font-medium">{String(row.title ?? "—")}</p>
+            <p className="text-muted-foreground">{String(row.authors ?? "—")}</p>
+            {row.source ? (
+              <a
+                href={`https://arxiv.org/abs/${String(row.source)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                View on arXiv
+                <ExternalLink className="size-3.5" />
+              </a>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
+
+      {modelRuns.length ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Model runs</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {Object.keys(modelRuns[0]).map((column) => (
+                    <TableHead key={column}>{column}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {modelRuns.map((run, index) => (
+                  <TableRow key={index}>
+                    {Object.keys(modelRuns[0]).map((column) => (
+                      <TableCell key={column} className="text-xs">
+                        {String(run[column] ?? "")}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Inspect attempt</p>
+              <Select value={attemptIndex} onValueChange={setAttemptIndex}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {modelRuns.map((run, index) => (
+                    <SelectItem key={index} value={String(index)}>
+                      {String(run.model_name)} · attempt {String(run.idx_answer)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedRun ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">Parsed answer</p>
+                  <pre className="code-block">{String(selectedRun.parsed_answer ?? "")}</pre>
+                </div>
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">Gold answer</p>
+                  <pre className="code-block">{String(selectedRun.gold_answer ?? "")}</pre>
+                </div>
+              </div>
+            ) : null}
+
+            {fullRun ? (
+              <Accordion type="multiple">
+                <AccordionItem value="response">
+                  <AccordionTrigger>Full model response</AccordionTrigger>
+                  <AccordionContent>
+                    <pre className="code-block">{String(fullRun.answer ?? "")}</pre>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="message">
+                  <AccordionTrigger>User message</AccordionTrigger>
+                  <AccordionContent>
+                    <pre className="code-block">{String(fullRun.user_message ?? "")}</pre>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            ) : null}
+          </CardContent>
+        </Card>
       ) : (
-        <p className="muted">No model runs for this problem.</p>
+        <p className="text-sm text-muted-foreground">No model runs for this problem.</p>
       )}
     </div>
   );

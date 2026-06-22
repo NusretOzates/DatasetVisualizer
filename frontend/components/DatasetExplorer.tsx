@@ -2,15 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Catalog, DatasetMeta, OverviewPayload } from "@/lib/types";
-import {
-  fetchDatasetMeta,
-  fetchFilterOptions,
-  fetchOverview,
-} from "@/lib/api";
-import { Sidebar } from "@/components/Sidebar";
+import { fetchDatasetMeta, fetchFilterOptions, fetchOverview } from "@/lib/api";
+import { AppShell } from "@/components/Sidebar";
 import { OverviewTab } from "@/components/OverviewTab";
 import { SampleInspector } from "@/components/SampleInspector";
 import { ControlPanel, FilterPanel } from "@/components/FilterPanel";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertCircle } from "lucide-react";
 
 type DatasetExplorerProps = {
   catalog: Catalog;
@@ -46,7 +47,6 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
   const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [filterOptions, setFilterOptions] = useState<Record<string, unknown>>({});
   const [overview, setOverview] = useState<OverviewPayload | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "sample">("overview");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -127,14 +127,34 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
   const title = useMemo(() => meta?.label ?? datasetId, [meta, datasetId]);
 
   return (
-    <div className="app-shell">
-      <Sidebar catalog={catalog} />
-      <main className="main">
-        <h2>{title}</h2>
-        {meta ? <p className="muted">{meta.description}</p> : null}
-        {error ? <div className="error">{error}</div> : null}
+    <AppShell catalog={catalog}>
+      <div className="space-y-6">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-3xl font-semibold tracking-tight">{title}</h2>
+            {meta?.archetype ? <Badge variant="secondary">{meta.archetype}</Badge> : null}
+          </div>
+          {meta ? <p className="max-w-4xl text-muted-foreground">{meta.description}</p> : null}
+        </div>
+
+        {error ? (
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        {!meta && loading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : null}
+
         {meta ? (
-          <>
+          <div className="space-y-4">
             <ControlPanel
               controls={meta.controls}
               values={params}
@@ -146,35 +166,36 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
               values={filters}
               onChange={(name, value) => setFilters((current) => ({ ...current, [name]: value }))}
             />
-            <div className="tabs">
-              <button
-                type="button"
-                className={`tab${activeTab === "overview" ? " active" : ""}`}
-                onClick={() => setActiveTab("overview")}
-              >
-                Overview
-              </button>
-              <button
-                type="button"
-                className={`tab${activeTab === "sample" ? " active" : ""}`}
-                onClick={() => setActiveTab("sample")}
-              >
-                Sample Inspector
-              </button>
-            </div>
-            {loading && !overview ? <p className="muted">Loading dataset…</p> : null}
-            {activeTab === "overview" && overview ? <OverviewTab overview={overview} /> : null}
-            {activeTab === "sample" && meta ? (
-              <SampleInspector
-                datasetId={datasetId}
-                meta={meta}
-                params={params}
-                filters={filters}
-              />
-            ) : null}
-          </>
+
+            <Tabs defaultValue="overview" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="sample">Sample Inspector</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-4">
+                {loading && !overview ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <Skeleton key={index} className="h-24 w-full" />
+                    ))}
+                  </div>
+                ) : null}
+                {overview ? <OverviewTab overview={overview} /> : null}
+              </TabsContent>
+
+              <TabsContent value="sample">
+                <SampleInspector
+                  datasetId={datasetId}
+                  meta={meta}
+                  params={params}
+                  filters={filters}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         ) : null}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

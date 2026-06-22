@@ -1,5 +1,14 @@
 import type { DataTable, Metric, OverviewPayload } from "@/lib/types";
 import { ChartPanel } from "./ChartPanel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type OverviewTabProps = {
   overview: OverviewPayload;
@@ -7,12 +16,18 @@ type OverviewTabProps = {
 
 function Metrics({ metrics }: { metrics: Metric[] }) {
   return (
-    <div className="metrics">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric) => (
-        <div className="metric-card" key={metric.label}>
-          <span>{metric.label}</span>
-          <strong>{metric.value}</strong>
-        </div>
+        <Card key={metric.label}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {metric.label}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold tracking-tight tabular-nums">{metric.value}</p>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
@@ -20,39 +35,45 @@ function Metrics({ metrics }: { metrics: Metric[] }) {
 
 function DataTableView({ table }: { table: DataTable }) {
   return (
-    <div className="panel">
-      <h3>{table.title}</h3>
-      <div className="table-wrap">
-        <table className="data-table">
-          <thead>
-            <tr>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{table.title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
               {table.columns.map((column) => (
-                <th key={column}>{column}</th>
+                <TableHead key={column}>{column}</TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {table.rows.map((row, index) => (
-              <tr key={index}>
+              <TableRow key={index}>
                 {table.columns.map((column) => (
-                  <td key={column}>{String(row[column] ?? "")}</td>
+                  <TableCell key={column} className="max-w-md truncate">
+                    {String(row[column] ?? "")}
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
 
 export function OverviewTab({ overview }: OverviewTabProps) {
   return (
-    <div>
+    <div className="space-y-6">
       <Metrics metrics={overview.metrics} />
-      {overview.charts.map((chart, index) => (
-        <ChartPanel key={`${chart.title}-${index}`} chart={chart} />
-      ))}
+      <div className="grid gap-6 xl:grid-cols-2">
+        {overview.charts.map((chart, index) => (
+          <ChartPanel key={`${chart.title}-${index}`} chart={chart} />
+        ))}
+      </div>
       {overview.tables.map((table) => (
         <DataTableView key={table.title} table={table} />
       ))}

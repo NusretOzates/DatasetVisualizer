@@ -1,3 +1,6 @@
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
 type McqViewerProps = {
   row: Record<string, unknown>;
   questionCol?: string;
@@ -55,22 +58,37 @@ export function McqViewer({
   const options = formatOptions(row[choicesCol] ?? row.options);
 
   return (
-    <div>
-      <h3>Question</h3>
-      <p>{question}</p>
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground">Question</h3>
+        <p className="mt-2 text-base leading-relaxed">{question}</p>
+      </div>
+
       {options.length === 0 ? (
-        <p className="muted">No options available for this sample.</p>
+        <p className="text-sm text-muted-foreground">No options available for this sample.</p>
       ) : (
-        options.map((option) => (
-          <div
-            key={option.letter}
-            className={`mcq-option${option.letter === correct ? " correct" : ""}`}
-          >
-            <strong>{option.letter}.</strong> {option.text}
-          </div>
-        ))
+        <div className="space-y-2">
+          {options.map((option) => (
+            <div
+              key={option.letter}
+              className={cn(
+                "rounded-lg border px-4 py-3 text-sm",
+                option.letter === correct
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                  : "border-border bg-muted/30",
+              )}
+            >
+              <span className="font-semibold">{option.letter}.</span> {option.text}
+            </div>
+          ))}
+        </div>
       )}
-      {correct ? <p className="muted">Correct answer: {correct}</p> : null}
+
+      {correct ? (
+        <Badge variant="outline" className="border-emerald-300 text-emerald-700">
+          Correct answer: {correct}
+        </Badge>
+      ) : null}
     </div>
   );
 }

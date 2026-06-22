@@ -1,6 +1,19 @@
 "use client";
 
 import type { ControlSpec } from "@/lib/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ControlPanelProps = {
   controls: ControlSpec[];
@@ -12,31 +25,38 @@ export function ControlPanel({ controls, values, onChange }: ControlPanelProps) 
   if (!controls.length) return null;
 
   return (
-    <div className="panel">
-      <h3>Dataset controls</h3>
-      <div className="filters-grid">
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Dataset controls</CardTitle>
+        <CardDescription>Options that change which data is loaded from Hugging Face.</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {controls.map((control) => {
           if (control.type !== "select") return null;
           const labels = "labels" in control ? control.labels : undefined;
           return (
-            <div className="field" key={control.name}>
-              <label htmlFor={control.name}>{control.label}</label>
-              <select
-                id={control.name}
+            <div className="space-y-2" key={control.name}>
+              <Label htmlFor={control.name}>{control.label}</Label>
+              <Select
                 value={String(values[control.name] ?? control.default)}
-                onChange={(event) => onChange(control.name, event.target.value)}
+                onValueChange={(value) => onChange(control.name, value)}
               >
-                {control.options.map((option) => (
-                  <option key={option} value={option}>
-                    {labels?.[option] ?? option}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id={control.name} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {control.options.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {labels?.[option] ?? option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           );
         })}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -47,13 +67,55 @@ type FilterPanelProps = {
   onChange: (name: string, value: unknown) => void;
 };
 
+function MultiSelectFilter({
+  label,
+  available,
+  selected,
+  onChange,
+}: {
+  label: string;
+  available: string[];
+  selected: string[];
+  onChange: (values: string[]) => void;
+}) {
+  function toggle(option: string) {
+    if (selected.includes(option)) {
+      onChange(selected.filter((value) => value !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <ScrollArea className="h-40 rounded-md border p-3">
+        <div className="space-y-2">
+          {available.map((option) => (
+            <label key={option} className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={selected.includes(option)}
+                onCheckedChange={() => toggle(option)}
+              />
+              <span className="truncate">{option}</span>
+            </label>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+}
+
 export function FilterPanel({ filters, options, values, onChange }: FilterPanelProps) {
   if (!filters.length) return null;
 
   return (
-    <div className="panel">
-      <h3>Filters</h3>
-      <div className="filters-grid">
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Filters</CardTitle>
+        <CardDescription>Narrow the loaded dataset before viewing charts and samples.</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filters.map((filter) => {
           if (filter.type === "multiselect") {
             const available = Array.isArray(options[filter.name])
@@ -63,33 +125,21 @@ export function FilterPanel({ filters, options, values, onChange }: FilterPanelP
               ? (values[filter.name] as string[])
               : available;
             return (
-              <div className="field" key={filter.name}>
-                <label>{filter.label}</label>
-                <select
-                  multiple
-                  value={selected}
-                  onChange={(event) =>
-                    onChange(
-                      filter.name,
-                      Array.from(event.target.selectedOptions).map((option) => option.value),
-                    )
-                  }
-                  size={Math.min(8, Math.max(3, available.length))}
-                >
-                  {available.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <MultiSelectFilter
+                key={filter.name}
+                label={filter.label}
+                available={available}
+                selected={selected}
+                onChange={(next) => onChange(filter.name, next)}
+              />
             );
           }
           if (filter.type === "text") {
             return (
-              <div className="field" key={filter.name}>
-                <label>{filter.label}</label>
-                <input
+              <div className="space-y-2" key={filter.name}>
+                <Label htmlFor={filter.name}>{filter.label}</Label>
+                <Input
+                  id={filter.name}
                   value={String(values[filter.name] ?? "")}
                   onChange={(event) => onChange(filter.name, event.target.value)}
                 />
@@ -99,21 +149,22 @@ export function FilterPanel({ filters, options, values, onChange }: FilterPanelP
           if (filter.type === "radio") {
             const radioOptions = filter.options ?? [];
             return (
-              <div className="field" key={filter.name}>
-                <label>{filter.label}</label>
-                <div>
+              <div className="space-y-2" key={filter.name}>
+                <Label>{filter.label}</Label>
+                <RadioGroup
+                  value={String(values[filter.name] ?? filter.default ?? "All")}
+                  onValueChange={(value) => onChange(filter.name, value)}
+                  className="space-y-2"
+                >
                   {radioOptions.map((option) => (
-                    <label key={option} style={{ display: "block" }}>
-                      <input
-                        type="radio"
-                        name={filter.name}
-                        checked={String(values[filter.name] ?? filter.default ?? "All") === option}
-                        onChange={() => onChange(filter.name, option)}
-                      />{" "}
-                      {option}
-                    </label>
+                    <div key={option} className="flex items-center gap-2">
+                      <RadioGroupItem value={option} id={`${filter.name}-${option}`} />
+                      <Label htmlFor={`${filter.name}-${option}`} className="font-normal">
+                        {option}
+                      </Label>
+                    </div>
                   ))}
-                </div>
+                </RadioGroup>
               </div>
             );
           }
@@ -124,10 +175,10 @@ export function FilterPanel({ filters, options, values, onChange }: FilterPanelP
               end: range.max,
             };
             return (
-              <div className="field" key={filter.name}>
-                <label>{filter.label}</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-                  <input
+              <div className="space-y-2" key={filter.name}>
+                <Label>{filter.label}</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
                     type="date"
                     value={current.start ?? ""}
                     min={range.min}
@@ -136,7 +187,7 @@ export function FilterPanel({ filters, options, values, onChange }: FilterPanelP
                       onChange(filter.name, { ...current, start: event.target.value })
                     }
                   />
-                  <input
+                  <Input
                     type="date"
                     value={current.end ?? ""}
                     min={range.min}
@@ -151,7 +202,7 @@ export function FilterPanel({ filters, options, values, onChange }: FilterPanelP
           }
           return null;
         })}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

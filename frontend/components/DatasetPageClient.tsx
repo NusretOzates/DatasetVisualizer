@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import type { Catalog } from "@/lib/types";
 import { fetchCatalog } from "@/lib/api";
 import { DatasetExplorer } from "@/components/DatasetExplorer";
+import { AppShell } from "@/components/Sidebar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
 
 type DatasetPageClientProps = {
   datasetId: string;
@@ -21,9 +25,20 @@ export function DatasetPageClient({ datasetId }: DatasetPageClientProps) {
 
   if (!catalog) {
     return (
-      <main className="main">
-        {error ? <div className="error">{error}</div> : <p className="muted">Loading…</p>}
-      </main>
+      <AppShell>
+        {error ? (
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Failed to load catalog</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : (
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        )}
+      </AppShell>
     );
   }
 

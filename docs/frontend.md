@@ -1,19 +1,25 @@
 # Frontend (Next.js)
 
-The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../frontend/). It talks to the Gradio Server backend via [`@gradio/client`](https://www.npmjs.com/package/@gradio/client).
+The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../frontend/) styled with **Tailwind CSS v4** and **shadcn/ui**. It talks to the Gradio Server backend via [`@gradio/client`](https://www.npmjs.com/package/@gradio/client).
 
 ## Stack
 
 | Piece | Location | Role |
 |-------|----------|------|
-| App shell | `app/layout.tsx`, `app/globals.css` | Root layout and styles |
-| Home page | `app/page.tsx` → `components/HomePage.tsx` | Dataset catalog table |
+| Styling | Tailwind CSS v4 + `app/globals.css` | Theme tokens, layout utilities |
+| Components | `components/ui/` (shadcn/ui) | Button, Card, Tabs, Table, Select, etc. |
+| Icons | `lucide-react` | Sidebar and action icons |
+| Typography | `next/font` (Inter) | App-wide font |
+| App shell | `components/Sidebar.tsx` | Sidebar + `AppShell` layout |
+| Home page | `components/HomePage.tsx` | Dataset catalog table |
 | Dataset routes | `app/dataset/[id]/page.tsx` | Static export; lists all dataset ids |
 | API client | `lib/api.ts` | `@gradio/client` wrappers |
 | Types | `lib/types.ts` | Catalog, overview, chart, and control types |
 | Explorer | `components/DatasetExplorer.tsx` | Controls, filters, tabs |
 | Overview | `components/OverviewTab.tsx`, `ChartPanel.tsx` | Metrics + Plotly charts |
 | Samples | `components/SampleInspector.tsx` | Index slider, ID search, viewers |
+
+shadcn configuration lives in [`frontend/components.json`](../frontend/components.json).
 
 ## Development
 
