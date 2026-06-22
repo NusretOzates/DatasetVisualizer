@@ -16,7 +16,7 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | API client | `lib/api.ts` | `@gradio/client` wrappers |
 | Catalog hook | `lib/useCatalog.ts` | Client-side catalog fetch |
 | Types | `lib/types.ts` | Catalog, overview, chart, control, and filter types |
-| Explorer | `components/DatasetExplorer.tsx` | Controls, filters, tabs (via `lib/useDatasetQuery.ts`) |
+| Explorer | `components/DatasetExplorer.tsx` | Controls, top filters, tabs (via `lib/useDatasetQuery.ts`) |
 | Overview | `components/OverviewTab.tsx`, `ChartPanel.tsx` | Metrics + Plotly charts |
 | Samples | `components/SampleInspector.tsx` | Index slider, ID search, viewers |
 | Viewer registry | `components/viewers/registry.tsx` | Maps API `viewer` key → React component |

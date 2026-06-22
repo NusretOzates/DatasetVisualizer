@@ -71,6 +71,20 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
               onChange={setParam}
             />
 
+            {meta.filters.length > 0 ? (
+              <Collapsible>
+                <CollapsibleTrigger>Filter dataset</CollapsibleTrigger>
+                <CollapsibleContent className="pt-3">
+                  <FilterPanel
+                    filters={meta.filters}
+                    options={filterOptions}
+                    values={filters}
+                    onChange={setFilter}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+            ) : null}
+
             <Tabs defaultValue="overview" className="space-y-4">
               <TabsList>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -89,20 +103,6 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
                   </div>
                 ) : null}
                 {!loading && overview ? <OverviewTab overview={overview} /> : null}
-
-                {meta.filters.length > 0 ? (
-                  <Collapsible>
-                    <CollapsibleTrigger>Filter dataset</CollapsibleTrigger>
-                    <CollapsibleContent className="pt-3">
-                      <FilterPanel
-                        filters={meta.filters}
-                        options={filterOptions}
-                        values={filters}
-                        onChange={setFilter}
-                      />
-                    </CollapsibleContent>
-                  </Collapsible>
-                ) : null}
               </TabsContent>
 
               <TabsContent value="sample">
