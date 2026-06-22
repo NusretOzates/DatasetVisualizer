@@ -32,7 +32,7 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 | 3 | `src/dataset_visualizer/api/dataset_registry.py` | `DatasetDescriptor` with loader, overview, viewer, controls, filters |
 | 4 | `src/dataset_visualizer/api/overview.py` | `overview_<dataset>()` builder (or reuse existing) |
 | 5 | `frontend/components/viewers/` | New viewer + `registry.tsx` entry only if `viewer` key is new |
-| 6 | `scripts/inspect_dataset.py` | `LOADER_CACHE_KEYS` entry (if cache key ≠ config `loader` field) |
+| 6 | `scripts/inspect_dataset.py` | Optional `cache_key` on `DatasetDescriptor` when cache dir ≠ config `loader` |
 | 7 | `tests/test_loaders_<module>.py` | Mocked HF download tests |
 | 8 | `tests/test_api_service.py` | Optional smoke test for overview/meta if behavior is non-trivial |
 | 9 | `docs/datasets/<name>.md` + link in `docs/index.md` | Schema notes |
@@ -183,7 +183,7 @@ LOADER_CACHE_KEYS: dict[str, str] = {
 }
 ```
 
-The CLI calls `get_descriptor(dataset_id).loader({})` then prints `cache_dir(LOADER_CACHE_KEYS.get(entry.loader, entry.loader))`.
+The CLI calls `get_descriptor(dataset_id).loader({})` then prints `cache_dir(descriptor.cache_key or entry.loader)`.
 
 ## API handler contract
 
@@ -193,7 +193,7 @@ Dataset-specific behaviour is registered in `api/dataset_registry.py` and implem
 |--------|----------------|
 | `api/dataset_registry.py` | `DatasetDescriptor` per config `id` |
 | `api/service.py` | Catalog, meta, filter options, overview, samples (no per-id branches) |
-| `api/filters.py` | `apply_filters(df, schema, filters)` — multiselect, text, radio (`value_map`), date_range |
+| `api/filters.py` | `apply_filters()` and `build_filter_options()` — multiselect, text, radio (`value_map`), date_range |
 | `api/overview.py` | `overview_<dataset>(df, extras)` builders |
 | `api/serializers.py` | JSON-safe row/value serialization |
 

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 type SampleInspectorProps = {
   datasetId: string;
@@ -165,10 +165,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
 
       {payload?.row ? (
         <Collapsible>
-          <CollapsibleTrigger>
-            <ChevronDown className="size-4" />
-            Raw JSON
-          </CollapsibleTrigger>
+          <CollapsibleTrigger>Raw JSON</CollapsibleTrigger>
           <CollapsibleContent className="pt-3">
             <pre className="code-block">{JSON.stringify(payload.row, null, 2)}</pre>
           </CollapsibleContent>

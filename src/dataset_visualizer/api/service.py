@@ -9,8 +9,8 @@ from typing import Any
 import pandas as pd
 
 from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor
-from dataset_visualizer.api.filters import apply_filters
-from dataset_visualizer.api.serializers import serialize_row, serialize_value
+from dataset_visualizer.api.filters import apply_filters, build_filter_options
+from dataset_visualizer.api.serializers import serialize_row
 from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
 from dataset_visualizer.loaders.livecodebench import decode_private_test_cases
 from dataset_visualizer.row_count import row_count
@@ -42,6 +42,7 @@ def get_catalog() -> dict[str, Any]:
         label = category_key.replace("_", " ").title()
         entries = []
         for entry in datasets:
+            count_label = row_count(entry)
             entries.append(
                 {
                     "id": entry.id,
@@ -50,7 +51,7 @@ def get_catalog() -> dict[str, Any]:
                     "archetype": entry.archetype,
                     "description": entry.description,
                     "hf_source": _hf_source(entry),
-                    "row_count": row_count(entry),
+                    "row_count": count_label,
                 }
             )
             home_rows.append(
@@ -59,7 +60,7 @@ def get_catalog() -> dict[str, Any]:
                     "dataset": entry.label,
                     "hf_source": _hf_source(entry),
                     "archetype": entry.archetype or "—",
-                    "rows": row_count(entry),
+                    "rows": count_label,
                 }
             )
         categories.append({"key": category_key, "label": label, "datasets": entries})
@@ -88,7 +89,7 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
 def get_filter_options(dataset_id: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     """Return available filter option values for the loaded dataset."""
     context = _load_context(dataset_id, params or {})
-    return _filter_options_from_df(context.df, get_descriptor(dataset_id).filters)
+    return build_filter_options(context.df, get_descriptor(dataset_id).filters)
 
 
 def get_overview(
@@ -143,9 +144,8 @@ def find_sample(
     if matches.empty:
         return {"total": len(filtered), "index": -1, "row": None, "extras": {}}
 
-    index = int(matches.index[0])
-    position = int(filtered.index.get_loc(index))
-    row = filtered.loc[index]
+    position = int(matches.index[0])
+    row = filtered.iloc[position]
     return {
         "total": len(filtered),
         "index": position,
@@ -174,29 +174,6 @@ def _load_context(dataset_id: str, params: dict[str, Any]) -> DatasetContext:
     descriptor = get_descriptor(dataset_id)
     df, extras = descriptor.loader(params)
     return DatasetContext(df=df, extras=extras)
-
-
-def _filter_options_from_df(df: pd.DataFrame, schema: list[dict[str, Any]]) -> dict[str, Any]:
-    options: dict[str, Any] = {}
-    for spec in schema:
-        name = spec["name"]
-        ftype = spec["type"]
-        column = spec.get("column")
-
-        if ftype == "multiselect" and column and column in df.columns:
-            values = sorted(df[column].dropna().unique(), key=lambda v: str(v))
-            options[name] = [serialize_value(value) for value in values]
-        elif ftype == "radio":
-            options[name] = spec.get("options", [])
-        elif ftype == "date_range" and column and column in df.columns:
-            min_date = df[column].min()
-            max_date = df[column].max()
-            if pd.notna(min_date) and pd.notna(max_date):
-                options[name] = {
-                    "min": min_date.date().isoformat(),
-                    "max": max_date.date().isoformat(),
-                }
-    return options
 
 
 def _sample_extras(

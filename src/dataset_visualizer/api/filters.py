@@ -1,4 +1,4 @@
-"""Schema-driven dataset filtering for API handlers."""
+"""Schema-driven dataset filtering and filter-option discovery."""
 
 from __future__ import annotations
 
@@ -6,10 +6,38 @@ from typing import Any
 
 import pandas as pd
 
+from dataset_visualizer.api.serializers import serialize_value
+
+FilterSchema = list[dict[str, Any]]
+
+
+def build_filter_options(df: pd.DataFrame, schema: FilterSchema) -> dict[str, Any]:
+    """Return UI option payloads for each filter in a dataset schema."""
+    options: dict[str, Any] = {}
+    for spec in schema:
+        name = spec["name"]
+        ftype = spec["type"]
+        column = spec.get("column")
+
+        if ftype == "multiselect" and column and column in df.columns:
+            values = sorted(df[column].dropna().unique(), key=lambda v: str(v))
+            options[name] = [serialize_value(value) for value in values]
+        elif ftype == "radio":
+            options[name] = spec.get("options", [])
+        elif ftype == "date_range" and column and column in df.columns:
+            min_date = df[column].min()
+            max_date = df[column].max()
+            if pd.notna(min_date) and pd.notna(max_date):
+                options[name] = {
+                    "min": min_date.date().isoformat(),
+                    "max": max_date.date().isoformat(),
+                }
+    return options
+
 
 def apply_filters(
     df: pd.DataFrame,
-    schema: list[dict[str, Any]],
+    schema: FilterSchema,
     filters: dict[str, Any],
 ) -> pd.DataFrame:
     """Apply filter controls described by a dataset filter schema."""

@@ -9,7 +9,7 @@
 - [ ] **API registry** — `DatasetDescriptor` entry in [`api/dataset_registry.py`](../src/dataset_visualizer/api/dataset_registry.py) (`loader`, `overview`, `viewer`, controls, filters, …)
 - [ ] **Overview builder** — `overview_<dataset>()` in [`api/overview.py`](../src/dataset_visualizer/api/overview.py) (or reuse an existing builder)
 - [ ] **Frontend viewer** — only if no existing `viewer` key fits; register in [`components/viewers/registry.tsx`](../frontend/components/viewers/registry.tsx)
-- [ ] **Inspect CLI** — `LOADER_CACHE_KEYS` in [`scripts/inspect_dataset.py`](../scripts/inspect_dataset.py) if cache key ≠ config `loader` field
+- [ ] **Inspect CLI** — set `cache_key` on `DatasetDescriptor` when cache dir ≠ config `loader` field
 - [ ] **Tests** — `tests/test_loaders_<module>.py` with mocked HF calls and `load_*.clear()`; optional smoke tests in `tests/test_api_service.py`
 - [ ] **Docs** — `docs/datasets/<name>.md`, link from [`index.md`](index.md), update [`README.md`](../README.md) table
 

@@ -54,6 +54,8 @@ def test_inspect_dataset_success(
     )
 
     class FakeDescriptor:
+        cache_key = None
+
         def loader(self, _params: dict[str, object]) -> tuple[pd.DataFrame, dict[str, object]]:
             return df, {}
 

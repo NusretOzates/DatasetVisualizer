@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from dataset_visualizer.api.filters import apply_filters
+from dataset_visualizer.api.filters import apply_filters, build_filter_options
 
 
 def test_apply_filters_noop_without_filters() -> None:
@@ -33,6 +33,19 @@ def test_apply_filters_text_prefix() -> None:
     schema = [{"name": "src_prefix", "type": "text", "column": "src"}]
     filtered = apply_filters(df, schema, {"src_prefix": "foo"})
     assert len(filtered) == 2
+
+
+def test_build_filter_options_radio() -> None:
+    df = pd.DataFrame({"has_image": [True, False]})
+    schema = [
+        {
+            "name": "modality",
+            "type": "radio",
+            "options": ["All", "Text only", "Multimodal"],
+        }
+    ]
+    options = build_filter_options(df, schema)
+    assert options["modality"] == ["All", "Text only", "Multimodal"]
 
 
 def test_apply_filters_date_range() -> None:

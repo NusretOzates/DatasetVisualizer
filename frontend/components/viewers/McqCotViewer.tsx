@@ -6,7 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { McqViewer } from "./McqViewer";
-import type { SampleViewerProps } from "./registry";
+import type { SampleViewerProps } from "./types";
 
 export function McqCotViewer({ row }: SampleViewerProps) {
   return (

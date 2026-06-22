@@ -70,6 +70,7 @@ class DatasetDescriptor:
     filters: list[dict[str, Any]] = field(default_factory=list)
     sample_extras: SampleExtrasFn | None = None
     supports_private_tests: bool = False
+    cache_key: str | None = None
 
 
 def _language_options() -> list[str]:
@@ -149,6 +150,21 @@ def _controls_mmmlu() -> list[dict[str, Any]]:
             "default": default,
         }
     ]
+
+
+def _swe_bench_filters(*, include_difficulty: bool, include_language: bool) -> list[dict[str, Any]]:
+    filters: list[dict[str, Any]] = [
+        {"name": "repos", "label": "Repository", "type": "multiselect", "column": "repo"},
+    ]
+    if include_difficulty:
+        filters.append(
+            {"name": "difficulties", "label": "Difficulty", "type": "multiselect", "column": "difficulty"}
+        )
+    if include_language:
+        filters.append(
+            {"name": "languages", "label": "Language", "type": "multiselect", "column": "repo_language"}
+        )
+    return filters
 
 
 DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
@@ -256,30 +272,24 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
         viewer="issue_resolution",
         loader=lambda _p: (load_swe_bench_verified(), {}),
         overview=overview_swe_bench,
-        filters=[
-            {"name": "repos", "label": "Repository", "type": "multiselect", "column": "repo"},
-            {"name": "difficulties", "label": "Difficulty", "type": "multiselect", "column": "difficulty"},
-        ],
+        cache_key="swe_bench",
+        filters=_swe_bench_filters(include_difficulty=True, include_language=False),
     ),
     "swe_bench_multilingual": DatasetDescriptor(
         id_column="instance_id",
         viewer="issue_resolution",
         loader=lambda _p: (load_swe_bench_multilingual(), {}),
         overview=overview_swe_bench,
-        filters=[
-            {"name": "repos", "label": "Repository", "type": "multiselect", "column": "repo"},
-            {"name": "languages", "label": "Language", "type": "multiselect", "column": "repo_language"},
-        ],
+        cache_key="swe_bench",
+        filters=_swe_bench_filters(include_difficulty=False, include_language=True),
     ),
     "swe_bench_pro": DatasetDescriptor(
         id_column="instance_id",
         viewer="issue_resolution",
         loader=lambda _p: (load_swe_bench_pro(), {}),
         overview=overview_swe_bench,
-        filters=[
-            {"name": "repos", "label": "Repository", "type": "multiselect", "column": "repo"},
-            {"name": "difficulties", "label": "Difficulty", "type": "multiselect", "column": "difficulty"},
-        ],
+        cache_key="swe_bench",
+        filters=_swe_bench_filters(include_difficulty=True, include_language=False),
     ),
     "arxivmath_0526": DatasetDescriptor(
         id_column="problem_idx",

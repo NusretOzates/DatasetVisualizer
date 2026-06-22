@@ -9,12 +9,7 @@ import { IssueViewer } from "./IssueViewer";
 import { MathViewer } from "./MathViewer";
 import { McqCotViewer } from "./McqCotViewer";
 import { McqViewer } from "./McqViewer";
-
-export type SampleViewerProps = {
-  row: Record<string, unknown>;
-  extras: Record<string, unknown>;
-  privateTests: Record<string, unknown>[] | null;
-};
+import type { SampleViewerProps } from "./types";
 
 const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   mcq: ({ row }) => <McqViewer row={row} />,

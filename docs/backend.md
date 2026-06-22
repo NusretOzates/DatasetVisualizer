@@ -42,6 +42,9 @@ Each config `id` has one `DatasetDescriptor`:
 | `filters` | Filter schema (multiselect, text, radio, date_range) |
 | `sample_extras` | Optional per-row extras (model runs, solutions, …) |
 | `supports_private_tests` | Enables LiveCodeBench private-test decoding in the UI |
+| `cache_key` | On-disk cache dir for inspect CLI (`descriptor.cache_key` or config `loader`) |
+
+Row counts on the catalog use `entry.row_count` from YAML when set; otherwise the loader runs once per dataset. `get_catalog()` formats each count once and reuses it for sidebar and home table rows.
 
 Row counts (`row_count.py`), the inspect CLI (`scripts/inspect_dataset.py`), and API handlers all use `get_descriptor(dataset_id)` — there is no separate loader registry.
 

@@ -37,7 +37,11 @@ def test_row_count_uses_loader_result_when_available(monkeypatch: pytest.MonkeyP
         lambda _dataset_id: FakeDescriptor(),
     )
 
-    assert row_count(_entry(loader="mmlu")) == "3"
+    assert row_count(_entry(loader="mmlu", row_count=None)) == "3"
+
+
+def test_row_count_prefers_config_before_loader() -> None:
+    assert row_count(_entry(row_count=198)) == "198"
 
 
 def test_row_count_falls_back_to_config_when_loader_fails(

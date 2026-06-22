@@ -45,7 +45,7 @@ Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset
 | `server.py` | `gradio.Server` entry point, CORS, `@app.api` routes, static frontend mount |
 | `api/dataset_registry.py` | Single registration point: `DatasetDescriptor` per config `id` |
 | `api/service.py` | Catalog, meta, filter options, overview, and sample handlers |
-| `api/filters.py` | Schema-driven `apply_filters()` |
+| `api/filters.py` | Schema-driven `apply_filters()` and `build_filter_options()` |
 | `api/overview.py` | Per-dataset overview payload builders |
 | `api/chart_data.py` | Chart JSON builders for the React frontend |
 | `api/serializers.py` | DataFrame/row JSON serialization |

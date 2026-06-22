@@ -121,6 +121,7 @@ export type FilterControlSpec =
       options: string[];
       default?: string;
       column?: string;
+      value_map?: Record<string, boolean | string | number>;
     }
   | {
       name: string;

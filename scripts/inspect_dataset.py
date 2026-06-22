@@ -15,21 +15,6 @@ from dataset_visualizer.loaders.base import cache_dir
 
 MAX_VALUE_LEN = 200
 
-LOADER_CACHE_KEYS: dict[str, str] = {
-    "aime_2026": "aime_2026",
-    "mmlu": "mmlu",
-    "mmlu_pro": "mmlu_pro",
-    "gpqa": "gpqa",
-    "global_mmlu": "global_mmlu",
-    "mmmlu": "mmmlu",
-    "hle": "hle",
-    "livecodebench": "livecodebench",
-    "arxivmath": "arxivmath",
-    "swe_bench_verified": "swe_bench",
-    "swe_bench_multilingual": "swe_bench",
-    "swe_bench_pro": "swe_bench",
-}
-
 
 def _all_dataset_ids() -> list[str]:
     """Return sorted config dataset ids for usage messages."""
@@ -92,7 +77,7 @@ def inspect_dataset(dataset_id: str) -> int:
         return 1
 
     df, _extras = descriptor.loader({})
-    cache_key = LOADER_CACHE_KEYS.get(entry.loader, entry.loader)
+    cache_key = descriptor.cache_key or entry.loader
     path = cache_dir(cache_key)
 
     print(f"Dataset: {entry.label} ({dataset_id})")

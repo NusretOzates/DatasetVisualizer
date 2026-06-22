@@ -15,12 +15,12 @@ def format_row_count(count: int, entry: DatasetEntry) -> str:
 
 
 def row_count(entry: DatasetEntry) -> str:
-    """Return row count from loader, falling back to config when loading fails."""
+    """Return row count from config when set, otherwise from the dataset loader."""
+    if entry.row_count is not None:
+        return format_row_count(entry.row_count, entry)
     try:
         descriptor = get_descriptor(entry.id)
         df, _extras = descriptor.loader({})
         return format_row_count(len(df), entry)
     except Exception:
-        if entry.row_count is not None:
-            return format_row_count(entry.row_count, entry)
         return "error"
