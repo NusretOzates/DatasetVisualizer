@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { DatasetMeta, SamplePayload } from "@/lib/types";
-import { decodePrivateTests, fetchSample, findSample } from "@/lib/api";
+import { decodePrivateTests, fetchSample } from "@/lib/api";
 import { renderSample } from "./viewers/registry";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 type SampleInspectorProps = {
   datasetId: string;
@@ -27,7 +26,6 @@ type SampleInspectorProps = {
 
 export function SampleInspector({ datasetId, meta, params, filters }: SampleInspectorProps) {
   const [index, setIndex] = useState(0);
-  const [idSearch, setIdSearch] = useState("");
   const [payload, setPayload] = useState<SamplePayload | null>(null);
   const [privateTests, setPrivateTests] = useState<Record<string, unknown>[] | null>(null);
   const [privateTestsError, setPrivateTestsError] = useState<string | null>(null);
@@ -90,21 +88,6 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
 
   const total = payload?.total ?? 0;
 
-  async function handleSearch() {
-    if (!idSearch.trim()) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await findSample(datasetId, idSearch.trim(), params, filters);
-      setPayload(result);
-      if (result.index >= 0) setIndex(result.index);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div className="space-y-4">
       <Card>
@@ -146,25 +129,6 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
               disabled={!total || loading}
               onValueChange={(value) => setIndex(value[0] ?? 0)}
             />
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor="id-search">Find by {meta.id_column}</Label>
-              <Input
-                id="id-search"
-                value={idSearch}
-                placeholder={`Search ${meta.id_column}`}
-                onChange={(event) => setIdSearch(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") void handleSearch();
-                }}
-              />
-            </div>
-            <Button onClick={() => void handleSearch()} disabled={loading}>
-              <Search className="size-4" />
-              Search
-            </Button>
           </div>
         </CardContent>
       </Card>

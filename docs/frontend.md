@@ -18,7 +18,7 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | Types | `lib/types.ts` | Catalog, overview, chart, control, and filter types |
 | Explorer | `components/DatasetExplorer.tsx` | Controls, top filters, tabs (via `lib/useDatasetQuery.ts`) |
 | Overview | `components/OverviewTab.tsx`, `ChartPanel.tsx` | Metrics + Plotly charts |
-| Samples | `components/SampleInspector.tsx` | Index slider, ID search, viewers |
+| Samples | `components/SampleInspector.tsx` | Index slider and viewers |
 | Viewer registry | `components/viewers/registry.tsx` | Maps API `viewer` key → React component |
 
 shadcn configuration lives in [`frontend/components.json`](../frontend/components.json).

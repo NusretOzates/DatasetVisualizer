@@ -107,20 +107,6 @@ export async function fetchSample(
   });
 }
 
-export async function findSample(
-  datasetId: string,
-  idValue: string,
-  params: Record<string, unknown>,
-  filters: Record<string, unknown>,
-): Promise<SamplePayload> {
-  return predict<SamplePayload>("/find_sample", {
-    dataset_id: datasetId,
-    id_value: idValue,
-    params_json: JSON.stringify(params),
-    filters_json: JSON.stringify(filters),
-  });
-}
-
 export async function decodePrivateTests(raw: string): Promise<{ cases: Record<string, unknown>[] }> {
   return predict<{ cases: Record<string, unknown>[] }>("/decode_private_tests", { raw });
 }
