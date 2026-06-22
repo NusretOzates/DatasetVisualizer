@@ -23,6 +23,11 @@ from dataset_visualizer.api.service import (
 
 FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "out"
 DEFAULT_PORT = int(os.environ.get("PORT", "7860"))
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
 
 app = Server(title="Dataset Visualizer")
 
@@ -97,11 +102,7 @@ def api_decode_private_tests(raw: str) -> dict:
     return decode_private_tests_api(raw)
 
 
-def _mount_frontend() -> None:
-    """Serve the built Next.js static export when available."""
-    if not FRONTEND_DIST.is_dir():
-        return
-
+if FRONTEND_DIST.is_dir():
     assets_dir = FRONTEND_DIST / "_next"
     if assets_dir.is_dir():
         app.mount("/_next", StaticFiles(directory=assets_dir), name="next-assets")
@@ -126,12 +127,11 @@ def main() -> None:
     """Launch the Gradio Server with CORS enabled for local Next.js dev."""
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    _mount_frontend()
     app.launch(server_name="0.0.0.0", server_port=DEFAULT_PORT, show_error=True)
 
 

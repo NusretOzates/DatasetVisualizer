@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Catalog, DatasetMeta, OverviewPayload } from "@/lib/types";
 import { fetchDatasetMeta, fetchFilterOptions, fetchOverview } from "@/lib/api";
 import { AppShell } from "@/components/Sidebar";
@@ -21,9 +21,7 @@ type DatasetExplorerProps = {
 function defaultControlValues(meta: DatasetMeta): Record<string, unknown> {
   const values: Record<string, unknown> = {};
   for (const control of meta.controls) {
-    if (control.type === "select") {
-      values[control.name] = control.default;
-    }
+    values[control.name] = control.default;
   }
   return values;
 }
@@ -41,6 +39,28 @@ function defaultFilterValues(meta: DatasetMeta): Record<string, unknown> {
   return values;
 }
 
+function mergeFilterDefaults(
+  meta: DatasetMeta,
+  options: Record<string, unknown>,
+  base: Record<string, unknown>,
+): Record<string, unknown> {
+  const next = { ...base };
+  for (const filter of meta.filters) {
+    if (filter.type === "multiselect" && Array.isArray(options[filter.name])) {
+      if (!Array.isArray(next[filter.name])) {
+        next[filter.name] = options[filter.name];
+      }
+    }
+    if (filter.type === "date_range" && options[filter.name]) {
+      const range = options[filter.name] as { min?: string; max?: string };
+      if (!next[filter.name]) {
+        next[filter.name] = { start: range.min, end: range.max };
+      }
+    }
+  }
+  return next;
+}
+
 export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
   const [meta, setMeta] = useState<DatasetMeta | null>(null);
   const [params, setParams] = useState<Record<string, unknown>>({});
@@ -49,17 +69,70 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
   const [overview, setOverview] = useState<OverviewPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
+  const prevParamsRef = useRef<string | null>(null);
+  const prevFiltersRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-    fetchDatasetMeta(datasetId)
-      .then((datasetMeta) => {
+    initializedRef.current = false;
+    prevParamsRef.current = null;
+    prevFiltersRef.current = null;
+
+    async function initialize() {
+      setLoading(true);
+      setError(null);
+      setOverview(null);
+      try {
+        const datasetMeta = await fetchDatasetMeta(datasetId);
+        const initialParams = defaultControlValues(datasetMeta);
+        const options = await fetchFilterOptions(datasetId, initialParams);
         if (cancelled) return;
+
+        const initialFilters = mergeFilterDefaults(
+          datasetMeta,
+          options,
+          defaultFilterValues(datasetMeta),
+        );
         setMeta(datasetMeta);
-        setParams(defaultControlValues(datasetMeta));
-        setFilters(defaultFilterValues(datasetMeta));
+        setParams(initialParams);
+        setFilters(initialFilters);
+        setFilterOptions(options);
+
+        const overviewResult = await fetchOverview(datasetId, initialParams, initialFilters);
+        if (cancelled) return;
+        setOverview(overviewResult);
+        initializedRef.current = true;
+        prevParamsRef.current = JSON.stringify(initialParams);
+        prevFiltersRef.current = JSON.stringify(initialFilters);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load dataset");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void initialize();
+    return () => {
+      cancelled = true;
+    };
+  }, [datasetId]);
+
+  useEffect(() => {
+    if (!meta || !initializedRef.current) return;
+    const paramsKey = JSON.stringify(params);
+    if (prevParamsRef.current === paramsKey) return;
+    prevParamsRef.current = paramsKey;
+
+    let cancelled = false;
+    setLoading(true);
+    fetchFilterOptions(datasetId, params)
+      .then((options) => {
+        if (cancelled) return;
+        setFilterOptions(options);
+        setFilters((current) => mergeFilterDefaults(meta, options, current));
       })
       .catch((err: Error) => {
         if (!cancelled) setError(err.message);
@@ -70,43 +143,14 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
     return () => {
       cancelled = true;
     };
-  }, [datasetId]);
-
-  useEffect(() => {
-    if (!meta) return;
-    let cancelled = false;
-    fetchFilterOptions(datasetId, params)
-      .then((options) => {
-        if (cancelled) return;
-        setFilterOptions(options);
-        setFilters((current) => {
-          const next = { ...current };
-          for (const filter of meta.filters) {
-            if (filter.type === "multiselect" && Array.isArray(options[filter.name])) {
-              if (!Array.isArray(next[filter.name])) {
-                next[filter.name] = options[filter.name];
-              }
-            }
-            if (filter.type === "date_range" && options[filter.name]) {
-              const range = options[filter.name] as { min?: string; max?: string };
-              if (!next[filter.name]) {
-                next[filter.name] = { start: range.min, end: range.max };
-              }
-            }
-          }
-          return next;
-        });
-      })
-      .catch((err: Error) => {
-        if (!cancelled) setError(err.message);
-      });
-    return () => {
-      cancelled = true;
-    };
   }, [datasetId, meta, params]);
 
   useEffect(() => {
-    if (!meta) return;
+    if (!meta || !initializedRef.current) return;
+    const filtersKey = JSON.stringify(filters);
+    if (prevFiltersRef.current === filtersKey) return;
+    prevFiltersRef.current = filtersKey;
+
     let cancelled = false;
     setLoading(true);
     fetchOverview(datasetId, params, filters)
@@ -124,7 +168,7 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
     };
   }, [datasetId, meta, params, filters]);
 
-  const title = useMemo(() => meta?.label ?? datasetId, [meta, datasetId]);
+  const title = meta?.label ?? datasetId;
 
   return (
     <AppShell catalog={catalog}>

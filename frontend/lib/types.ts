@@ -82,15 +82,16 @@ export type Catalog = {
   }[];
 };
 
-export type ControlSpec =
-  | {
-      name: string;
-      label: string;
-      type: "select";
-      options: string[];
-      labels?: Record<string, string>;
-      default: string;
-    }
+export type SelectControlSpec = {
+  name: string;
+  label: string;
+  type: "select";
+  options: string[];
+  labels?: Record<string, string>;
+  default: string;
+};
+
+export type FilterControlSpec =
   | {
       name: string;
       label: string;
@@ -123,10 +124,12 @@ export type DatasetMeta = {
   label: string;
   description: string;
   archetype?: string | null;
+  viewer?: string | null;
+  supports_private_tests?: boolean;
   icon?: string | null;
   id_column: string;
-  controls: ControlSpec[];
-  filters: ControlSpec[];
+  controls: SelectControlSpec[];
+  filters: FilterControlSpec[];
 };
 
 export type SamplePayload = {

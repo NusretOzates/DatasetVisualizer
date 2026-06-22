@@ -21,9 +21,10 @@ def _entry(**overrides: object) -> DatasetEntry:
     return DatasetEntry.model_validate(data)
 
 
-def test_format_row_count_adds_problems_suffix_for_arxivmath() -> None:
-    assert format_row_count(40, "arxivmath") == "40 problems"
-    assert format_row_count(198, "gpqa") == "198"
+def test_format_row_count_adds_problems_suffix_for_math_datasets() -> None:
+    math_entry = _entry(id="arxivmath_0526", loader="arxivmath", archetype="math_competition")
+    assert format_row_count(40, math_entry) == "40 problems"
+    assert format_row_count(198, _entry()) == "198"
 
 
 def test_row_count_uses_loader_result_when_available(monkeypatch: pytest.MonkeyPatch) -> None:

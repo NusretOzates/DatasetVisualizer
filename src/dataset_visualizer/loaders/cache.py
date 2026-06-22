@@ -1,9 +1,8 @@
-"""In-process cache for dataset loaders (replaces Streamlit ``@loader_cache``)."""
+"""In-process cache for dataset loaders (replaces Streamlit ``@st.cache_data``)."""
 
 from __future__ import annotations
 
 import functools
-import pickle
 from collections.abc import Callable
 from typing import Any, ParamSpec, TypeVar
 
@@ -16,10 +15,10 @@ def _cache_key(args: tuple[Any, ...], kwargs: dict[str, Any]) -> tuple[Any, ...]
 
     def _normalize(obj: Any) -> Any:
         try:
-            pickle.dumps(obj)
-            return obj
-        except Exception:
+            hash(obj)
+        except TypeError:
             return repr(obj)
+        return obj
 
     return tuple(_normalize(a) for a in args) + tuple(
         (k, _normalize(v)) for k, v in sorted(kwargs.items())
@@ -27,7 +26,10 @@ def _cache_key(args: tuple[Any, ...], kwargs: dict[str, Any]) -> tuple[Any, ...]
 
 
 class _CachedLoader:
-    """Callable wrapper that memoizes loader results in memory."""
+    """Callable wrapper that memoizes loader results in memory.
+
+    Cached DataFrames are returned by reference; callers must not mutate them.
+    """
 
     def __init__(self, fn: Callable[P, R], cache: dict[tuple[Any, ...], R]) -> None:
         functools.update_wrapper(self, fn)
@@ -47,7 +49,7 @@ class _CachedLoader:
 
 def loader_cache(*, show_spinner: str | bool = False) -> Callable[[Callable[P, R]], _CachedLoader]:
     """Cache loader results in memory for the lifetime of the process."""
-    _ = show_spinner  # kept for drop-in compatibility with former ``@loader_cache`` calls
+    _ = show_spinner  # kept for drop-in compatibility with former ``@st.cache_data`` calls
 
     def decorator(fn: Callable[P, R]) -> _CachedLoader:
         cache_store: dict[tuple[Any, ...], R] = {}

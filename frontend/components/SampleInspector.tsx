@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import type { DatasetMeta, SamplePayload } from "@/lib/types";
 import { decodePrivateTests, fetchSample, findSample } from "@/lib/api";
-import { McqViewer } from "./viewers/McqViewer";
-import { CodeProblemViewer } from "./viewers/CodeProblemViewer";
-import { IssueViewer } from "./viewers/IssueViewer";
-import { ArxivMathViewer, HleViewer, MathViewer } from "./viewers/SpecialViewers";
+import { renderSample } from "./viewers/registry";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,77 +25,6 @@ type SampleInspectorProps = {
   filters: Record<string, unknown>;
 };
 
-function renderSample(
-  datasetId: string,
-  meta: DatasetMeta,
-  payload: SamplePayload,
-  privateTests: Record<string, unknown>[] | null,
-) {
-  if (!payload.row) {
-    return <p className="text-sm text-muted-foreground">No sample available.</p>;
-  }
-
-  const row = payload.row;
-  const archetype = meta.archetype ?? "";
-
-  if (datasetId === "arxivmath_0526") {
-    return <ArxivMathViewer row={row} extras={payload.extras} />;
-  }
-  if (datasetId === "aime_2026") {
-    return <MathViewer row={row} solution={String(payload.extras.solution ?? "")} />;
-  }
-  if (datasetId === "hle") {
-    return <HleViewer row={row} />;
-  }
-  if (archetype === "code_problem") {
-    return (
-      <div className="space-y-4">
-        <CodeProblemViewer row={row} />
-        {privateTests ? (
-          <Collapsible>
-            <CollapsibleTrigger>
-              <ChevronDown className="size-4" />
-              Private test cases
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-3">
-              <CodeProblemViewer row={{ public_test_cases: privateTests }} />
-            </CollapsibleContent>
-          </Collapsible>
-        ) : null}
-      </div>
-    );
-  }
-  if (archetype === "issue_resolution") {
-    return <IssueViewer row={row} />;
-  }
-  if (archetype === "mcq_cot") {
-    return (
-      <div className="space-y-4">
-        <McqViewer row={row} choicesCol="options" answerCol="answer" />
-        {row.cot_content ? (
-          <Collapsible>
-            <CollapsibleTrigger>
-              <ChevronDown className="size-4" />
-              Chain-of-thought
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-3">
-              <pre className="code-block">{String(row.cot_content)}</pre>
-            </CollapsibleContent>
-          </Collapsible>
-        ) : null}
-      </div>
-    );
-  }
-  if (archetype?.startsWith("mcq")) {
-    return <McqViewer row={row} />;
-  }
-  if (archetype === "math_competition") {
-    return <MathViewer row={row} />;
-  }
-
-  return <pre className="code-block">{JSON.stringify(row, null, 2)}</pre>;
-}
-
 export function SampleInspector({ datasetId, meta, params, filters }: SampleInspectorProps) {
   const [index, setIndex] = useState(0);
   const [idSearch, setIdSearch] = useState("");
@@ -115,12 +41,13 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
       .then(async (result) => {
         if (cancelled) return;
         setPayload(result);
+        const rawPrivateTests = result.row?.private_test_cases;
         if (
-          datasetId === "livecodebench_v6" &&
-          result.row?.private_test_cases &&
-          String(result.row.private_test_cases).trim()
+          meta.supports_private_tests &&
+          rawPrivateTests &&
+          String(rawPrivateTests).trim()
         ) {
-          const decoded = await decodePrivateTests(String(result.row.private_test_cases));
+          const decoded = await decodePrivateTests(String(rawPrivateTests));
           if (!cancelled) setPrivateTests(decoded.cases);
         } else if (!cancelled) {
           setPrivateTests(null);
@@ -135,7 +62,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
     return () => {
       cancelled = true;
     };
-  }, [datasetId, index, params, filters]);
+  }, [datasetId, index, params, filters, meta.supports_private_tests]);
 
   const total = payload?.total ?? 0;
 
@@ -231,7 +158,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
       {payload ? (
         <Card>
           <CardContent className="pt-6">
-            {renderSample(datasetId, meta, payload, privateTests)}
+            {renderSample(meta, payload, privateTests)}
           </CardContent>
         </Card>
       ) : null}

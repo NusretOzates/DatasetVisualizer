@@ -1,6 +1,6 @@
 "use client";
 
-import type { ControlSpec } from "@/lib/types";
+import type { FilterControlSpec, SelectControlSpec } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 
 type ControlPanelProps = {
-  controls: ControlSpec[];
+  controls: SelectControlSpec[];
   values: Record<string, unknown>;
   onChange: (name: string, value: unknown) => void;
 };
@@ -31,37 +31,33 @@ export function ControlPanel({ controls, values, onChange }: ControlPanelProps) 
         <CardDescription>Options that change which data is loaded from Hugging Face.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {controls.map((control) => {
-          if (control.type !== "select") return null;
-          const labels = "labels" in control ? control.labels : undefined;
-          return (
-            <div className="space-y-2" key={control.name}>
-              <Label htmlFor={control.name}>{control.label}</Label>
-              <Select
-                value={String(values[control.name] ?? control.default)}
-                onValueChange={(value) => onChange(control.name, value)}
-              >
-                <SelectTrigger id={control.name} className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {control.options.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {labels?.[option] ?? option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          );
-        })}
+        {controls.map((control) => (
+          <div className="space-y-2" key={control.name}>
+            <Label htmlFor={control.name}>{control.label}</Label>
+            <Select
+              value={String(values[control.name] ?? control.default)}
+              onValueChange={(value) => onChange(control.name, value)}
+            >
+              <SelectTrigger id={control.name} className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {control.options.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {control.labels?.[option] ?? option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );
 }
 
 type FilterPanelProps = {
-  filters: ControlSpec[];
+  filters: FilterControlSpec[];
   options: Record<string, unknown>;
   values: Record<string, unknown>;
   onChange: (name: string, value: unknown) => void;

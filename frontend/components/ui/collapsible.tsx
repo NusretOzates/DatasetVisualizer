@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+import { ChevronDownIcon } from "lucide-react"
 import { Collapsible as CollapsiblePrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
@@ -12,17 +14,21 @@ function Collapsible({
 
 function CollapsibleTrigger({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
   return (
     <CollapsiblePrimitive.CollapsibleTrigger
       data-slot="collapsible-trigger"
       className={cn(
-        "inline-flex w-full items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-left text-sm font-medium transition-colors outline-none hover:bg-muted/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex w-full items-center gap-2 rounded-md border border-border bg-muted/40 px-4 py-3 text-left text-sm font-medium transition-colors outline-none hover:bg-muted/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      <ChevronDownIcon className="ml-auto size-4 shrink-0 text-muted-foreground" />
+    </CollapsiblePrimitive.CollapsibleTrigger>
   )
 }
 

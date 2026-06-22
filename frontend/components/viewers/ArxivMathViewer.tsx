@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { McqViewer } from "./McqViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,127 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, Eye, EyeOff } from "lucide-react";
-
-type HleViewerProps = {
-  row: Record<string, unknown>;
-};
-
-export function HleViewer({ row }: HleViewerProps) {
-  const hasImage = Boolean(row.has_image);
-  const answerType = String(row.answer_type ?? "—");
-  const modality = hasImage ? "Multimodal" : "Text only";
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">ID: {String(row.id ?? "—")}</Badge>
-        <Badge variant="outline">{String(row.category ?? "—")}</Badge>
-        <Badge variant="outline">{modality}</Badge>
-        <Badge variant="secondary">{answerType}</Badge>
-      </div>
-      <div>
-        <h3 className="text-sm font-medium text-muted-foreground">Question</h3>
-        <p className="mt-2 text-base leading-relaxed">{String(row.question ?? "")}</p>
-      </div>
-      {hasImage && row.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={String(row.image)}
-          alt="Question"
-          className="max-h-96 rounded-lg border object-contain"
-        />
-      ) : null}
-      {row.answer ? (
-        <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          <strong>
-            {answerType === "multipleChoice" ? "Correct answer" : "Exact answer"}:
-          </strong>{" "}
-          {String(row.answer)}
-        </div>
-      ) : null}
-      {row.author_name ? (
-        <p className="text-sm text-muted-foreground">Contributor: {String(row.author_name)}</p>
-      ) : null}
-      {row.rationale ? (
-        <Accordion type="single" collapsible>
-          <AccordionItem value="rationale">
-            <AccordionTrigger>Rationale</AccordionTrigger>
-            <AccordionContent className="space-y-3">
-              <p className="text-sm leading-relaxed">{String(row.rationale)}</p>
-              {row.rationale_image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={String(row.rationale_image)}
-                  alt="Rationale"
-                  className="max-h-64 rounded-lg border object-contain"
-                />
-              ) : null}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      ) : null}
-      {answerType === "multipleChoice" ? <McqViewer row={row} answerCol="answer" /> : null}
-    </div>
-  );
-}
-
-type MathViewerProps = {
-  row: Record<string, unknown>;
-  solution?: string;
-};
-
-export function MathViewer({ row, solution }: MathViewerProps) {
-  const [revealed, setRevealed] = useState(false);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">Problem {String(row.problem_idx ?? "—")}</Badge>
-      </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Problem</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">{String(row.problem ?? "")}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setRevealed((current) => !current)}
-          >
-            {revealed ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            {revealed ? "Hide gold answer" : "Reveal gold answer"}
-          </Button>
-          {revealed ? (
-            <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
-                Gold answer
-              </p>
-              {String(row.answer ?? "")}
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      {solution ? (
-        <Card>
-          <CardContent className="pt-6">
-            <Accordion type="single" collapsible>
-              <AccordionItem value="solution">
-                <AccordionTrigger>Solution / working</AccordionTrigger>
-                <AccordionContent className="whitespace-pre-wrap text-sm">
-                  {solution}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </CardContent>
-        </Card>
-      ) : null}
-    </div>
-  );
-}
+import { ExternalLink } from "lucide-react";
+import { ProblemCard } from "./ProblemCard";
 
 type ArxivMathViewerProps = {
   row: Record<string, unknown>;
@@ -155,7 +35,6 @@ type ArxivMathViewerProps = {
 };
 
 export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
-  const [revealed, setRevealed] = useState(false);
   const [attemptIndex, setAttemptIndex] = useState("0");
   const modelRuns = Array.isArray(extras.model_runs)
     ? (extras.model_runs as Record<string, unknown>[])
@@ -178,32 +57,10 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Problem</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
-              {String(row.problem ?? "")}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setRevealed((current) => !current)}
-            >
-              {revealed ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              {revealed ? "Hide gold answer" : "Reveal gold answer"}
-            </Button>
-            {revealed ? (
-              <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
-                  Gold answer
-                </p>
-                {String(row.answer ?? "")}
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+        <ProblemCard
+          problem={String(row.problem ?? "")}
+          answer={String(row.answer ?? "")}
+        />
 
         <Card>
           <CardHeader className="pb-3">

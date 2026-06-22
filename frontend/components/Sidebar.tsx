@@ -6,7 +6,6 @@ import { Home } from "lucide-react";
 import type { Catalog } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 
 type SidebarProps = {
   catalog: Catalog;

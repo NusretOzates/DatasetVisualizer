@@ -1,22 +1,15 @@
 import { DatasetPageClient } from "@/components/DatasetPageClient";
+import { fetchCatalog } from "@/lib/api";
 
-const DATASET_IDS = [
-  "mmlu",
-  "mmlu_pro",
-  "gpqa_diamond",
-  "global_mmlu",
-  "mmmlu",
-  "aime_2026",
-  "hle",
-  "livecodebench_v6",
-  "swe_bench_verified",
-  "swe_bench_multilingual",
-  "swe_bench_pro",
-  "arxivmath_0526",
-];
-
-export function generateStaticParams() {
-  return DATASET_IDS.map((id) => ({ id }));
+export async function generateStaticParams() {
+  try {
+    const catalog = await fetchCatalog();
+    return catalog.categories.flatMap((category) =>
+      category.datasets.map((dataset) => ({ id: dataset.id })),
+    );
+  } catch {
+    return [];
+  }
 }
 
 type PageProps = {

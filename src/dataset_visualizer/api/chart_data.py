@@ -6,6 +6,8 @@ from typing import Any
 
 import pandas as pd
 
+from dataset_visualizer.api.serializers import serialize_value
+
 
 def value_counts_chart(
     series: pd.Series,
@@ -21,13 +23,31 @@ def value_counts_chart(
         counts = counts.head(top_n)
     categories = [str(cat) for cat in counts.index.tolist()]
     values = [int(v) for v in counts.tolist()]
+    return bar_chart_data(
+        categories=categories,
+        values=values,
+        title=title,
+        x_label=x_label,
+        y_label=y_label,
+    )
+
+
+def bar_chart_data(
+    *,
+    categories: list[str],
+    values: list[float],
+    title: str,
+    x_label: str = "",
+    y_label: str = "Count",
+) -> dict[str, Any]:
+    """Build a bar chart payload from explicit categories and numeric values."""
     return {
         "type": "bar",
         "title": title,
         "x_label": x_label,
         "y_label": y_label,
         "categories": categories,
-        "values": values,
+        "values": [float(value) for value in values],
     }
 
 
@@ -51,7 +71,7 @@ def histogram_data(series: pd.Series, *, title: str, x_label: str = "") -> dict[
         "type": "histogram",
         "title": title,
         "x_label": x_label,
-        "values": [serialize_number(value) for value in clean.tolist()],
+        "values": [serialize_chart_value(value) for value in clean.tolist()],
     }
 
 
@@ -80,7 +100,7 @@ def stacked_bar_chart(
     series = []
     for color_value in color_values:
         subset = counts[counts[color_col].astype(str) == color_value]
-        value_map = {str(row[x_col]): int(row["count"]) for _, row in subset.iterrows()}
+        value_map = dict(zip(subset[x_col].astype(str), subset["count"].astype(int), strict=False))
         series.append(
             {
                 "name": color_value,
@@ -112,14 +132,18 @@ def scatter_chart_data(
     color: str | None = None,
 ) -> dict[str, Any]:
     """Build a scatter chart payload from numeric columns."""
+    columns = [x, y] + ([color] if color else [])
+    frame = df[columns].rename(
+        columns={x: "x", y: "y", **({color: "color"} if color else {})},
+    )
     points: list[dict[str, object]] = []
-    for _, row in df.iterrows():
+    for row in frame.to_dict("records"):
         point: dict[str, object] = {
-            "x": serialize_number(row.get(x)),
-            "y": serialize_number(row.get(y)),
+            "x": serialize_chart_value(row["x"]),
+            "y": serialize_chart_value(row["y"]),
         }
         if color is not None:
-            point["color"] = serialize_number(row.get(color))
+            point["color"] = serialize_chart_value(row["color"])
         points.append(point)
     return {
         "type": "scatter",
@@ -131,12 +155,11 @@ def scatter_chart_data(
     }
 
 
-def serialize_number(value: object) -> float | int | str | None:
-    """Normalize numeric values for chart payloads."""
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return None
+def serialize_chart_value(value: object) -> float | int | str | None:
+    """Normalize values for chart payloads."""
     if isinstance(value, bool):
         return int(value)
-    if isinstance(value, (int, float)):
-        return value
-    return str(value)
+    serialized = serialize_value(value)
+    if isinstance(serialized, (int, float, str)) or serialized is None:
+        return serialized
+    return str(serialized)

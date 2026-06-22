@@ -46,7 +46,7 @@ Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset
 | `api/chart_data.py` | Chart JSON builders for the React frontend |
 | `api/serializers.py` | DataFrame/row JSON serialization |
 | `loaders/cache.py` | `@loader_cache` decorator (replaces Streamlit cache) |
-| `components/mcq_viewer.py` | MCQ helper functions (letter resolution, option formatting) |
+| `utils/mcq.py` | MCQ helper functions (letter resolution, option formatting) |
 
 Column contracts per archetype: [dataset-system.md § Column contracts](dataset-system.md#column-contracts-python-helpers).
 

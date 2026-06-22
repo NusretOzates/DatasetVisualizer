@@ -59,48 +59,50 @@ export function IssueViewer({ row }: IssueViewerProps) {
           {String(row.problem_statement ?? "")}
         </div>
       </div>
-      <Accordion type="multiple" className="w-full">
-        {row.hints_text ? (
-          <AccordionItem value="hints">
-            <AccordionTrigger>Hints (issue comments)</AccordionTrigger>
-            <AccordionContent className="whitespace-pre-wrap text-sm">
-              {String(row.hints_text)}
-            </AccordionContent>
-          </AccordionItem>
-        ) : null}
-        {row.patch ? (
-          <AccordionItem value="patch">
-            <AccordionTrigger>Gold patch</AccordionTrigger>
-            <AccordionContent>
-              <pre className="code-block">{String(row.patch)}</pre>
-            </AccordionContent>
-          </AccordionItem>
-        ) : null}
-        {row.test_patch ? (
-          <AccordionItem value="test-patch">
-            <AccordionTrigger>Test patch</AccordionTrigger>
-            <AccordionContent>
-              <pre className="code-block">{String(row.test_patch)}</pre>
-            </AccordionContent>
-          </AccordionItem>
-        ) : null}
-        {row.requirements ? (
-          <AccordionItem value="requirements">
-            <AccordionTrigger>Requirements</AccordionTrigger>
-            <AccordionContent className="whitespace-pre-wrap text-sm">
-              {String(row.requirements)}
-            </AccordionContent>
-          </AccordionItem>
-        ) : null}
-        {row.interface ? (
-          <AccordionItem value="interface">
-            <AccordionTrigger>Interface</AccordionTrigger>
-            <AccordionContent>
-              <pre className="code-block">{String(row.interface)}</pre>
-            </AccordionContent>
-          </AccordionItem>
-        ) : null}
-      </Accordion>
+      {(row.hints_text || row.patch || row.test_patch || row.requirements || row.interface) ? (
+        <Accordion type="multiple" className="w-full">
+          {row.hints_text ? (
+            <AccordionItem value="hints">
+              <AccordionTrigger>Hints (issue comments)</AccordionTrigger>
+              <AccordionContent className="whitespace-pre-wrap text-sm">
+                {String(row.hints_text)}
+              </AccordionContent>
+            </AccordionItem>
+          ) : null}
+          {row.patch ? (
+            <AccordionItem value="patch">
+              <AccordionTrigger>Gold patch</AccordionTrigger>
+              <AccordionContent>
+                <pre className="code-block">{String(row.patch)}</pre>
+              </AccordionContent>
+            </AccordionItem>
+          ) : null}
+          {row.test_patch ? (
+            <AccordionItem value="test-patch">
+              <AccordionTrigger>Test patch</AccordionTrigger>
+              <AccordionContent>
+                <pre className="code-block">{String(row.test_patch)}</pre>
+              </AccordionContent>
+            </AccordionItem>
+          ) : null}
+          {row.requirements ? (
+            <AccordionItem value="requirements">
+              <AccordionTrigger>Requirements</AccordionTrigger>
+              <AccordionContent className="whitespace-pre-wrap text-sm">
+                {String(row.requirements)}
+              </AccordionContent>
+            </AccordionItem>
+          ) : null}
+          {row.interface ? (
+            <AccordionItem value="interface">
+              <AccordionTrigger>Interface</AccordionTrigger>
+              <AccordionContent>
+                <pre className="code-block">{String(row.interface)}</pre>
+              </AccordionContent>
+            </AccordionItem>
+          ) : null}
+        </Accordion>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2">
         <TestList tests={row.fail_to_pass} title="FAIL_TO_PASS" />
         <TestList tests={row.pass_to_pass} title="PASS_TO_PASS" />

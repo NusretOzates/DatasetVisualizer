@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
+
 import pandas as pd
 import pytest
 
+from dataset_visualizer.api.filters import apply_filters
 from dataset_visualizer.api.service import (
-    _apply_filters,
     get_catalog,
     get_dataset_meta,
     get_overview,
@@ -28,7 +30,13 @@ def test_get_dataset_meta_for_mmlu() -> None:
     meta = get_dataset_meta("mmlu")
     assert meta["id"] == "mmlu"
     assert meta["id_column"] == "subject"
+    assert meta["viewer"] == "mcq"
     assert meta["controls"][0]["name"] == "split"
+
+
+def test_get_dataset_meta_unknown_id_raises() -> None:
+    with pytest.raises(ValueError, match="Unknown dataset id"):
+        get_dataset_meta("not_a_dataset")
 
 
 def test_parse_json_param_accepts_dict_and_string() -> None:
@@ -37,9 +45,15 @@ def test_parse_json_param_accepts_dict_and_string() -> None:
     assert parse_json_param(None) == {}
 
 
-def test_apply_filters_subject_multiselect(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_parse_json_param_invalid_json_raises() -> None:
+    with pytest.raises(ValueError, match="Invalid JSON parameter"):
+        parse_json_param("{not-json")
+
+
+def test_apply_filters_subject_multiselect() -> None:
     df = pd.DataFrame({"subject": ["math", "physics", "math"]})
-    filtered = _apply_filters("mmlu", df, {"subjects": ["math"]})
+    schema = [{"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"}]
+    filtered = apply_filters(df, schema, {"subjects": ["math"]})
     assert len(filtered) == 2
     assert set(filtered["subject"]) == {"math"}
 
@@ -53,7 +67,7 @@ def test_get_overview_mmlu_shape(monkeypatch: pytest.MonkeyPatch) -> None:
         }
     )
     monkeypatch.setattr(
-        "dataset_visualizer.api.service.load_mmlu",
+        "dataset_visualizer.loaders.mmlu.load_mmlu",
         lambda **kwargs: sample,
     )
     overview = get_overview("mmlu", {"split": "test"}, {})

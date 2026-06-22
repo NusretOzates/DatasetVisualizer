@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Catalog } from "@/lib/types";
-import { fetchCatalog } from "@/lib/api";
 import { DatasetExplorer } from "@/components/DatasetExplorer";
 import { AppShell } from "@/components/Sidebar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCatalog } from "@/lib/useCatalog";
 import { AlertCircle } from "lucide-react";
 
 type DatasetPageClientProps = {
@@ -14,14 +12,7 @@ type DatasetPageClientProps = {
 };
 
 export function DatasetPageClient({ datasetId }: DatasetPageClientProps) {
-  const [catalog, setCatalog] = useState<Catalog | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchCatalog()
-      .then(setCatalog)
-      .catch((err: Error) => setError(err.message));
-  }, []);
+  const { catalog, error } = useCatalog();
 
   if (!catalog) {
     return (
