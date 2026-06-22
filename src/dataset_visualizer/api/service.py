@@ -8,7 +8,7 @@ from typing import Any
 
 import pandas as pd
 
-from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor, resolve_controls
+from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor
 from dataset_visualizer.api.filters import apply_filters
 from dataset_visualizer.api.serializers import serialize_row, serialize_value
 from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
@@ -20,7 +20,6 @@ from dataset_visualizer.row_count import row_count
 class DatasetContext:
     """Loaded dataset state for a single request."""
 
-    entry: DatasetEntry
     df: pd.DataFrame
     extras: dict[str, Any] = field(default_factory=dict)
 
@@ -81,7 +80,7 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
         "viewer": descriptor.viewer,
         "supports_private_tests": descriptor.supports_private_tests,
         "id_column": descriptor.id_column,
-        "controls": resolve_controls(descriptor),
+        "controls": descriptor.controls(),
         "filters": descriptor.filters,
     }
 
@@ -172,26 +171,28 @@ def _require_entry(dataset_id: str) -> DatasetEntry:
 
 
 def _load_context(dataset_id: str, params: dict[str, Any]) -> DatasetContext:
-    entry = _require_entry(dataset_id)
     descriptor = get_descriptor(dataset_id)
     df, extras = descriptor.loader(params)
-    return DatasetContext(entry=entry, df=df, extras=extras)
+    return DatasetContext(df=df, extras=extras)
 
 
 def _filter_options_from_df(df: pd.DataFrame, schema: list[dict[str, Any]]) -> dict[str, Any]:
     options: dict[str, Any] = {}
     for spec in schema:
+        name = spec["name"]
+        ftype = spec["type"]
         column = spec.get("column")
-        if column and column in df.columns:
+
+        if ftype == "multiselect" and column and column in df.columns:
             values = sorted(df[column].dropna().unique(), key=lambda v: str(v))
-            options[spec["name"]] = [serialize_value(value) for value in values]
-        elif spec["type"] == "radio":
-            options[spec["name"]] = spec.get("options", [])
-        if spec["type"] == "date_range" and column in df.columns:
+            options[name] = [serialize_value(value) for value in values]
+        elif ftype == "radio":
+            options[name] = spec.get("options", [])
+        elif ftype == "date_range" and column and column in df.columns:
             min_date = df[column].min()
             max_date = df[column].max()
             if pd.notna(min_date) and pd.notna(max_date):
-                options[spec["name"]] = {
+                options[name] = {
                     "min": min_date.date().isoformat(),
                     "max": max_date.date().isoformat(),
                 }

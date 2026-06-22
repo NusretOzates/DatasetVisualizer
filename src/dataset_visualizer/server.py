@@ -30,6 +30,13 @@ CORS_ORIGINS = [
 ]
 
 app = Server(title="Dataset Visualizer")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.api(name="get_catalog")
@@ -125,13 +132,6 @@ if FRONTEND_DIST.is_dir():
 
 def main() -> None:
     """Launch the Gradio Server with CORS enabled for local Next.js dev."""
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
     app.launch(server_name="0.0.0.0", server_port=DEFAULT_PORT, show_error=True)
 
 

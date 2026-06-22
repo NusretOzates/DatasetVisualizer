@@ -91,6 +91,16 @@ export type SelectControlSpec = {
   default: string;
 };
 
+export type FilterDateRange = {
+  min?: string;
+  max?: string;
+};
+
+export type FilterOptions = Record<
+  string,
+  string[] | FilterDateRange | undefined
+>;
+
 export type FilterControlSpec =
   | {
       name: string;
@@ -130,6 +140,10 @@ export type DatasetMeta = {
   id_column: string;
   controls: SelectControlSpec[];
   filters: FilterControlSpec[];
+};
+
+export type ArxivMathExtras = {
+  outputs?: Record<string, unknown>;
 };
 
 export type SamplePayload = {

@@ -12,6 +12,7 @@ from dataset_visualizer.loaders.cache import loader_cache
 
 GLOBAL_MMLU_HF_ID = "CohereLabs/Global-MMLU"
 DEFAULT_LANGUAGE = "en"
+POPULAR_LANGUAGES = ("en", "es", "fr", "de", "zh", "ja", "ko", "pt", "ar", "hi")
 
 
 def _parse_annotation_list(raw: object) -> list[str]:

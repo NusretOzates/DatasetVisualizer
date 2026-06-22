@@ -2,17 +2,12 @@
 
 import type { ComponentType, ReactNode } from "react";
 import type { DatasetMeta } from "@/lib/types";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
 import { ArxivMathViewer } from "./ArxivMathViewer";
-import { CodeProblemViewer } from "./CodeProblemViewer";
+import { CodeProblemSampleViewer } from "./CodeProblemSampleViewer";
 import { HleViewer } from "./HleViewer";
 import { IssueViewer } from "./IssueViewer";
 import { MathViewer } from "./MathViewer";
+import { McqCotViewer } from "./McqCotViewer";
 import { McqViewer } from "./McqViewer";
 
 export type SampleViewerProps = {
@@ -21,47 +16,8 @@ export type SampleViewerProps = {
   privateTests: Record<string, unknown>[] | null;
 };
 
-function McqCotViewer({ row }: SampleViewerProps) {
-  return (
-    <div className="space-y-4">
-      <McqViewer row={row} choicesCol="options" answerCol="answer" />
-      {row.cot_content ? (
-        <Collapsible>
-          <CollapsibleTrigger>
-            <ChevronDown className="size-4" />
-            Chain-of-thought
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-3">
-            <pre className="code-block">{String(row.cot_content)}</pre>
-          </CollapsibleContent>
-        </Collapsible>
-      ) : null}
-    </div>
-  );
-}
-
-function CodeProblemSampleViewer({ row, privateTests }: SampleViewerProps) {
-  return (
-    <div className="space-y-4">
-      <CodeProblemViewer row={row} />
-      {privateTests ? (
-        <Collapsible>
-          <CollapsibleTrigger>
-            <ChevronDown className="size-4" />
-            Private test cases
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-3">
-            <CodeProblemViewer row={{ public_test_cases: privateTests }} />
-          </CollapsibleContent>
-        </Collapsible>
-      ) : null}
-    </div>
-  );
-}
-
 const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   mcq: ({ row }) => <McqViewer row={row} />,
-  mcq_multilingual: ({ row }) => <McqViewer row={row} />,
   mcq_cot: McqCotViewer,
   math_competition: ({ row, extras }) => (
     <MathViewer row={row} solution={String(extras.solution ?? "")} />

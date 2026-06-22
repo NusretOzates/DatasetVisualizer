@@ -2,6 +2,7 @@ import { Client } from "@gradio/client";
 import type {
   Catalog,
   DatasetMeta,
+  FilterOptions,
   OverviewPayload,
   SamplePayload,
 } from "./types";
@@ -17,7 +18,10 @@ function getApiUrl(): string {
 
 async function getClient(): Promise<Client> {
   if (!clientPromise) {
-    clientPromise = Client.connect(getApiUrl());
+    clientPromise = Client.connect(getApiUrl()).catch((error) => {
+      clientPromise = null;
+      throw error;
+    });
   }
   return clientPromise;
 }
@@ -43,8 +47,8 @@ export async function fetchDatasetMeta(datasetId: string): Promise<DatasetMeta> 
 export async function fetchFilterOptions(
   datasetId: string,
   params: Record<string, unknown>,
-): Promise<Record<string, unknown>> {
-  return predict<Record<string, unknown>>("/get_filter_options", {
+): Promise<FilterOptions> {
+  return predict<FilterOptions>("/get_filter_options", {
     dataset_id: datasetId,
     params_json: JSON.stringify(params),
   });

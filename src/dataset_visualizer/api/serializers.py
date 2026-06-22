@@ -11,7 +11,7 @@ import pandas as pd
 
 def serialize_value(value: object) -> object:
     """Convert a pandas/numpy value into a JSON-safe Python object."""
-    if value is None:
+    if value is None or value is pd.NA:
         return None
     if isinstance(value, float) and pd.isna(value):
         return None
@@ -42,4 +42,7 @@ def serialize_row(row: pd.Series) -> dict[str, Any]:
 def serialize_rows(df: pd.DataFrame, limit: int | None = None) -> list[dict[str, Any]]:
     """Serialize DataFrame rows for API responses."""
     subset = df.head(limit) if limit is not None else df
-    return [serialize_row(row) for _, row in subset.iterrows()]
+    return [
+        {str(key): serialize_value(value) for key, value in row.items()}
+        for row in subset.to_dict(orient="records")
+    ]

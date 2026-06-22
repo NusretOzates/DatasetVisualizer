@@ -21,13 +21,13 @@ function CollapsibleTrigger({
     <CollapsiblePrimitive.CollapsibleTrigger
       data-slot="collapsible-trigger"
       className={cn(
-        "inline-flex w-full items-center gap-2 rounded-md border border-border bg-muted/40 px-4 py-3 text-left text-sm font-medium transition-colors outline-none hover:bg-muted/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
+        "group/collapsible-trigger inline-flex w-full items-center gap-2 rounded-md border border-border bg-muted/40 px-4 py-3 text-left text-sm font-medium transition-colors outline-none hover:bg-muted/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
       {...props}
     >
       {children}
-      <ChevronDownIcon className="ml-auto size-4 shrink-0 text-muted-foreground" />
+      <ChevronDownIcon className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible-trigger:rotate-180" />
     </CollapsiblePrimitive.CollapsibleTrigger>
   )
 }

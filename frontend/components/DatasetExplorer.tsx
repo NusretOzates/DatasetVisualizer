@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Catalog, DatasetMeta, OverviewPayload } from "@/lib/types";
+import type { Catalog, DatasetMeta, FilterOptions, OverviewPayload } from "@/lib/types";
 import { fetchDatasetMeta, fetchFilterOptions, fetchOverview } from "@/lib/api";
 import { AppShell } from "@/components/Sidebar";
 import { OverviewTab } from "@/components/OverviewTab";
@@ -41,7 +41,7 @@ function defaultFilterValues(meta: DatasetMeta): Record<string, unknown> {
 
 function mergeFilterDefaults(
   meta: DatasetMeta,
-  options: Record<string, unknown>,
+  options: FilterOptions,
   base: Record<string, unknown>,
 ): Record<string, unknown> {
   const next = { ...base };
@@ -52,8 +52,8 @@ function mergeFilterDefaults(
       }
     }
     if (filter.type === "date_range" && options[filter.name]) {
-      const range = options[filter.name] as { min?: string; max?: string };
-      if (!next[filter.name]) {
+      const range = options[filter.name];
+      if (range && typeof range === "object" && "min" in range && !next[filter.name]) {
         next[filter.name] = { start: range.min, end: range.max };
       }
     }
@@ -61,23 +61,27 @@ function mergeFilterDefaults(
   return next;
 }
 
+function buildInitialFilters(meta: DatasetMeta, options: FilterOptions): Record<string, unknown> {
+  return mergeFilterDefaults(meta, options, defaultFilterValues(meta));
+}
+
 export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
   const [meta, setMeta] = useState<DatasetMeta | null>(null);
   const [params, setParams] = useState<Record<string, unknown>>({});
   const [filters, setFilters] = useState<Record<string, unknown>>({});
-  const [filterOptions, setFilterOptions] = useState<Record<string, unknown>>({});
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [overview, setOverview] = useState<OverviewPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const initializedRef = useRef(false);
   const prevParamsRef = useRef<string | null>(null);
-  const prevFiltersRef = useRef<string | null>(null);
+  const prevQueryRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     initializedRef.current = false;
     prevParamsRef.current = null;
-    prevFiltersRef.current = null;
+    prevQueryRef.current = null;
 
     async function initialize() {
       setLoading(true);
@@ -89,11 +93,7 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
         const options = await fetchFilterOptions(datasetId, initialParams);
         if (cancelled) return;
 
-        const initialFilters = mergeFilterDefaults(
-          datasetMeta,
-          options,
-          defaultFilterValues(datasetMeta),
-        );
+        const initialFilters = buildInitialFilters(datasetMeta, options);
         setMeta(datasetMeta);
         setParams(initialParams);
         setFilters(initialFilters);
@@ -104,7 +104,7 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
         setOverview(overviewResult);
         initializedRef.current = true;
         prevParamsRef.current = JSON.stringify(initialParams);
-        prevFiltersRef.current = JSON.stringify(initialFilters);
+        prevQueryRef.current = JSON.stringify({ params: initialParams, filters: initialFilters });
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load dataset");
@@ -132,7 +132,7 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
       .then((options) => {
         if (cancelled) return;
         setFilterOptions(options);
-        setFilters((current) => mergeFilterDefaults(meta, options, current));
+        setFilters(buildInitialFilters(meta, options));
       })
       .catch((err: Error) => {
         if (!cancelled) setError(err.message);
@@ -147,9 +147,9 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
 
   useEffect(() => {
     if (!meta || !initializedRef.current) return;
-    const filtersKey = JSON.stringify(filters);
-    if (prevFiltersRef.current === filtersKey) return;
-    prevFiltersRef.current = filtersKey;
+    const queryKey = JSON.stringify({ params, filters });
+    if (prevQueryRef.current === queryKey) return;
+    prevQueryRef.current = queryKey;
 
     let cancelled = false;
     setLoading(true);

@@ -39,12 +39,12 @@ def apply_filters(
                     filtered[column].astype(str).str.startswith(prefix, na=False)
                 ]
 
-        elif ftype == "radio" and name == "modality":
-            modality = filters.get(name, "All")
-            if modality == "Text only" and "has_image" in filtered.columns:
-                filtered = filtered[~filtered["has_image"]]
-            elif modality == "Multimodal" and "has_image" in filtered.columns:
-                filtered = filtered[filtered["has_image"]]
+        elif ftype == "radio" and column and column in filtered.columns:
+            selected = filters.get(name, spec.get("default", "All"))
+            value_map = spec.get("value_map")
+            if value_map and selected in value_map:
+                target = value_map[selected]
+                filtered = filtered[filtered[column] == target]
 
         elif ftype == "date_range" and column and column in filtered.columns:
             date_range = filters.get(name)

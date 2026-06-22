@@ -26,6 +26,7 @@ from dataset_visualizer.loaders.aime_2026 import load_aime_2026
 from dataset_visualizer.loaders.arxivmath import load_outputs, load_problems
 from dataset_visualizer.loaders.global_mmlu import (
     DEFAULT_LANGUAGE,
+    POPULAR_LANGUAGES,
     list_global_mmlu_languages,
     load_global_mmlu,
 )
@@ -34,39 +35,27 @@ from dataset_visualizer.loaders.hle import load_hle
 from dataset_visualizer.loaders.livecodebench import load_livecodebench
 from dataset_visualizer.loaders.mmlu import load_mmlu
 from dataset_visualizer.loaders.mmlu_pro import load_mmlu_pro
-from dataset_visualizer.loaders.mmmlu import DEFAULT_LOCALE, list_mmmlu_locales, load_mmmlu
+from dataset_visualizer.loaders.mmmlu import (
+    DEFAULT_LOCALE,
+    LOCALE_LABELS,
+    POPULAR_LOCALES,
+    list_mmmlu_locales,
+    load_mmmlu,
+)
 from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_multilingual,
     load_swe_bench_pro,
     load_swe_bench_verified,
 )
 
-POPULAR_LANGUAGES = ("en", "es", "fr", "de", "zh", "ja", "ko", "pt", "ar", "hi")
-LOCALE_LABELS: dict[str, str] = {
-    "AR_XY": "Arabic",
-    "BN_BD": "Bengali",
-    "DE_DE": "German",
-    "ES_LA": "Spanish",
-    "FR_FR": "French",
-    "HI_IN": "Hindi",
-    "ID_ID": "Indonesian",
-    "IT_IT": "Italian",
-    "JA_JP": "Japanese",
-    "KO_KR": "Korean",
-    "PT_BR": "Portuguese (Brazil)",
-    "SW_KE": "Swahili",
-    "YO_NG": "Yoruba",
-    "ZH_CN": "Chinese (Simplified)",
-}
-POPULAR_LOCALES = tuple(
-    locale for locale in ("DE_DE", "ES_LA", "FR_FR", "JA_JP", "KO_KR", "PT_BR", "AR_XY", "HI_IN")
-    if locale in LOCALE_LABELS
-)
-
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
 OverviewFn = Callable[[pd.DataFrame, dict[str, Any]], dict[str, Any]]
 SampleExtrasFn = Callable[[pd.Series, dict[str, Any]], dict[str, Any]]
 ControlsFn = Callable[[], list[dict[str, Any]]]
+
+
+def _empty_controls() -> list[dict[str, Any]]:
+    return []
 
 
 @dataclass
@@ -77,7 +66,7 @@ class DatasetDescriptor:
     viewer: str
     loader: LoaderFn
     overview: OverviewFn
-    controls: ControlsFn | list[dict[str, Any]] = field(default_factory=list)
+    controls: ControlsFn = _empty_controls
     filters: list[dict[str, Any]] = field(default_factory=list)
     sample_extras: SampleExtrasFn | None = None
     supports_private_tests: bool = False
@@ -190,7 +179,7 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "global_mmlu": DatasetDescriptor(
         id_column="sample_id",
-        viewer="mcq_multilingual",
+        viewer="mcq",
         loader=lambda p: (
             load_global_mmlu(
                 language=p.get("language", DEFAULT_LANGUAGE),
@@ -212,7 +201,7 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "mmmlu": DatasetDescriptor(
         id_column="sample_id",
-        viewer="mcq_multilingual",
+        viewer="mcq",
         loader=lambda p: (load_mmmlu(locale=p.get("locale", DEFAULT_LOCALE)), {}),
         overview=overview_mmmlu,
         controls=_controls_mmmlu,
@@ -240,6 +229,8 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
                 "type": "radio",
                 "options": ["All", "Text only", "Multimodal"],
                 "default": "All",
+                "column": "has_image",
+                "value_map": {"Text only": False, "Multimodal": True},
             },
         ],
     ),
@@ -310,10 +301,3 @@ def get_descriptor(dataset_id: str) -> DatasetDescriptor:
         msg = f"No API descriptor registered for dataset id: {dataset_id}"
         raise ValueError(msg)
     return descriptor
-
-
-def resolve_controls(descriptor: DatasetDescriptor) -> list[dict[str, Any]]:
-    """Return control definitions, evaluating callables when needed."""
-    if callable(descriptor.controls):
-        return descriptor.controls()
-    return descriptor.controls

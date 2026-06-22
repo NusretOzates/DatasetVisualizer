@@ -9,9 +9,14 @@ import pytest
 
 from dataset_visualizer.api.filters import apply_filters
 from dataset_visualizer.api.service import (
+    DatasetContext,
+    decode_private_tests_api,
+    find_sample,
     get_catalog,
     get_dataset_meta,
+    get_filter_options,
     get_overview,
+    get_sample,
     parse_json_param,
 )
 
@@ -58,18 +63,61 @@ def test_apply_filters_subject_multiselect() -> None:
     assert set(filtered["subject"]) == {"math"}
 
 
-def test_get_overview_mmlu_shape(monkeypatch: pytest.MonkeyPatch) -> None:
-    sample = pd.DataFrame(
-        {
-            "subject": ["math", "physics"],
-            "answer_letter": ["A", "B"],
-            "split": ["test", "test"],
-        }
+def _mmlu_context() -> DatasetContext:
+    return DatasetContext(
+        df=pd.DataFrame(
+            {
+                "subject": ["math", "physics"],
+                "answer_letter": ["A", "B"],
+                "split": ["test", "test"],
+            }
+        ),
+        extras={},
     )
+
+
+def test_get_overview_mmlu_shape(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "dataset_visualizer.loaders.mmlu.load_mmlu",
-        lambda **kwargs: sample,
+        "dataset_visualizer.api.service._load_context",
+        lambda dataset_id, params: _mmlu_context(),
     )
     overview = get_overview("mmlu", {"split": "test"}, {})
     assert len(overview["metrics"]) == 3
     assert len(overview["charts"]) == 2
+
+
+def test_get_filter_options_multiselect_and_radio(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "dataset_visualizer.api.service._load_context",
+        lambda dataset_id, params: DatasetContext(
+            df=pd.DataFrame({"has_image": [True, False]}),
+            extras={},
+        ),
+    )
+    options = get_filter_options("hle", {})
+    assert options["modality"] == ["All", "Text only", "Multimodal"]
+
+
+def test_get_sample_returns_row(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "dataset_visualizer.api.service._load_context",
+        lambda dataset_id, params: _mmlu_context(),
+    )
+    sample = get_sample("mmlu", 1, {}, {})
+    assert sample["total"] == 2
+    assert sample["index"] == 1
+    assert sample["row"]["subject"] == "physics"
+
+
+def test_find_sample_by_id_column(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "dataset_visualizer.api.service._load_context",
+        lambda dataset_id, params: _mmlu_context(),
+    )
+    result = find_sample("mmlu", "physics", {}, {})
+    assert result["index"] == 1
+    assert result["row"]["subject"] == "physics"
+
+
+def test_decode_private_tests_api_empty() -> None:
+    assert decode_private_tests_api("") == {"cases": []}

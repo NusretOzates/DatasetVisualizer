@@ -11,6 +11,26 @@ from dataset_visualizer.loaders.cache import loader_cache
 MMMLU_HF_ID = "openai/MMMLU"
 DEFAULT_LOCALE = "DE_DE"
 MMMLU_SPLIT = "test"
+LOCALE_LABELS: dict[str, str] = {
+    "AR_XY": "Arabic",
+    "BN_BD": "Bengali",
+    "DE_DE": "German",
+    "ES_LA": "Spanish",
+    "FR_FR": "French",
+    "HI_IN": "Hindi",
+    "ID_ID": "Indonesian",
+    "IT_IT": "Italian",
+    "JA_JP": "Japanese",
+    "KO_KR": "Korean",
+    "PT_BR": "Portuguese (Brazil)",
+    "SW_KE": "Swahili",
+    "YO_NG": "Yoruba",
+    "ZH_CN": "Chinese (Simplified)",
+}
+POPULAR_LOCALES = tuple(
+    locale for locale in ("DE_DE", "ES_LA", "FR_FR", "JA_JP", "KO_KR", "PT_BR", "AR_XY", "HI_IN")
+    if locale in LOCALE_LABELS
+)
 
 
 def _normalize_mmmlu_frame(df: pd.DataFrame, locale: str, split: str) -> pd.DataFrame:

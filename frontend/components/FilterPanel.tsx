@@ -1,6 +1,6 @@
 "use client";
 
-import type { FilterControlSpec, SelectControlSpec } from "@/lib/types";
+import type { FilterControlSpec, FilterOptions, SelectControlSpec } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -58,7 +58,7 @@ export function ControlPanel({ controls, values, onChange }: ControlPanelProps) 
 
 type FilterPanelProps = {
   filters: FilterControlSpec[];
-  options: Record<string, unknown>;
+  options: FilterOptions;
   values: Record<string, unknown>;
   onChange: (name: string, value: unknown) => void;
 };
