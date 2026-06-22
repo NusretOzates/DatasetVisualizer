@@ -56,7 +56,7 @@ function renderSample(
         <CodeProblemViewer row={row} />
         {privateTests ? (
           <Collapsible>
-            <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
+            <CollapsibleTrigger>
               <ChevronDown className="size-4" />
               Private test cases
             </CollapsibleTrigger>
@@ -77,7 +77,7 @@ function renderSample(
         <McqViewer row={row} choicesCol="options" answerCol="answer" />
         {row.cot_content ? (
           <Collapsible>
-            <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
+            <CollapsibleTrigger>
               <ChevronDown className="size-4" />
               Chain-of-thought
             </CollapsibleTrigger>
@@ -238,7 +238,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
 
       {payload?.row ? (
         <Collapsible>
-          <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <CollapsibleTrigger>
             <ChevronDown className="size-4" />
             Raw JSON
           </CollapsibleTrigger>

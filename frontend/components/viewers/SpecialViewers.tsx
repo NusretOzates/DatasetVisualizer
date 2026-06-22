@@ -11,6 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Eye, EyeOff } from "lucide-react";
 
 type HleViewerProps = {
   row: Record<string, unknown>;
@@ -101,28 +102,48 @@ export function MathViewer({ row, solution }: MathViewerProps) {
 
   return (
     <div className="space-y-4">
-      <Badge variant="outline">Problem {String(row.problem_idx ?? "—")}</Badge>
-      <div>
-        <h3 className="text-sm font-medium text-muted-foreground">Problem</h3>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
-          {String(row.problem ?? "")}
-        </p>
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline">Problem {String(row.problem_idx ?? "—")}</Badge>
       </div>
-      <Button variant="secondary" size="sm" onClick={() => setRevealed(true)}>
-        Reveal gold answer
-      </Button>
-      {revealed ? (
-        <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          {String(row.answer ?? "")}
-        </div>
-      ) : null}
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Problem</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">{String(row.problem ?? "")}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setRevealed((current) => !current)}
+          >
+            {revealed ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {revealed ? "Hide gold answer" : "Reveal gold answer"}
+          </Button>
+          {revealed ? (
+            <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
+                Gold answer
+              </p>
+              {String(row.answer ?? "")}
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+
       {solution ? (
-        <Accordion type="single" collapsible>
-          <AccordionItem value="solution">
-            <AccordionTrigger>Solution / working</AccordionTrigger>
-            <AccordionContent className="whitespace-pre-wrap text-sm">{solution}</AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <Card>
+          <CardContent className="pt-6">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="solution">
+                <AccordionTrigger>Solution / working</AccordionTrigger>
+                <AccordionContent className="whitespace-pre-wrap text-sm">
+                  {solution}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
       ) : null}
     </div>
   );
@@ -157,40 +178,51 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Problem</h3>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Problem</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">
               {String(row.problem ?? "")}
             </p>
-          </div>
-          <Button variant="secondary" size="sm" onClick={() => setRevealed(true)}>
-            Reveal gold answer
-          </Button>
-          {revealed ? (
-            <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-              {String(row.answer ?? "")}
-            </div>
-          ) : null}
-        </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRevealed((current) => !current)}
+            >
+              {revealed ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              {revealed ? "Hide gold answer" : "Reveal gold answer"}
+            </Button>
+            {revealed ? (
+              <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
+                  Gold answer
+                </p>
+                {String(row.answer ?? "")}
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-base">Paper</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p className="font-medium">{String(row.title ?? "—")}</p>
+          <CardContent className="space-y-3 text-sm">
+            <p className="font-medium leading-snug">{String(row.title ?? "—")}</p>
             <p className="text-muted-foreground">{String(row.authors ?? "—")}</p>
             {row.source ? (
-              <a
-                href={`https://arxiv.org/abs/${String(row.source)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-              >
-                View on arXiv
-                <ExternalLink className="size-3.5" />
-              </a>
+              <Button asChild variant="outline" size="sm">
+                <a
+                  href={`https://arxiv.org/abs/${String(row.source)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View on arXiv
+                  <ExternalLink className="size-3.5" />
+                </a>
+              </Button>
             ) : null}
           </CardContent>
         </Card>
@@ -198,33 +230,35 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
 
       {modelRuns.length ? (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-base">Model runs</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {Object.keys(modelRuns[0]).map((column) => (
-                    <TableHead key={column}>{column}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {modelRuns.map((run, index) => (
-                  <TableRow key={index}>
+            <div className="overflow-hidden rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {Object.keys(modelRuns[0]).map((column) => (
-                      <TableCell key={column} className="text-xs">
-                        {String(run[column] ?? "")}
-                      </TableCell>
+                      <TableHead key={column}>{column}</TableHead>
                     ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {modelRuns.map((run, index) => (
+                    <TableRow key={index}>
+                      {Object.keys(modelRuns[0]).map((column) => (
+                        <TableCell key={column} className="text-xs">
+                          {String(run[column] ?? "")}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Inspect attempt</p>
+              <Label>Inspect attempt</Label>
               <Select value={attemptIndex} onValueChange={setAttemptIndex}>
                 <SelectTrigger className="w-full max-w-md">
                   <SelectValue />
@@ -241,19 +275,19 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
 
             {selectedRun ? (
               <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">Parsed answer</p>
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">Parsed answer</p>
                   <pre className="code-block">{String(selectedRun.parsed_answer ?? "")}</pre>
                 </div>
-                <div>
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">Gold answer</p>
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">Gold answer</p>
                   <pre className="code-block">{String(selectedRun.gold_answer ?? "")}</pre>
                 </div>
               </div>
             ) : null}
 
             {fullRun ? (
-              <Accordion type="multiple">
+              <Accordion type="multiple" className="space-y-2">
                 <AccordionItem value="response">
                   <AccordionTrigger>Full model response</AccordionTrigger>
                   <AccordionContent>
@@ -271,7 +305,11 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
           </CardContent>
         </Card>
       ) : (
-        <p className="text-sm text-muted-foreground">No model runs for this problem.</p>
+        <Card>
+          <CardContent className="py-6 text-sm text-muted-foreground">
+            No model runs for this problem.
+          </CardContent>
+        </Card>
       )}
     </div>
   );
