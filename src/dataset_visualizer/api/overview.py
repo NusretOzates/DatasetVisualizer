@@ -145,15 +145,12 @@ def overview_mmmlu(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
 def overview_aime(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     overview = df.copy()
     overview["problem_preview"] = overview["problem"].astype(str).str.slice(0, 120)
-    charts = []
-    if "answer" in df.columns and len(df):
-        charts.append(histogram_data(df["answer"], title="Gold answer distribution"))
     return {
         "metrics": [
             {"label": "Problems", "value": f"{len(df):,}"},
             {"label": "Split", "value": "train"},
         ],
-        "charts": charts,
+        "charts": [],
         "tables": [
             {
                 "title": "All problems",
