@@ -30,6 +30,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
   const [idSearch, setIdSearch] = useState("");
   const [payload, setPayload] = useState<SamplePayload | null>(null);
   const [privateTests, setPrivateTests] = useState<Record<string, unknown>[] | null>(null);
+  const [privateTestsError, setPrivateTestsError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +38,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setPrivateTestsError(null);
     fetchSample(datasetId, index, params, filters)
       .then(async (result) => {
         if (cancelled) return;
@@ -48,10 +50,25 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
           rawPrivateTests &&
           String(rawPrivateTests).trim()
         ) {
-          const decoded = await decodePrivateTests(String(rawPrivateTests));
-          if (!cancelled) setPrivateTests(decoded.cases);
+          try {
+            const decoded = await decodePrivateTests(String(rawPrivateTests));
+            if (!cancelled) {
+              setPrivateTests(decoded.cases);
+              setPrivateTestsError(null);
+            }
+          } catch (decodeErr) {
+            if (!cancelled) {
+              setPrivateTests(null);
+              setPrivateTestsError(
+                decodeErr instanceof Error
+                  ? decodeErr.message
+                  : "Failed to decode private test cases",
+              );
+            }
+          }
         } else if (!cancelled) {
           setPrivateTests(null);
+          setPrivateTestsError(null);
         }
       })
       .catch((err: Error) => {
@@ -151,6 +168,14 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
           <AlertCircle className="size-4" />
           <AlertTitle>Failed to load sample</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {privateTestsError ? (
+        <Alert variant="destructive">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Private test cases unavailable</AlertTitle>
+          <AlertDescription>{privateTestsError}</AlertDescription>
         </Alert>
       ) : null}
 

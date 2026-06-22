@@ -132,6 +132,13 @@ def test_decode_private_tests_api_returns_serialized_cases(monkeypatch: pytest.M
     assert result == {"cases": [{"input": "1", "output": "2"}]}
 
 
+def test_decode_private_tests_api_serializes_decoded_json() -> None:
+    """Regression: decode path must import serialize_value (LiveCodeBench sample tab)."""
+    cases = [{"input": "1", "output": "2", "testtype": "stdin"}]
+    result = decode_private_tests_api(json.dumps(cases))
+    assert result == {"cases": cases}
+
+
 def test_load_context_gated_dataset_raises_actionable_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
