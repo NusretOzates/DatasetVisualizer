@@ -101,6 +101,11 @@ export type FilterOptions = Record<
   string[] | FilterDateRange | undefined
 >;
 
+export type FilterOptionsResponse = {
+  columns: string[];
+  options: FilterOptions;
+};
+
 export type FilterControlSpec =
   | {
       name: string;

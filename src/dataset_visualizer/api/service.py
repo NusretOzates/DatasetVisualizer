@@ -87,9 +87,12 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
 
 
 def get_filter_options(dataset_id: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Return available filter option values for the loaded dataset."""
+    """Return column names and available filter option values for the loaded dataset."""
     context = _load_context(dataset_id, params or {})
-    return build_filter_options(context.df, get_descriptor(dataset_id).filters)
+    return {
+        "columns": [str(column) for column in context.df.columns],
+        "options": build_filter_options(context.df, get_descriptor(dataset_id).filters),
+    }
 
 
 def get_overview(

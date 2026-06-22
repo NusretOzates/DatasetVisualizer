@@ -12,6 +12,7 @@ type DatasetQueryState = {
   params: FilterValues;
   filters: FilterValues;
   filterOptions: FilterOptions;
+  columns: string[];
   overview: OverviewPayload | null;
   loading: boolean;
   error: string | null;
@@ -24,6 +25,7 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
   const [params, setParams] = useState<FilterValues>({});
   const [filters, setFilters] = useState<FilterValues>({});
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
+  const [columns, setColumns] = useState<string[]>([]);
   const [overview, setOverview] = useState<OverviewPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,6 +40,7 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
     setError(null);
     setOverview(null);
     setMeta(null);
+    setColumns([]);
     paramsKeyRef.current = null;
 
     async function initialize() {
@@ -82,10 +85,11 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
 
         if (paramsKeyRef.current !== paramsKey) {
           paramsKeyRef.current = paramsKey;
-          const options = await fetchFilterOptions(datasetId, params);
+          const result = await fetchFilterOptions(datasetId, params);
           if (cancelled || requestId !== requestIdRef.current) return;
-          activeFilters = reconcileFilters(datasetMeta, options, filters);
-          setFilterOptions(options);
+          activeFilters = reconcileFilters(datasetMeta, result.options, filters);
+          setColumns(result.columns);
+          setFilterOptions(result.options);
           setFilters(activeFilters);
         }
 
@@ -122,6 +126,7 @@ export function useDatasetQuery(datasetId: string): DatasetQueryState {
     params,
     filters,
     filterOptions,
+    columns,
     overview,
     loading,
     error,

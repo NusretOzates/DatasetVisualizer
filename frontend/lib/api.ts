@@ -2,7 +2,7 @@ import { Client } from "@gradio/client";
 import type {
   Catalog,
   DatasetMeta,
-  FilterOptions,
+  FilterOptionsResponse,
   OverviewPayload,
   SamplePayload,
 } from "./types";
@@ -74,8 +74,8 @@ export async function fetchDatasetMeta(datasetId: string): Promise<DatasetMeta> 
 export async function fetchFilterOptions(
   datasetId: string,
   params: Record<string, unknown>,
-): Promise<FilterOptions> {
-  return predict<FilterOptions>("/get_filter_options", {
+): Promise<FilterOptionsResponse> {
+  return predict<FilterOptionsResponse>("/get_filter_options", {
     dataset_id: datasetId,
     params_json: JSON.stringify(params),
   });

@@ -28,6 +28,7 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
     params,
     filters,
     filterOptions,
+    columns,
     overview,
     loading,
     error,
@@ -46,6 +47,18 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
             {meta?.archetype ? <Badge variant="secondary">{meta.archetype}</Badge> : null}
           </div>
           {meta ? <p className="max-w-4xl text-muted-foreground">{meta.description}</p> : null}
+          {columns.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">Columns</p>
+              <div className="flex flex-wrap gap-1.5">
+                {columns.map((column) => (
+                  <Badge key={column} variant="outline" className="font-mono text-xs font-normal">
+                    {column}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {error ? (

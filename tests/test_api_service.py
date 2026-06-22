@@ -94,8 +94,9 @@ def test_get_filter_options_multiselect_and_radio(monkeypatch: pytest.MonkeyPatc
             extras={},
         ),
     )
-    options = get_filter_options("hle", {})
-    assert options["modality"] == ["All", "Text only", "Multimodal"]
+    result = get_filter_options("hle", {})
+    assert result["options"]["modality"] == ["All", "Text only", "Multimodal"]
+    assert result["columns"] == ["has_image"]
 
 
 def test_get_sample_returns_row(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -56,7 +56,7 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 |----------|------------|---------|
 | `get_catalog` | — | Categories, dataset list, home table rows |
 | `get_dataset_meta` | `dataset_id` | Description, archetype, `viewer`, controls, filters, `id_column` |
-| `get_filter_options` | `dataset_id`, `params_json` | Unique filter values after load |
+| `get_filter_options` | `dataset_id`, `params_json` | Column names and unique filter values after load |
 | `get_overview` | `dataset_id`, `params_json`, `filters_json` | Metrics, charts, tables |
 | `get_sample` | `dataset_id`, `index`, `params_json`, `filters_json` | Row + extras at index |
 | `find_sample` | `dataset_id`, `id_value`, `params_json`, `filters_json` | Row + extras by id column |

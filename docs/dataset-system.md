@@ -241,7 +241,7 @@ Build charts with helpers in `api/chart_data.py`. Serialize table rows with `api
 |----------|---------|
 | `get_catalog` | Navigation + home table rows |
 | `get_dataset_meta` | Description, archetype, `viewer`, controls, filter schema, `id_column` |
-| `get_filter_options` | Unique values for multiselect/date filters after load |
+| `get_filter_options` | Column names and filter option values after load |
 | `get_overview` | Metrics, charts, tables for filtered data |
 | `get_sample` | Row at index + extras |
 | `find_sample` | Row by `id_column` value |
