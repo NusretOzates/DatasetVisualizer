@@ -39,7 +39,7 @@ npm install
 NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
 ```
 
-Open http://localhost:3000. The API client uses `NEXT_PUBLIC_API_URL` when set; otherwise it falls back to `window.location.origin` (same-origin production mode). Failed connect attempts reset the Gradio client promise so the next request retries.
+Open http://localhost:3000. The API client uses `NEXT_PUBLIC_API_URL` when set; otherwise, when the UI runs on port **3000** (Next.js dev), it connects to `http://localhost:7860` automatically. In production (same origin as the Gradio server), it uses `window.location.origin`. Failed connect attempts reset the Gradio client promise so the next request retries.
 
 ## Production build
 

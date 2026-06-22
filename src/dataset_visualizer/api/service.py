@@ -172,8 +172,28 @@ def _require_entry(dataset_id: str) -> DatasetEntry:
 
 def _load_context(dataset_id: str, params: dict[str, Any]) -> DatasetContext:
     descriptor = get_descriptor(dataset_id)
-    df, extras = descriptor.loader(params)
+    try:
+        df, extras = descriptor.loader(params)
+    except Exception as exc:
+        msg = _loader_error_message(dataset_id, exc)
+        raise ValueError(msg) from exc
     return DatasetContext(df=df, extras=extras)
+
+
+def _loader_error_message(dataset_id: str, exc: Exception) -> str:
+    """Turn loader failures into actionable API errors for the UI."""
+    detail = str(exc).strip()
+    lowered = detail.lower()
+    if "gated" in lowered or "authenticated" in lowered:
+        entry = get_dataset_by_id(load_config(), dataset_id)
+        hf_id = entry.hf_id if entry and entry.hf_id else "the Hugging Face dataset"
+        return (
+            f"Cannot load {dataset_id}: access to {hf_id} is gated on Hugging Face. "
+            "Accept the dataset terms on the Hub and set HF_TOKEN in your environment."
+        )
+    if detail:
+        return f"Failed to load dataset {dataset_id}: {detail}"
+    return f"Failed to load dataset {dataset_id}"
 
 
 def _sample_extras(

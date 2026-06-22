@@ -130,3 +130,22 @@ def test_decode_private_tests_api_returns_serialized_cases(monkeypatch: pytest.M
     )
     result = decode_private_tests_api("encoded")
     assert result == {"cases": [{"input": "1", "output": "2"}]}
+
+
+def test_load_context_gated_dataset_raises_actionable_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeDescriptor:
+        def loader(self, _params: dict[str, object]) -> tuple[pd.DataFrame, dict[str, object]]:
+            msg = "Dataset 'Idavidrein/gpqa' is a gated dataset on the Hub."
+            raise RuntimeError(msg)
+
+    monkeypatch.setattr(
+        "dataset_visualizer.api.service.get_descriptor",
+        lambda _dataset_id: FakeDescriptor(),
+    )
+
+    with pytest.raises(ValueError, match="gated on Hugging Face") as exc_info:
+        get_filter_options("gpqa_diamond", {})
+
+    assert "HF_TOKEN" in str(exc_info.value)
