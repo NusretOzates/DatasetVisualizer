@@ -3,11 +3,14 @@
 import type { ComponentType, ReactNode } from "react";
 import type { DatasetMeta } from "@/lib/types";
 import { ArxivMathViewer } from "./ArxivMathViewer";
+import { CodeEvalViewer } from "./CodeEvalViewer";
+import { GenericViewer } from "./GenericViewer";
 import { CodeProblemSampleViewer } from "./CodeProblemSampleViewer";
 import { HleViewer } from "./HleViewer";
 import { IssueViewer } from "./IssueViewer";
 import { MathViewer } from "./MathViewer";
 import { McqCotViewer } from "./McqCotViewer";
+import { McqViewer } from "./McqViewer";
 import { Tau3BenchViewer } from "./Tau3BenchViewer";
 import type { SampleViewerProps } from "./types";
 
@@ -22,6 +25,8 @@ const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   code_problem: CodeProblemSampleViewer,
   issue_resolution: ({ row }) => <IssueViewer row={row} />,
   agent_task: Tau3BenchViewer,
+  generic: GenericViewer,
+  code_eval: CodeEvalViewer,
 };
 
 export function renderSample(
