@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 HLE_HF_ID = "cais/hle"
 HLE_SPLIT = "test"
@@ -38,7 +38,7 @@ def _normalize_hle_frame(df: pd.DataFrame) -> pd.DataFrame:
     return normalized
 
 
-@st.cache_data(show_spinner="Downloading Humanity's Last Exam …")
+@loader_cache(show_spinner="Downloading Humanity's Last Exam …")
 def load_hle() -> pd.DataFrame:
     """Load and normalize the Humanity's Last Exam benchmark dataset.
 

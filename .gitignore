@@ -14,3 +14,7 @@ data/cache/
 .env
 .ruff_cache/
 .pytest_cache/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/tsconfig.tsbuildinfo

@@ -5,13 +5,14 @@ from __future__ import annotations
 import ast
 
 import pandas as pd
-import streamlit as st
 from datasets import get_dataset_config_names, load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 GLOBAL_MMLU_HF_ID = "CohereLabs/Global-MMLU"
 DEFAULT_LANGUAGE = "en"
+POPULAR_LANGUAGES = ("en", "es", "fr", "de", "zh", "ja", "ko", "pt", "ar", "hi")
 
 
 def _parse_annotation_list(raw: object) -> list[str]:
@@ -64,7 +65,7 @@ def list_global_mmlu_languages() -> list[str]:
     return sorted(get_dataset_config_names(GLOBAL_MMLU_HF_ID))
 
 
-@st.cache_data(show_spinner="Downloading Global-MMLU …")
+@loader_cache(show_spinner="Downloading Global-MMLU …")
 def load_global_mmlu(language: str = DEFAULT_LANGUAGE, split: str = "dev") -> pd.DataFrame:
     """Load and normalize Global-MMLU for a single language config.
 

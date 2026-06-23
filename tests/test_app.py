@@ -1,4 +1,4 @@
-"""Tests for the Streamlit app entry point."""
+"""Tests for the Gradio server entry point."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from pathlib import Path
 from dataset_visualizer import app
 
 
-def test_app_main_block_calls_app_main_not_cli() -> None:
-    """app.py __main__ must run Streamlit logic directly, never respawn via cli."""
+def test_app_main_block_calls_main() -> None:
+    """app.py __main__ must run the server main function directly."""
     tree = ast.parse(Path(app.__file__).read_text(encoding="utf-8"))
     main_guard = next(
         node
@@ -24,6 +24,3 @@ def test_app_main_block_calls_app_main_not_cli() -> None:
     assert isinstance(call, ast.Expr) and isinstance(call.value, ast.Call)
     func = call.value.func
     assert isinstance(func, ast.Name) and func.id == "main"
-
-    module_source = ast.unparse(tree)
-    assert "dataset_visualizer.cli" not in module_source

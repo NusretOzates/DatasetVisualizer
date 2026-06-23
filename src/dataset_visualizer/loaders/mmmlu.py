@@ -3,14 +3,34 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 from datasets import get_dataset_config_names, load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 MMMLU_HF_ID = "openai/MMMLU"
 DEFAULT_LOCALE = "DE_DE"
 MMMLU_SPLIT = "test"
+LOCALE_LABELS: dict[str, str] = {
+    "AR_XY": "Arabic",
+    "BN_BD": "Bengali",
+    "DE_DE": "German",
+    "ES_LA": "Spanish",
+    "FR_FR": "French",
+    "HI_IN": "Hindi",
+    "ID_ID": "Indonesian",
+    "IT_IT": "Italian",
+    "JA_JP": "Japanese",
+    "KO_KR": "Korean",
+    "PT_BR": "Portuguese (Brazil)",
+    "SW_KE": "Swahili",
+    "YO_NG": "Yoruba",
+    "ZH_CN": "Chinese (Simplified)",
+}
+POPULAR_LOCALES = tuple(
+    locale for locale in ("DE_DE", "ES_LA", "FR_FR", "JA_JP", "KO_KR", "PT_BR", "AR_XY", "HI_IN")
+    if locale in LOCALE_LABELS
+)
 
 
 def _normalize_mmmlu_frame(df: pd.DataFrame, locale: str, split: str) -> pd.DataFrame:
@@ -35,7 +55,7 @@ def list_mmmlu_locales() -> list[str]:
     return sorted(name for name in get_dataset_config_names(MMMLU_HF_ID) if name != "default")
 
 
-@st.cache_data(show_spinner="Downloading MMMLU …")
+@loader_cache(show_spinner="Downloading MMMLU …")
 def load_mmmlu(locale: str = DEFAULT_LOCALE, split: str = MMMLU_SPLIT) -> pd.DataFrame:
     """Load and normalize MMMLU for a single locale config.
 

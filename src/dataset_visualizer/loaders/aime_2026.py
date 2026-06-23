@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 AIME_2026_HF_ID = "MathArena/aime_2026"
 
 
-@st.cache_data(show_spinner="Downloading AIME 2026 …")
+@loader_cache(show_spinner="Downloading AIME 2026 …")
 def load_aime_2026(split: str = "train") -> pd.DataFrame:
     """Load and normalize the AIME 2026 math competition benchmark.
 

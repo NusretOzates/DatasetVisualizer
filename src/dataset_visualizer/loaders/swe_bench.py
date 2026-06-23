@@ -6,10 +6,10 @@ import json
 from typing import Literal
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 SWEBenchVariant = Literal["verified", "multilingual", "pro"]
 
@@ -73,19 +73,19 @@ def _load_swe_bench(variant: SWEBenchVariant, split: str = "test") -> pd.DataFra
     return _normalize_swe_bench_frame(dataset.to_pandas(), variant=variant)
 
 
-@st.cache_data(show_spinner="Downloading SWE-Bench Verified …")
+@loader_cache(show_spinner="Downloading SWE-Bench Verified …")
 def load_swe_bench_verified(split: str = "test") -> pd.DataFrame:
     """Load SWE-Bench Verified (500 human-validated Python issues)."""
     return _load_swe_bench("verified", split=split)
 
 
-@st.cache_data(show_spinner="Downloading SWE-Bench Multilingual …")
+@loader_cache(show_spinner="Downloading SWE-Bench Multilingual …")
 def load_swe_bench_multilingual(split: str = "test") -> pd.DataFrame:
     """Load SWE-Bench Multilingual (300 issues across 9 languages)."""
     return _load_swe_bench("multilingual", split=split)
 
 
-@st.cache_data(show_spinner="Downloading SWE-Bench PRO …")
+@loader_cache(show_spinner="Downloading SWE-Bench PRO …")
 def load_swe_bench_pro(split: str = "test") -> pd.DataFrame:
     """Load SWE-Bench PRO (731 enterprise-scale issue resolution tasks)."""
     return _load_swe_bench("pro", split=split)

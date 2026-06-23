@@ -6,10 +6,10 @@ import hashlib
 import random
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 GPQA_HF_ID = "Idavidrein/gpqa"
 GPQA_CONFIG = "gpqa_diamond"
@@ -110,7 +110,7 @@ def _normalize_gpqa_frame(df: pd.DataFrame) -> pd.DataFrame:
     return normalized
 
 
-@st.cache_data(show_spinner="Downloading GPQA Diamond …")
+@loader_cache(show_spinner="Downloading GPQA Diamond …")
 def load_gpqa_diamond() -> pd.DataFrame:
     """Load and normalize the GPQA Diamond graduate-level MCQ benchmark.
 

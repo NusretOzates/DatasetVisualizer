@@ -4,8 +4,11 @@ Internal developer documentation for the Dataset Visualizer project.
 
 ## Start here
 
-- **[Dataset system reference](dataset-system.md)** — architecture, touchpoint checklist, loader/page/test contracts, archetype table, templates, pitfalls. **Read this before opening source files** when adding or modifying datasets.
+- **Changing how a visualizer feature works?** → [Architecture overview](architecture/overview.md) → [Code map](architecture/code-map.md) → [Frontend](frontend.md) or [Backend](backend.md)
+- **[Dataset system reference](dataset-system.md)** — architecture, touchpoint checklist, loader/API contracts, archetype table, templates, pitfalls. **Read this before opening source files** when adding or modifying datasets.
 - [Adding a dataset](adding-a-dataset.md) — short checklist (links to the system reference)
+- [Backend (Gradio Server)](backend.md) — API endpoints, caching, static frontend mount
+- [Frontend (Next.js)](frontend.md) — React app structure, dev workflow, viewers
 
 ## Datasets
 
@@ -20,32 +23,39 @@ Per-dataset schema and visualization notes:
 - [Humanity's Last Exam](datasets/hle.md)
 - [LiveCodeBench v6](datasets/livecodebench.md)
 - [SWE-Bench](datasets/swe_bench.md)
+- [τ³-Bench](datasets/tau3_bench.md)
 - [ArXiv Math 0526](datasets/arxivmath.md)
+- [ARC-AGI 2](datasets/arc_agi_2.md)
 
 ## Architecture (summary)
 
 ```
 config/datasets.yaml  →  config.py (Pydantic)
-                      →  registry.py (LOADER_REGISTRY + build_navigation)
-                      →  app.py (st.navigation — no per-dataset edits)
-
-pages/<category>/<id>.py  →  loaders/<loader>.py  →  data/cache/<cache_key>/
+                      →  api/dataset_registry.py (DATASET_REGISTRY)
+                      →  loaders/<module>.py (@loader_cache)
+                      →  api/service.py (orchestration)
+                      →  api/filters.py, api/overview.py, api/serializers.py
+                      →  server.py (gradio.Server API)
+                      →  frontend/ (Next.js + @gradio/client)
 ```
 
-Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset-system.md).
+Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset-system.md). Public capability entry points: [architecture/code-map.md](architecture/code-map.md).
 
-## Shared components
+## Shared modules
 
 | Module | Purpose |
 |--------|---------|
-| `page_layout.py` | Overview + Sample Inspector tabs (`render_dataset_page`) |
-| `sample_navigator.py` | Index slider, prev/next, ID search |
-| `charts.py` | Plotly bar, histogram, pie, timeline, scatter |
-| `mcq_viewer.py` | Multiple-choice rendering |
-| `code_problem_viewer.py` | Code problems and test cases |
-| `issue_viewer.py` | SWE-bench issues, patches, test lists |
+| `server.py` | `gradio.Server` entry point, CORS, `@app.api` routes, static frontend mount |
+| `api/dataset_registry.py` | Single registration point: `DatasetDescriptor` per config `id` |
+| `api/service.py` | Catalog, meta, filter options, overview, and sample handlers |
+| `api/filters.py` | Schema-driven `apply_filters()` and `build_filter_options()` |
+| `api/overview.py` | Per-dataset overview payload builders |
+| `api/chart_data.py` | Chart JSON builders for the React frontend |
+| `api/serializers.py` | DataFrame/row JSON serialization |
+| `loaders/cache.py` | `@loader_cache` in-process memoization |
+| `utils/mcq.py` | MCQ helper functions (letter resolution, option formatting) |
 
-Column contracts per archetype: [dataset-system.md § Component column contracts](dataset-system.md#component-column-contracts).
+Column contracts per archetype: [dataset-system.md § Column contracts](dataset-system.md#column-contracts-python-helpers).
 
 ## Inspect CLI
 
@@ -53,10 +63,42 @@ Column contracts per archetype: [dataset-system.md § Component column contracts
 uv run python scripts/inspect_dataset.py <dataset_id>
 ```
 
-`<dataset_id>` is the config `id` (e.g. `mmlu`, `swe_bench_verified`). The CLI calls `loader()` with no arguments — loaders must define safe defaults. See [dataset-system.md § Loader contract](dataset-system.md#loader-contract).
+`<dataset_id>` is the config `id` (e.g. `mmlu`, `swe_bench_verified`). The CLI calls `get_descriptor(id).loader({})` — loaders must define safe defaults for an empty params dict. See [dataset-system.md § Loader contract](dataset-system.md#loader-contract).
 
 ## Run
 
+### Development (hot-reload frontend)
+
+Backend (Gradio API on port 7860):
+
 ```bash
-uv run streamlit run src/dataset_visualizer/app.py
+uv run dataset-viz
 ```
+
+Frontend (Next.js on port 3000):
+
+```bash
+cd frontend && npm install
+NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
+```
+
+### Production (single server)
+
+Start the backend first so `npm run build` can fetch the catalog for static routes:
+
+```bash
+uv run dataset-viz
+```
+
+In another terminal:
+
+```bash
+cd frontend && npm install
+NEXT_PUBLIC_API_URL=http://localhost:7860 npm run build && cd ..
+```
+
+Then restart or keep the backend running and open http://localhost:7860 — the Gradio server serves the built React app and API on the same origin.
+
+## Documentation policy
+
+**Always update docs when you change setup, architecture, or developer workflows.** At minimum touch `docs/index.md`, the relevant topic file (`backend.md`, `frontend.md`, `dataset-system.md`, `adding-a-dataset.md`), and `README.md` when user-facing behavior changes.

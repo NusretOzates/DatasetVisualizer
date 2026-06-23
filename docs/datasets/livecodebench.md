@@ -51,7 +51,7 @@ Do **not** use `load_dataset("livecodebench/code_generation_lite", ...)` — the
 - **Difficulty × platform stacked bar:** Shows benchmark composition across sources and hardness levels.
 - **Contest date timeline:** Highlights the temporal evaluation window (contamination control).
 - **Public test table:** Core inspectability — inputs, outputs, and harness type per case.
-- **Private tests expander:** Decoded on demand with a row cap to avoid UI freezes on large case sets.
+- **Private test cases:** Decoded on sample view and shown below public tests (first 10 of large sets).
 - **Functional metadata:** Surfaces `func_name` when tests are not stdin-based.
 
 ## Cache

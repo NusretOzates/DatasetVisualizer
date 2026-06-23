@@ -53,11 +53,13 @@ def test_inspect_dataset_success(
         }
     )
 
-    monkeypatch.setitem(
-        inspect_script.LOADER_REGISTRY,
-        "mmlu",
-        lambda **kwargs: df,
-    )
+    class FakeDescriptor:
+        cache_key = None
+
+        def loader(self, _params: dict[str, object]) -> tuple[pd.DataFrame, dict[str, object]]:
+            return df, {}
+
+    monkeypatch.setattr(inspect_script, "get_descriptor", lambda _dataset_id: FakeDescriptor())
 
     code = inspect_dataset("mmlu")
     captured = capsys.readouterr()

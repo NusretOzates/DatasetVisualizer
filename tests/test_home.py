@@ -21,28 +21,37 @@ def _entry(**overrides: object) -> DatasetEntry:
     return DatasetEntry.model_validate(data)
 
 
-def test_format_row_count_adds_problems_suffix_for_arxivmath() -> None:
-    assert format_row_count(40, "arxivmath") == "40 problems"
-    assert format_row_count(198, "gpqa") == "198"
+def test_format_row_count_adds_problems_suffix_for_math_datasets() -> None:
+    math_entry = _entry(id="arxivmath_0526", loader="arxivmath", archetype="math_competition")
+    assert format_row_count(40, math_entry) == "40 problems"
+    assert format_row_count(198, _entry()) == "198"
 
 
 def test_row_count_uses_loader_result_when_available(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakeDescriptor:
+        def loader(self, _params: dict[str, object]) -> tuple[pd.DataFrame, dict[str, object]]:
+            return pd.DataFrame({"x": [1, 2, 3]}), {}
+
     monkeypatch.setattr(
-        "dataset_visualizer.row_count.load_dataset_frame",
-        lambda loader_name: pd.DataFrame({"x": [1, 2, 3]}),
+        "dataset_visualizer.row_count.get_descriptor",
+        lambda _dataset_id: FakeDescriptor(),
     )
 
-    assert row_count(_entry(loader="mmlu")) == "3"
+    assert row_count(_entry(loader="mmlu", row_count=None)) == "3"
+
+
+def test_row_count_prefers_config_before_loader() -> None:
+    assert row_count(_entry(row_count=198)) == "198"
 
 
 def test_row_count_falls_back_to_config_when_loader_fails(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def _raise(_loader_name: str) -> pd.DataFrame:
+    def _raise(_dataset_id: str) -> object:
         msg = "gated dataset"
         raise RuntimeError(msg)
 
-    monkeypatch.setattr("dataset_visualizer.row_count.load_dataset_frame", _raise)
+    monkeypatch.setattr("dataset_visualizer.row_count.get_descriptor", _raise)
 
     assert row_count(_entry(row_count=198)) == "198"
 
@@ -50,17 +59,23 @@ def test_row_count_falls_back_to_config_when_loader_fails(
 def test_row_count_returns_error_when_loader_fails_without_config_fallback(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def _raise(_loader_name: str) -> pd.DataFrame:
+    def _raise(_dataset_id: str) -> object:
         msg = "download failed"
         raise RuntimeError(msg)
 
-    monkeypatch.setattr("dataset_visualizer.row_count.load_dataset_frame", _raise)
+    monkeypatch.setattr("dataset_visualizer.row_count.get_descriptor", _raise)
 
     assert row_count(_entry()) == "error"
 
 
-def test_row_count_uses_config_for_unregistered_loader() -> None:
-    assert row_count(_entry(loader="missing_loader", row_count=42)) == "42"
+def test_row_count_uses_config_for_unregistered_dataset(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _raise(_dataset_id: str) -> object:
+        msg = "no descriptor"
+        raise ValueError(msg)
+
+    monkeypatch.setattr("dataset_visualizer.row_count.get_descriptor", _raise)
+
+    assert row_count(_entry(id="unknown_dataset", row_count=42)) == "42"
 
 
 def test_gpqa_diamond_config_has_row_count_fallback() -> None:

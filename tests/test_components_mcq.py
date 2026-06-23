@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from dataset_visualizer.components.mcq_viewer import format_options, resolve_correct_letter
+from dataset_visualizer.utils.mcq import format_options, resolve_correct_letter
 
 
 def test_resolve_correct_letter_from_answer_letter() -> None:

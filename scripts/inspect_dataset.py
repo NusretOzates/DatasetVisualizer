@@ -9,26 +9,11 @@ from typing import Any
 
 import pandas as pd
 
+from dataset_visualizer.api.dataset_registry import get_descriptor
 from dataset_visualizer.config import get_dataset_by_id, load_config
 from dataset_visualizer.loaders.base import cache_dir
-from dataset_visualizer.registry import LOADER_REGISTRY
 
 MAX_VALUE_LEN = 200
-
-LOADER_CACHE_KEYS: dict[str, str] = {
-    "aime_2026": "aime_2026",
-    "mmlu": "mmlu",
-    "mmlu_pro": "mmlu_pro",
-    "gpqa": "gpqa",
-    "global_mmlu": "global_mmlu",
-    "mmmlu": "mmmlu",
-    "hle": "hle",
-    "livecodebench": "livecodebench",
-    "arxivmath": "arxivmath",
-    "swe_bench_verified": "swe_bench",
-    "swe_bench_multilingual": "swe_bench",
-    "swe_bench_pro": "swe_bench",
-}
 
 
 def _all_dataset_ids() -> list[str]:
@@ -85,13 +70,14 @@ def inspect_dataset(dataset_id: str) -> int:
         print(f"Valid ids: {valid}", file=sys.stderr)
         return 1
 
-    loader = LOADER_REGISTRY.get(entry.loader)
-    if loader is None:
-        print(f"No loader registered for '{entry.loader}'", file=sys.stderr)
+    try:
+        descriptor = get_descriptor(dataset_id)
+    except ValueError:
+        print(f"No API descriptor registered for '{dataset_id}'", file=sys.stderr)
         return 1
 
-    df = loader()
-    cache_key = LOADER_CACHE_KEYS.get(entry.loader, entry.loader)
+    df, _extras = descriptor.loader({})
+    cache_key = descriptor.cache_key or entry.loader
     path = cache_dir(cache_key)
 
     print(f"Dataset: {entry.label} ({dataset_id})")

@@ -5,10 +5,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 MMLU_PRO_HF_ID = "TIGER-Lab/MMLU-Pro"
 
@@ -31,7 +31,7 @@ def _normalize_row_options(options: Sequence[str] | None) -> tuple[list[str], in
     return filtered, len(filtered)
 
 
-@st.cache_data(show_spinner="Downloading MMLU-Pro …")
+@loader_cache(show_spinner="Downloading MMLU-Pro …")
 def load_mmlu_pro(split: str = "test") -> pd.DataFrame:
     """Load and normalize the MMLU-Pro benchmark dataset.
 

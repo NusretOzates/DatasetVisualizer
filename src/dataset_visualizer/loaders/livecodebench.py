@@ -9,11 +9,11 @@ import zlib
 from typing import Any
 
 import pandas as pd
-import streamlit as st
 from datasets import load_dataset
 from huggingface_hub import hf_hub_download
 
 from dataset_visualizer.loaders.base import cache_dir
+from dataset_visualizer.loaders.cache import loader_cache
 
 LCB_HF_REPO = "livecodebench/code_generation_lite"
 LCB_FILE = "test6.jsonl"
@@ -68,7 +68,7 @@ def _normalize_livecodebench_frame(df: pd.DataFrame) -> pd.DataFrame:
     return normalized
 
 
-@st.cache_data(show_spinner="Downloading LiveCodeBench v6 …")
+@loader_cache(show_spinner="Downloading LiveCodeBench v6 …")
 def load_livecodebench(file_name: str = LCB_FILE) -> pd.DataFrame:
     """Load and normalize LiveCodeBench code-generation problems.
 

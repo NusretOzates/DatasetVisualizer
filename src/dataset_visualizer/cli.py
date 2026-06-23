@@ -1,17 +1,14 @@
-"""CLI entry point for launching the Streamlit app."""
+"""CLI entry point for launching the Dataset Visualizer."""
 
 from __future__ import annotations
 
-import subprocess
-import sys
-from pathlib import Path
+from dataset_visualizer.server import main as launch_server
 
 
 def main() -> None:
-    """Launch the Dataset Visualizer via the Streamlit server."""
-    app_path = Path(__file__).resolve().parent / "app.py"
-    completed = subprocess.run(
-        [sys.executable, "-m", "streamlit", "run", str(app_path), *sys.argv[1:]],
-        check=False,
-    )
-    raise SystemExit(completed.returncode)
+    """Launch the Gradio Server backend."""
+    launch_server()
+
+
+if __name__ == "__main__":
+    main()
