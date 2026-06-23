@@ -5,9 +5,11 @@ from __future__ import annotations
 import json
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 ANSWER_LETTERS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+GAIA_SCENARIO_PREVIEW_CHARS = 8_000
 
 
 def _letter_from_index(index: int | str) -> str:
@@ -51,6 +53,60 @@ def _answer_letter_from_key(answer_key: object, choices: list[str]) -> str:
     else:
         resolved = str(answer_key)
     return resolved
+
+
+def _scalarize_cell(value: object) -> object:
+    """Convert HF array-like cells into hashable Python values."""
+    if value is None or value is pd.NA or (isinstance(value, float) and pd.isna(value)):
+        return value
+    if isinstance(value, np.ndarray):
+        value = value.item() if value.ndim == 0 else value.tolist()
+    if isinstance(value, (list, tuple)):
+        items = [_scalarize_cell(item) for item in value]
+        if len(items) == 1:
+            return items[0]
+        if all(isinstance(item, str) for item in items):
+            return ", ".join(sorted(items))
+        return json.dumps(items, sort_keys=True)
+    if isinstance(value, dict):
+        return {str(key): _scalarize_cell(item) for key, item in value.items()}
+    return value
+
+
+def _scalarize_object_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Scalarize object columns so filters and charts can hash values."""
+    normalized = df.copy()
+    for column in normalized.columns:
+        if normalized[column].dtype != object:
+            continue
+        normalized[column] = normalized[column].map(_scalarize_cell)
+    return normalized
+
+
+def _scenario_config_preview(value: object) -> str:
+    """Serialize a GAIA2 scenario payload with a bounded preview length."""
+    if isinstance(value, (dict, list)) or hasattr(value, "tolist"):
+        text = json.dumps(_json_ready(value), indent=2)
+    else:
+        text = str(value)
+    if len(text) <= GAIA_SCENARIO_PREVIEW_CHARS:
+        return text
+    omitted = len(text) - GAIA_SCENARIO_PREVIEW_CHARS
+    return (
+        f"{text[:GAIA_SCENARIO_PREVIEW_CHARS]}\n\n"
+        f"… ({omitted:,} more characters truncated; full scenario omitted from API payload)"
+    )
+
+
+def _json_ready(value: object) -> object:
+    """Convert nested array-like values into JSON-serializable containers."""
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    if hasattr(value, "tolist"):
+        return _json_ready(value.tolist())
+    return value
 
 
 def _ensure_sample_id(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -254,23 +310,10 @@ def normalize_gaia2(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize GAIA2 scenario rows."""
     normalized = _ensure_sample_id(df, id_column)
     if "scenario_config" not in normalized.columns and "data" in normalized.columns:
-        normalized["scenario_config"] = normalized["data"].map(
-            lambda value: (
-                json.dumps(value, indent=2) if isinstance(value, (dict, list)) else str(value)
-            )
-        )
+        normalized["scenario_config"] = normalized["data"].map(_scenario_config_preview)
+    if "data" in normalized.columns:
+        normalized = normalized.drop(columns=["data"])
     return normalized
-
-
-def _json_ready(value: object) -> object:
-    """Convert nested array-like values into JSON-serializable containers."""
-    if isinstance(value, dict):
-        return {str(key): _json_ready(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_json_ready(item) for item in value]
-    if hasattr(value, "tolist"):
-        return _json_ready(value.tolist())
-    return value
 
 
 def normalize_arc_agi(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -322,4 +365,4 @@ def normalize_benchmark(df: pd.DataFrame, profile: str, id_column: str) -> pd.Da
     normalized = normalizer(df, id_column)
     if "split" not in normalized.columns:
         normalized["split"] = "test"
-    return normalized
+    return _scalarize_object_columns(normalized)

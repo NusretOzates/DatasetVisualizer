@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pandas as pd
 
 from dataset_visualizer.loaders.benchmark_normalize import (
+    GAIA_SCENARIO_PREVIEW_CHARS,
     normalize_arc,
     normalize_arc_agi,
+    normalize_benchmark,
+    normalize_gaia2,
     normalize_hellaswag,
     normalize_piqa,
     normalize_winogrande,
@@ -101,3 +106,38 @@ def test_normalize_arc_agi_serializes_nested_arrays() -> None:
 
     assert '"train"' in normalized["puzzle_json"].iloc[0]
     assert "array(" not in normalized["puzzle_json"].iloc[0]
+
+
+def test_normalize_benchmark_scalarizes_ndarray_cells() -> None:
+    df = pd.DataFrame(
+        {
+            "problem": ["Compute 1+1", "Solve for x"],
+            "problem_type": [
+                np.array(["Number Theory"], dtype=object),
+                np.array(["Algebra", "Number Theory"], dtype=object),
+            ],
+            "answer": ["2", "4"],
+        }
+    )
+
+    normalized = normalize_benchmark(df, "math_competition", "problem_idx")
+
+    assert normalized["problem_type"].tolist() == ["Number Theory", "Algebra, Number Theory"]
+
+
+def test_normalize_gaia2_truncates_scenario_config_and_drops_data() -> None:
+    payload = {"events": ["x" * (GAIA_SCENARIO_PREVIEW_CHARS + 100)]}
+    df = pd.DataFrame(
+        {
+            "id": ["scenario-1"],
+            "scenario_id": ["adaptability"],
+            "data": [payload],
+        }
+    )
+
+    normalized = normalize_gaia2(df, "id")
+
+    assert "data" not in normalized.columns
+    preview = normalized["scenario_config"].iloc[0]
+    assert len(preview) < len(json.dumps(payload, indent=2))
+    assert "truncated" in preview
