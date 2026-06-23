@@ -28,6 +28,14 @@ class DatasetEntry(BaseModel):
     license: str | None = None
     docs: str | None = None
     row_count: int | None = None
+    hf_config: str | None = None
+    split: str | None = None
+    profile: str | None = None
+    id_column: str | None = None
+    viewer: str | None = None
+    source_file: str | None = None
+    multi_config: bool = False
+    exclude_configs: list[str] = Field(default_factory=list)
 
     @field_validator("row_count", mode="before")
     @classmethod

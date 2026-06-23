@@ -49,6 +49,9 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
+from dataset_visualizer.api.generic_overview import overview_generic
+from dataset_visualizer.config import DatasetEntry, load_config
+from dataset_visualizer.loaders.hf_benchmark import make_hf_benchmark_loader
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
 OverviewFn = Callable[[pd.DataFrame, dict[str, Any]], dict[str, Any]]
@@ -181,7 +184,19 @@ def _swe_bench_filters(*, include_difficulty: bool, include_language: bool) -> l
     return filters
 
 
-DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
+def _descriptor_from_hf_entry(entry: DatasetEntry) -> DatasetDescriptor:
+    viewer = entry.viewer or entry.archetype or "generic"
+    id_column = entry.id_column or "sample_id"
+    return DatasetDescriptor(
+        id_column=id_column,
+        viewer=viewer,
+        loader=lambda params, entry=entry: (make_hf_benchmark_loader(entry)(params), {}),
+        overview=overview_generic,
+        cache_key=entry.id,
+    )
+
+
+_MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     "mmlu": DatasetDescriptor(
         id_column="subject",
         viewer="mcq",
@@ -327,6 +342,23 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
         ],
     ),
 }
+
+
+def build_dataset_registry() -> dict[str, DatasetDescriptor]:
+    """Merge hand-written descriptors with catalog entries from config."""
+    registry = dict(_MANUAL_REGISTRY)
+    config = load_config()
+    for datasets in config.categories.values():
+        for entry in datasets:
+            if entry.loader != "hf_benchmark":
+                continue
+            if entry.id in registry:
+                continue
+            registry[entry.id] = _descriptor_from_hf_entry(entry)
+    return registry
+
+
+DATASET_REGISTRY: dict[str, DatasetDescriptor] = build_dataset_registry()
 
 
 def get_descriptor(dataset_id: str) -> DatasetDescriptor:

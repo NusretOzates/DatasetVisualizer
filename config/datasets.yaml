@@ -56,6 +56,115 @@ categories:
       description: >
         Comprehensive academic benchmark of 2,500 challenging questions across
         many subjects, including multimodal items; created by CAIS and Scale AI.
+    - id: arc_challenge
+      label: ARC Challenge
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: allenai/ai2_arc
+      hf_config: ARC-Challenge
+      split: test
+      profile: arc
+      id_column: id
+      row_count: 1172
+      description: >
+        Grade-school science multiple-choice questions from the ARC Challenge split,
+        with adversarially selected distractors.
+    - id: winogrande
+      label: WinoGrande
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: allenai/winogrande
+      hf_config: winogrande_xl
+      split: validation
+      profile: winogrande
+      id_column: sample_id
+      row_count: 1267
+      description: >
+        Adversarial Winograd-style pronoun resolution benchmark at XL scale.
+    - id: hellaswag
+      label: HellaSwag
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: Rowan/hellaswag
+      split: validation
+      profile: hellaswag
+      id_column: sample_id
+      row_count: 10042
+      description: >
+        Commonsense sentence completion benchmark with adversarial endings from
+        ActivityNet and WikiHow captions.
+    - id: commonsenseqa
+      label: CommonsenseQA
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: tau/commonsense_qa
+      split: validation
+      profile: commonsenseqa
+      id_column: id
+      row_count: 1221
+      description: >
+        Multiple-choice commonsense reasoning questions built from ConceptNet
+        associations.
+    - id: piqa
+      label: PIQA
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: baber/piqa
+      split: validation
+      profile: piqa
+      id_column: sample_id
+      row_count: 1838
+      description: >
+        Physical commonsense QA benchmark asking which solution better achieves a
+        stated goal.
+    - id: openbookqa
+      label: OpenBookQA
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: allenai/openbookqa
+      hf_config: main
+      split: test
+      profile: openbookqa
+      id_column: id
+      row_count: 500
+      description: >
+        Elementary science QA with open-book facts plus latent commonsense
+        reasoning.
+    - id: zebra_logic
+      label: Zebra Logic
+      loader: hf_benchmark
+      icon: "🧠"
+      archetype: mcq
+      hf_id: WildEval/ZebraLogic
+      hf_config: mc_mode
+      split: test
+      profile: zebra_logic
+      id_column: id
+      row_count: 3259
+      description: >
+        Logic-grid puzzle benchmark with procedurally generated constraints and
+        verifiable answers.
+  knowledge:
+    - id: mmlu_redux
+      label: MMLU-Redux
+      loader: hf_benchmark
+      icon: "📚"
+      archetype: mcq
+      hf_id: edinburgh-dawg/mmlu-redux
+      split: test
+      profile: mmlu_redux
+      id_column: sample_id
+      multi_config: true
+      row_count: 3000
+      description: >
+        Cleaned and re-annotated MMLU subset from Edinburgh Dawg, combining all
+        subject configs with error-type metadata.
   code:
     - id: livecodebench_v6
       label: LiveCodeBench v6
@@ -106,6 +215,308 @@ categories:
         Tool-agent-user interaction benchmark (τ³-bench) with customer-service
         tasks across airline, retail, telecom, and banking_knowledge domains.
         Task JSON is loaded from the upstream GitHub repository.
+    - id: mbpp
+      label: MBPP
+      loader: hf_benchmark
+      icon: "💻"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: google-research-datasets/mbpp
+      split: test
+      profile: mbpp
+      id_column: task_id
+      row_count: 500
+      description: >
+        Mostly basic Python programming problems with unit tests, crowdsourced for
+        entry-level code generation evaluation.
+    - id: apps
+      label: APPS
+      loader: hf_benchmark
+      icon: "💻"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: codeparrot/apps
+      source_file: test.jsonl
+      profile: apps
+      id_column: id
+      row_count: 5000
+      description: >
+        Competitive programming problems scraped from interview sites with hidden
+        tests in the APPS test JSONL split.
+    - id: humaneval
+      label: HumanEval
+      loader: hf_benchmark
+      icon: "💻"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: openai/openai_humaneval
+      hf_config: openai_humaneval
+      split: test
+      profile: code_eval
+      id_column: task_id
+      row_count: 164
+      description: >
+        Hand-written Python function completion tasks with functional unit tests
+        introduced with OpenAI Codex.
+    - id: humaneval_plus
+      label: HumanEval+
+      loader: hf_benchmark
+      icon: "💻"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: evalplus/humanevalplus
+      split: test
+      profile: code_eval
+      id_column: task_id
+      row_count: 164
+      description: >
+        EvalPlus extension of HumanEval with substantially expanded test coverage.
+    - id: mbpp_plus
+      label: MBPP+
+      loader: hf_benchmark
+      icon: "💻"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: evalplus/mbppplus
+      split: test
+      profile: mbpp
+      id_column: task_id
+      row_count: 378
+      description: >
+        EvalPlus extension of MBPP with additional rigorous unit tests.
+    - id: evoeval_difficult
+      label: EvoEval Difficult
+      loader: hf_benchmark
+      icon: "💻"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: evoeval/EvoEval_difficult
+      split: test
+      profile: code_eval
+      id_column: task_id
+      row_count: 100
+      description: >
+        Semantically rewritten HumanEval problems labeled as difficult in the
+        EvoEval suite.
+  long_context:
+    - id: ruler
+      label: RULER
+      loader: hf_benchmark
+      icon: "📏"
+      archetype: generic
+      hf_id: tonychenxyz/ruler-full
+      hf_config: plain
+      split: validation
+      profile: generic
+      id_column: sample_id
+      row_count: 39000
+      description: >
+        Long-context benchmark with multi-hop tracing, retrieval, and synthetic QA
+        tasks from 4K to 128K tokens.
+    - id: mrcr
+      label: MRCR
+      loader: hf_benchmark
+      icon: "📏"
+      archetype: generic
+      hf_id: openai/mrcr
+      split: train
+      profile: generic
+      id_column: sample_id
+      row_count: 2400
+      description: >
+        Multi-round co-reference and recall benchmark for very long chat contexts.
+    - id: mtob
+      label: MTOB (Kalamang)
+      loader: hf_benchmark
+      icon: "📏"
+      archetype: generic
+      hf_id: Groq/mtob
+      split: test
+      profile: generic
+      id_column: sample_id
+      row_count: 100
+      description: >
+        Machine Translation from One Book: low-resource Kalamang translation using
+        an in-context grammar book reference.
+  instruction_following:
+    - id: ifeval
+      label: IFEval
+      loader: hf_benchmark
+      icon: "📋"
+      archetype: generic
+      hf_id: google/IFEval
+      split: train
+      profile: instruction
+      id_column: sample_id
+      row_count: 541
+      description: >
+        Instruction-following benchmark with programmatically verifiable formatting
+        constraints.
+    - id: ifbench
+      label: IFBench
+      loader: hf_benchmark
+      icon: "📋"
+      archetype: generic
+      hf_id: allenai/IFBench_test
+      split: train
+      profile: instruction
+      id_column: sample_id
+      row_count: 300
+      description: >
+        Extended instruction-following benchmark with out-of-domain verifiable
+        constraints.
+    - id: coconot
+      label: CoCoNot
+      loader: hf_benchmark
+      icon: "📋"
+      archetype: generic
+      hf_id: allenai/coconot
+      hf_config: original
+      split: test
+      profile: coconot
+      id_column: id
+      row_count: 1001
+      description: >
+        Contextual noncompliance benchmark testing when models should refuse or
+        clarify unsafe or underspecified requests.
+  tool_calling:
+    - id: livemcpbench
+      label: LiveMCPBench
+      loader: hf_benchmark
+      icon: "🔧"
+      archetype: agent_task
+      hf_id: ICIP/LiveMCPBench
+      split: test
+      profile: agent_task
+      id_column: task_id
+      row_count: 95
+      description: >
+        Locally deployable MCP tool-selection benchmark across many real-world
+        MCP servers.
+  assistant_tasks:
+    - id: gaia
+      label: GAIA
+      loader: hf_benchmark
+      icon: "🤝"
+      archetype: agent_task
+      hf_id: gaia-benchmark/GAIA
+      hf_config: "2023_level1"
+      split: validation
+      profile: gaia
+      id_column: task_id
+      row_count: 165
+      description: >
+        Real-world assistant benchmark requiring tool use and retrieval; level 1
+        validation split. Gated on Hugging Face.
+    - id: gdpval
+      label: GDPval
+      loader: hf_benchmark
+      icon: "🤝"
+      archetype: generic
+      hf_id: openai/gdpval
+      split: train
+      profile: generic
+      id_column: task_id
+      row_count: 220
+      description: >
+        OpenAI GDPval tasks spanning 44 occupations with reference files for
+        real-world work simulation.
+    - id: gaia2
+      label: GAIA2
+      loader: hf_benchmark
+      icon: "🤝"
+      archetype: agent_task
+      hf_id: meta-agents-research-environments/gaia2
+      split: validation
+      profile: gaia2
+      id_column: id
+      multi_config: true
+      exclude_configs:
+        - demo
+      row_count: 1120
+      description: >
+        Meta GAIA2 asynchronous agent scenarios across adaptability, ambiguity,
+        execution, search, and time-sensitive subsets.
+    - id: scicode
+      label: SciCode
+      loader: hf_benchmark
+      icon: "🤝"
+      archetype: code_eval
+      viewer: code_eval
+      hf_id: SciCode1/SciCode
+      split: validation
+      profile: generic
+      id_column: problem_id
+      row_count: 15
+      description: >
+        Scientific coding benchmark with decomposed subproblems across STEM fields.
+    - id: paperbench
+      label: PaperBench
+      loader: hf_benchmark
+      icon: "🤝"
+      archetype: agent_task
+      hf_id: josancamon/paperbench
+      split: train
+      profile: generic
+      id_column: sample_id
+      row_count: 23
+      description: >
+        ML paper replication benchmark with rubric trees contributed by paper
+        authors.
+    - id: dabstep
+      label: DABStep
+      loader: hf_benchmark
+      icon: "🤝"
+      archetype: agent_task
+      hf_id: adyen/DABstep
+      hf_config: tasks
+      split: default
+      profile: generic
+      id_column: task_id
+      row_count: 450
+      description: >
+        Operational data-analysis benchmark with ground-truth answers on real-world
+        financial workloads.
+  games:
+    - id: arc_agi_2
+      label: ARC-AGI 2
+      loader: hf_benchmark
+      icon: "🎮"
+      archetype: generic
+      hf_id: arc-agi-community/arc-agi-2
+      split: test
+      profile: arc_agi
+      id_column: sample_id
+      row_count: 120
+      description: >
+        ARC-AGI 2 public evaluation puzzles testing abstraction and reasoning on
+        grid transformation tasks.
+  forecasters:
+    - id: futurebench
+      label: FutureBench
+      loader: hf_benchmark
+      icon: "🔮"
+      archetype: generic
+      hf_id: futurebench/data
+      split: train
+      profile: generic
+      id_column: event_id
+      row_count: 2337
+      description: >
+        Forecasting benchmark built from prediction-market and news-worthy future
+        events.
+    - id: futurex
+      label: FutureX Past
+      loader: hf_benchmark
+      icon: "🔮"
+      archetype: generic
+      hf_id: futurex-ai/Futurex-Past
+      split: train
+      profile: generic
+      id_column: sample_id
+      row_count: 1010
+      description: >
+        Resolved FutureX forecasting questions suitable for offline evaluation.
   math:
     - id: aime_2026
       label: AIME 2026
@@ -127,3 +538,107 @@ categories:
       description: >
         ArXiv math competition problems from May 2026 with optional joined model
         output runs for comparing generated solutions.
+    - id: gsm8k
+      label: GSM8K
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: openai/gsm8k
+      hf_config: main
+      split: test
+      profile: gsm
+      id_column: problem_idx
+      row_count: 1319
+      description: >
+        Grade-school math word problems with integer answers, widely used for math
+        reasoning evaluation.
+    - id: gsm1k
+      label: GSM1K
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: ScaleAI/gsm1k
+      split: test
+      profile: gsm
+      id_column: problem_idx
+      row_count: 1205
+      description: >
+        Novel GSM-style problems created to test contamination versus GSM8K.
+    - id: gsm_plus
+      label: GSM-Plus
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: qintongli/GSM-Plus
+      split: test
+      profile: gsm
+      id_column: sample_id
+      row_count: 10552
+      description: >
+        Adversarial perturbations of GSM8K with distractors, rewrites, and
+        numerical variations.
+    - id: gsm_symbolic
+      label: GSM-Symbolic
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: apple/GSM-Symbolic
+      hf_config: main
+      split: test
+      profile: gsm
+      id_column: sample_id
+      row_count: 5000
+      description: >
+        Template-based symbolic variants of GSM8K designed to reduce benchmark
+        contamination.
+    - id: math
+      label: MATH
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: EleutherAI/hendrycks_math
+      split: test
+      profile: math_competition
+      id_column: problem_idx
+      multi_config: true
+      row_count: 5000
+      description: >
+        Competition mathematics benchmark across algebra, geometry, number theory,
+        and other Olympiad-style subjects.
+    - id: math_500
+      label: MATH-500
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: HuggingFaceH4/MATH-500
+      split: test
+      profile: math_competition
+      id_column: problem_idx
+      row_count: 500
+      description: >
+        Representative 500-problem subset of MATH curated for stable evaluation.
+    - id: math_hard
+      label: MATH-Hard
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: lighteval/MATH-Hard
+      split: test
+      profile: math_competition
+      id_column: problem_idx
+      row_count: 1324
+      description: >
+        Hardest-level subset of competition math problems for post-training eval.
+    - id: math_arena
+      label: Math-Arena
+      loader: hf_benchmark
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: MathArena/paper_benchmark
+      split: train
+      profile: math_competition
+      id_column: problem_idx
+      row_count: 162
+      description: >
+        Aggregated MathArena paper benchmark spanning recent competition math
+        sources.
