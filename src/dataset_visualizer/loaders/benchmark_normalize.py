@@ -142,7 +142,6 @@ def normalize_zebra_logic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
         normalized["choices"] = normalized["choices"].map(
             lambda value: value if isinstance(value, list) else [str(value)]
         )
-        normalized["answer_letter"] = normalized["answer"].astype(str).str.upper()
     return normalized
 
 
