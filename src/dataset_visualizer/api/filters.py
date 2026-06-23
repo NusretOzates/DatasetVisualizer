@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pandas as pd
@@ -9,6 +10,20 @@ import pandas as pd
 from dataset_visualizer.api.serializers import serialize_value
 
 FilterSchema = list[dict[str, Any]]
+
+
+def _unique_filter_values(series: pd.Series) -> list[object]:
+    """Return sorted unique filter values, including array-like cells."""
+    values: list[object] = []
+    seen: set[str] = set()
+    for raw in series.dropna():
+        value = serialize_value(raw)
+        key = json.dumps(value, sort_keys=True) if isinstance(value, (list, dict)) else str(value)
+        if key in seen:
+            continue
+        seen.add(key)
+        values.append(value)
+    return sorted(values, key=str)
 
 
 def build_filter_options(df: pd.DataFrame, schema: FilterSchema) -> dict[str, Any]:
@@ -20,7 +35,7 @@ def build_filter_options(df: pd.DataFrame, schema: FilterSchema) -> dict[str, An
         column = spec.get("column")
 
         if ftype == "multiselect" and column and column in df.columns:
-            values = sorted(df[column].dropna().unique(), key=lambda v: str(v))
+            values = _unique_filter_values(df[column])
             options[name] = [serialize_value(value) for value in values]
         elif ftype == "radio":
             options[name] = spec.get("options", [])
@@ -54,7 +69,7 @@ def apply_filters(
             selected = filters.get(name)
             if not selected:
                 continue
-            all_values = sorted(filtered[column].dropna().unique(), key=lambda v: str(v))
+            all_values = _unique_filter_values(filtered[column])
             if len(selected) < len(all_values):
                 filtered = filtered[
                     filtered[column].astype(str).isin([str(value) for value in selected])
