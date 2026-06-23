@@ -2,6 +2,20 @@
 
 Interactive explorer for Hugging Face benchmark datasets. The app uses a **Gradio Server** backend ([`gradio.Server`](https://huggingface.co/blog/introducing-gradio-server)) and a **Next.js** React frontend with benchmark-aware overviews, filters, Markdown/LaTeX rendering, and per-sample inspection.
 
+## Screenshots
+
+**Home** — browse 51 registered benchmarks by category, archetype, and row count.
+
+![Dataset catalog home page](docs/images/home.png)
+
+**Overview** — per-dataset charts and summary stats (example: [ArXiv Math 0526](https://huggingface.co/datasets/ArtificialAnalysis/arxivmath_0526)).
+
+![Dataset overview with charts](docs/images/dataset-overview.png)
+
+**Sample Inspector** — navigate samples with Markdown/LaTeX rendering and metadata.
+
+![Sample inspector with math problem](docs/images/sample-inspector.png)
+
 ## Setup
 
 ```bash
