@@ -89,6 +89,7 @@ uv run pytest
 uv run ruff check src tests scripts
 uv run ruff format src tests scripts
 cd frontend && npm run lint
+cd frontend && npm run typecheck
 ```
 
 See [`docs/index.md`](docs/index.md) for architecture and per-dataset notes.

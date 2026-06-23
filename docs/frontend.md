@@ -21,6 +21,7 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | Samples | `components/SampleInspector.tsx` | Index slider, ID lookup, and viewers |
 | Viewer registry | `components/viewers/registry.tsx` | Maps API `viewer` key → React component |
 | Rich text | `components/viewers/MarkdownMath.tsx` | Markdown + LaTeX rendering for benchmark statements |
+| Frontend linting | `eslint.config.mjs` | Next.js core web vitals + TypeScript rules |
 
 shadcn configuration lives in [`frontend/components.json`](../frontend/components.json).
 
@@ -41,6 +42,18 @@ NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
 ```
 
 Open http://localhost:3000. The API client uses `NEXT_PUBLIC_API_URL` when set; otherwise, when the UI runs on port **3000** (Next.js dev), it connects to `http://localhost:7860` automatically. In production (same origin as the Gradio server), it uses `window.location.origin`. Failed connect attempts reset the Gradio client promise so the next request retries.
+
+## Quality checks
+
+Run these from `frontend/`:
+
+```bash
+npm run lint
+npm run typecheck
+NEXT_PUBLIC_API_URL=http://localhost:7860 npm run build
+```
+
+`npm run lint` uses the ESLint CLI with `eslint.config.mjs`; do not use deprecated `next lint`.
 
 ## Production build
 

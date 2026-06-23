@@ -13,4 +13,5 @@ Use this map to locate the right files before searching the whole repository.
 | React overview charts | `frontend/components/OverviewTab.tsx:OverviewTab` | `frontend/components/ChartPanel.tsx`, `frontend/lib/types.ts` | Frontend type/lint checks |
 | React sample viewers | `frontend/components/viewers/registry.tsx:renderSample` | `frontend/components/viewers/*Viewer.tsx`, `frontend/components/viewers/MarkdownMath.tsx` | Frontend type/lint checks |
 | ARC-AGI grid visualization | `frontend/components/viewers/ArcGridViewer.tsx:ArcGridViewer` | `config/datasets.yaml`, `frontend/components/viewers/registry.tsx` | `tests/test_benchmark_registry.py`, frontend type/lint checks |
+| Frontend lint/type quality | `frontend/eslint.config.mjs` | `frontend/package.json`, `frontend/tsconfig.json`, `frontend/eslint.config.mjs` | `npm run lint`, `npm run typecheck` |
 | Static frontend routes | `frontend/app/dataset/[id]/page.tsx:generateStaticParams` | `frontend/lib/api.ts`, `src/dataset_visualizer/server.py` | Frontend build |
