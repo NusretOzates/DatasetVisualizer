@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { MarkdownMath } from "./MarkdownMath";
 
 type HleViewerProps = {
   row: Record<string, unknown>;
@@ -29,7 +30,7 @@ export function HleViewer({ row }: HleViewerProps) {
       </div>
       <div>
         <h3 className="text-sm font-medium text-muted-foreground">Question</h3>
-        <p className="mt-2 text-base leading-relaxed">{String(row.question ?? "")}</p>
+        <MarkdownMath className="mt-2 text-base">{String(row.question ?? "")}</MarkdownMath>
       </div>
       {hasImage && row.image ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -52,7 +53,7 @@ export function HleViewer({ row }: HleViewerProps) {
           <AccordionItem value="rationale">
             <AccordionTrigger>Rationale</AccordionTrigger>
             <AccordionContent className="space-y-3">
-              <p className="text-sm leading-relaxed">{String(row.rationale)}</p>
+              <MarkdownMath className="text-sm">{String(row.rationale)}</MarkdownMath>
               {row.rationale_image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

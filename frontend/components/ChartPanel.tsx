@@ -11,10 +11,16 @@ const plotLayout = {
   plot_bgcolor: "transparent",
   font: { family: "Inter, system-ui, sans-serif", color: "#334155" },
   margin: { t: 20, r: 20, b: 60, l: 50 },
+  hoverlabel: { bgcolor: "#0f172a", font: { color: "#f8fafc" } },
 };
 
-const PLOT_STYLE = { width: "100%", height: "360px" } as const;
-const PLOT_CONFIG = { displayModeBar: false, responsive: true } as const;
+const PLOT_STYLE = { width: "100%", height: "380px" } as const;
+const PLOT_CONFIG = {
+  displaylogo: false,
+  displayModeBar: true,
+  responsive: true,
+  modeBarButtonsToRemove: ["lasso2d", "select2d"],
+} as const;
 
 type ChartPanelProps = {
   chart: ChartSpec;
@@ -29,6 +35,7 @@ export function ChartPanel({ chart }: ChartPanelProps) {
         data={[{ type: "bar", x: chart.categories, y: chart.values, marker: { color: "#4f46e5" } }]}
         layout={{
           ...plotLayout,
+          hovermode: "x unified",
           xaxis: { title: chart.x_label, tickangle: -45 },
           yaxis: { title: chart.y_label },
         }}
@@ -39,7 +46,15 @@ export function ChartPanel({ chart }: ChartPanelProps) {
   } else if (chart.type === "pie") {
     plot = (
       <Plot
-        data={[{ type: "pie", labels: chart.labels, values: chart.values, hole: 0.35 }]}
+        data={[
+          {
+            type: "pie",
+            labels: chart.labels,
+            values: chart.values,
+            hole: 0.35,
+            textinfo: "label+percent",
+          },
+        ]}
         layout={plotLayout}
         style={PLOT_STYLE}
         config={PLOT_CONFIG}
@@ -49,7 +64,7 @@ export function ChartPanel({ chart }: ChartPanelProps) {
     plot = (
       <Plot
         data={[{ type: "histogram", x: chart.values, marker: { color: "#0ea5e9" } }]}
-        layout={{ ...plotLayout, xaxis: { title: chart.x_label } }}
+        layout={{ ...plotLayout, hovermode: "x unified", xaxis: { title: chart.x_label } }}
         style={PLOT_STYLE}
         config={PLOT_CONFIG}
       />
@@ -66,6 +81,7 @@ export function ChartPanel({ chart }: ChartPanelProps) {
         layout={{
           ...plotLayout,
           barmode: "stack",
+          hovermode: "x unified",
           xaxis: { title: chart.x_label },
           yaxis: { title: chart.y_label },
         }}
@@ -77,7 +93,7 @@ export function ChartPanel({ chart }: ChartPanelProps) {
     plot = (
       <Plot
         data={[{ type: "histogram", x: chart.values, marker: { color: "#8b5cf6" } }]}
-        layout={{ ...plotLayout, xaxis: { title: "Date" } }}
+        layout={{ ...plotLayout, hovermode: "x unified", xaxis: { title: "Date" } }}
         style={PLOT_STYLE}
         config={PLOT_CONFIG}
       />
@@ -100,6 +116,7 @@ export function ChartPanel({ chart }: ChartPanelProps) {
         ]}
         layout={{
           ...plotLayout,
+          hovermode: "closest",
           xaxis: { title: chart.x_label },
           yaxis: { title: chart.y_label },
         }}

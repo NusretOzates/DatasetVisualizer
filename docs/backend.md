@@ -48,6 +48,8 @@ Row counts on the catalog use `entry.row_count` from YAML when set; otherwise th
 
 Row counts (`row_count.py`), the inspect CLI (`scripts/inspect_dataset.py`), and API handlers all use `get_descriptor(dataset_id)` — there is no separate loader registry.
 
+`loader: hf_benchmark` entries are auto-registered with `overview_generic()` plus reusable filter candidates for common benchmark columns (`subject`, `category`, `domain`, `difficulty`, `level`, etc.). The frontend hides generated filters whose columns are absent in the loaded frame.
+
 ## API endpoints
 
 All endpoints are registered with `@app.api(name="…")` in `server.py` and callable via `@gradio/client` or `gradio_client`:
@@ -64,7 +66,7 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 
 `params_json` and `filters_json` are JSON strings (or dicts) matching control/filter names from `get_dataset_meta`.
 
-Filter application and option discovery are schema-driven in `api/filters.py` and `api/service.py` — no per-dataset `if dataset_id == …` branches for standard filter types.
+Filter application and option discovery are schema-driven in `api/filters.py` and `api/service.py` — no per-dataset `if dataset_id == …` branches for standard filter types. `find_sample` uses the descriptor `id_column`, which the frontend exposes as a jump-to-ID control in the sample inspector.
 
 ## Caching
 

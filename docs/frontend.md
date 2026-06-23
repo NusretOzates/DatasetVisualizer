@@ -18,8 +18,9 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | Types | `lib/types.ts` | Catalog, overview, chart, control, and filter types |
 | Explorer | `components/DatasetExplorer.tsx` | Controls, top filters, tabs (via `lib/useDatasetQuery.ts`) |
 | Overview | `components/OverviewTab.tsx`, `ChartPanel.tsx` | Metrics + Plotly charts |
-| Samples | `components/SampleInspector.tsx` | Index slider and viewers |
+| Samples | `components/SampleInspector.tsx` | Index slider, ID lookup, and viewers |
 | Viewer registry | `components/viewers/registry.tsx` | Maps API `viewer` key → React component |
+| Rich text | `components/viewers/MarkdownMath.tsx` | Markdown + LaTeX rendering for benchmark statements |
 
 shadcn configuration lives in [`frontend/components.json`](../frontend/components.json).
 
@@ -76,16 +77,21 @@ Defined in `components/viewers/registry.tsx` (dispatched by API `viewer`, with `
 | `academic_qa` | `HleViewer` | HLE questions, images, answer types |
 | `math_competition` | `MathViewer` | Competition problems + solution extras |
 | `arxiv_math` | `ArxivMathViewer` | ArXiv Math problems + model-run tables |
+| `arc_grid` | `ArcGridViewer` | ARC-AGI input/output grid puzzles |
 
 Custom viewers live in `components/viewers/` (e.g. `McqCotViewer.tsx`, `CodeProblemSampleViewer.tsx`).
 
 ## Chart payloads
 
-Overview charts are built server-side in `api/chart_data.py` and rendered client-side with `react-plotly.js`. Supported `type` values:
+Overview charts are built server-side in `api/chart_data.py` and rendered client-side with `react-plotly.js`. Charts expose Plotly's mode bar without the logo so users can zoom, inspect, and download chart images. Supported `type` values:
 
 - `bar`, `pie`, `histogram`, `stacked_bar`, `timeline`, `scatter`
 
-See `lib/types.ts` for the full TypeScript shapes. Filter option payloads use the `FilterOptions` type.
+See `lib/types.ts` for the full TypeScript shapes. Filter option payloads use the `FilterOptions` type. Empty generated filters are hidden client-side so generic benchmark descriptors can advertise reusable filter candidates safely.
+
+## Sample lookup
+
+`SampleInspector` calls `get_sample` for index navigation and `find_sample` for exact `id_column` lookup. `get_dataset_meta` provides the lookup label through `id_column`.
 
 ## Documentation
 

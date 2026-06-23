@@ -39,6 +39,8 @@ export function HomePage() {
     );
   }
 
+  const categoryCount = catalog.categories.length;
+
   return (
     <AppShell catalog={catalog}>
       <div className="space-y-6">
@@ -57,7 +59,7 @@ export function HomePage() {
           <CardHeader>
             <CardTitle>Registered datasets</CardTitle>
             <CardDescription>
-              {catalog.home_rows.length} datasets across reasoning, code, and math benchmarks.
+              {catalog.home_rows.length} datasets across {categoryCount} benchmark categories.
             </CardDescription>
           </CardHeader>
           <CardContent>

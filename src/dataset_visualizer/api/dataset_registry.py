@@ -23,6 +23,7 @@ from dataset_visualizer.api.overview import (
     sample_extras_aime,
     sample_extras_arxivmath,
 )
+from dataset_visualizer.api.generic_overview import overview_generic
 from dataset_visualizer.loaders.aime_2026 import load_aime_2026
 from dataset_visualizer.loaders.arxivmath import load_outputs, load_problems
 from dataset_visualizer.loaders.global_mmlu import (
@@ -49,7 +50,6 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
-from dataset_visualizer.api.generic_overview import overview_generic
 from dataset_visualizer.config import DatasetEntry, load_config
 from dataset_visualizer.loaders.hf_benchmark import make_hf_benchmark_loader
 
@@ -175,11 +175,64 @@ def _swe_bench_filters(*, include_difficulty: bool, include_language: bool) -> l
     ]
     if include_difficulty:
         filters.append(
-            {"name": "difficulties", "label": "Difficulty", "type": "multiselect", "column": "difficulty"}
+            {
+                "name": "difficulties",
+                "label": "Difficulty",
+                "type": "multiselect",
+                "column": "difficulty",
+            }
         )
     if include_language:
         filters.append(
-            {"name": "languages", "label": "Language", "type": "multiselect", "column": "repo_language"}
+            {
+                "name": "languages",
+                "label": "Language",
+                "type": "multiselect",
+                "column": "repo_language",
+            }
+        )
+    return filters
+
+
+def _hf_benchmark_filters(entry: DatasetEntry) -> list[dict[str, Any]]:
+    filters: list[dict[str, Any]] = []
+    categorical_columns = {
+        "subject": ("subjects", "Subject"),
+        "category": ("categories", "Category"),
+        "domain": ("domains", "Domain"),
+        "difficulty": ("difficulties", "Difficulty"),
+        "level": ("levels", "Level"),
+        "problem_type": ("problem_types", "Problem type"),
+        "event_type": ("event_types", "Event type"),
+        "sector": ("sectors", "Sector"),
+        "occupation": ("occupations", "Occupation"),
+    }
+    for column, (name, label) in categorical_columns.items():
+        filters.append(
+            {
+                "name": name,
+                "label": label,
+                "type": "multiselect",
+                "column": column,
+            }
+        )
+    if entry.profile in {"code_eval", "apps", "mbpp"}:
+        filters.append(
+            {
+                "name": "task_prefix",
+                "label": "Task ID prefix",
+                "type": "text",
+                "column": entry.id_column or "sample_id",
+            }
+        )
+    if entry.profile in {"generic"} or entry.archetype in {"generic"}:
+        filters.append(
+            {
+                "name": "date_range",
+                "label": "Date range",
+                "type": "date_range",
+                "column": "date",
+            }
         )
     return filters
 
@@ -192,6 +245,7 @@ def _descriptor_from_hf_entry(entry: DatasetEntry) -> DatasetDescriptor:
         viewer=viewer,
         loader=lambda params, entry=entry: (make_hf_benchmark_loader(entry)(params), {}),
         overview=overview_generic,
+        filters=_hf_benchmark_filters(entry),
         cache_key=entry.id,
     )
 
@@ -203,7 +257,9 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         loader=lambda p: (load_mmlu(split=p.get("split", "test")), {}),
         overview=overview_mmlu,
         controls=_controls_mmlu,
-        filters=[{"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"}],
+        filters=[
+            {"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"}
+        ],
     ),
     "mmlu_pro": DatasetDescriptor(
         id_column="question_id",
@@ -212,7 +268,12 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         overview=overview_mmlu_pro,
         controls=_controls_mmlu_pro,
         filters=[
-            {"name": "categories", "label": "Category", "type": "multiselect", "column": "category"},
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
             {"name": "src_prefix", "label": "Source prefix", "type": "text", "column": "src"},
         ],
     ),
@@ -250,7 +311,9 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         loader=lambda p: (load_mmmlu(locale=p.get("locale", DEFAULT_LOCALE)), {}),
         overview=overview_mmmlu,
         controls=_controls_mmmlu,
-        filters=[{"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"}],
+        filters=[
+            {"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"}
+        ],
     ),
     "aime_2026": DatasetDescriptor(
         id_column="problem_idx",
@@ -265,9 +328,24 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         loader=lambda _p: (load_hle(), {}),
         overview=overview_hle,
         filters=[
-            {"name": "categories", "label": "Category", "type": "multiselect", "column": "category"},
-            {"name": "subjects", "label": "Subject", "type": "multiselect", "column": "raw_subject"},
-            {"name": "answer_types", "label": "Answer type", "type": "multiselect", "column": "answer_type"},
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
+            {
+                "name": "subjects",
+                "label": "Subject",
+                "type": "multiselect",
+                "column": "raw_subject",
+            },
+            {
+                "name": "answer_types",
+                "label": "Answer type",
+                "type": "multiselect",
+                "column": "answer_type",
+            },
             {
                 "name": "modality",
                 "label": "Modality",
@@ -287,7 +365,12 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         supports_private_tests=True,
         filters=[
             {"name": "platforms", "label": "Platform", "type": "multiselect", "column": "platform"},
-            {"name": "difficulties", "label": "Difficulty", "type": "multiselect", "column": "difficulty"},
+            {
+                "name": "difficulties",
+                "label": "Difficulty",
+                "type": "multiselect",
+                "column": "difficulty",
+            },
             {
                 "name": "date_range",
                 "label": "Contest date range",
@@ -338,7 +421,12 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         overview=overview_arxivmath,
         sample_extras=sample_extras_arxivmath,
         filters=[
-            {"name": "problems", "label": "Problem", "type": "multiselect", "column": "problem_idx"},
+            {
+                "name": "problems",
+                "label": "Problem",
+                "type": "multiselect",
+                "column": "problem_idx",
+            },
         ],
     ),
 }

@@ -4,6 +4,7 @@ Internal developer documentation for the Dataset Visualizer project.
 
 ## Start here
 
+- **Changing how a visualizer feature works?** → [Architecture overview](architecture/overview.md) → [Code map](architecture/code-map.md) → [Frontend](frontend.md) or [Backend](backend.md)
 - **[Dataset system reference](dataset-system.md)** — architecture, touchpoint checklist, loader/API contracts, archetype table, templates, pitfalls. **Read this before opening source files** when adding or modifying datasets.
 - [Adding a dataset](adding-a-dataset.md) — short checklist (links to the system reference)
 - [Backend (Gradio Server)](backend.md) — API endpoints, caching, static frontend mount
@@ -24,6 +25,7 @@ Per-dataset schema and visualization notes:
 - [SWE-Bench](datasets/swe_bench.md)
 - [τ³-Bench](datasets/tau3_bench.md)
 - [ArXiv Math 0526](datasets/arxivmath.md)
+- [ARC-AGI 2](datasets/arc_agi_2.md)
 
 ## Architecture (summary)
 
@@ -37,7 +39,7 @@ config/datasets.yaml  →  config.py (Pydantic)
                       →  frontend/ (Next.js + @gradio/client)
 ```
 
-Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset-system.md).
+Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset-system.md). Public capability entry points: [architecture/code-map.md](architecture/code-map.md).
 
 ## Shared modules
 

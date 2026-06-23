@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { MarkdownMath } from "./MarkdownMath";
 
 type CodeEvalViewerProps = {
   row: Record<string, unknown>;
@@ -26,7 +27,7 @@ export function CodeEvalViewer({ row }: CodeEvalViewerProps) {
 
       <div>
         <h4 className="text-sm font-medium text-muted-foreground">Prompt</h4>
-        <pre className="code-block mt-2 whitespace-pre-wrap">{prompt}</pre>
+        <MarkdownMath className="mt-2 text-sm">{prompt}</MarkdownMath>
       </div>
 
       {solution ? (

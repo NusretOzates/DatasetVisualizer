@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { MarkdownMath } from "./MarkdownMath";
 
 type CodeProblemViewerProps = {
   row: Record<string, unknown>;
@@ -100,9 +101,7 @@ export function CodeProblemViewer({
       ) : null}
       <div>
         <h4 className="text-sm font-medium text-muted-foreground">Problem</h4>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
-          {String(row.question_content ?? "")}
-        </p>
+        <MarkdownMath className="mt-2 text-sm">{String(row.question_content ?? "")}</MarkdownMath>
       </div>
       {row.starter_code ? (
         <div>

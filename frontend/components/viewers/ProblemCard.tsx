@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
+import { MarkdownMath } from "./MarkdownMath";
 
 type ProblemCardProps = {
   problem: string;
@@ -19,9 +20,9 @@ export function ProblemCard({ problem, answer }: ProblemCardProps) {
         <CardTitle className="text-base">Problem</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">{problem}</p>
+        <MarkdownMath className="text-sm" >{problem}</MarkdownMath>
         <Button variant="outline" size="sm" onClick={() => setRevealed((current) => !current)}>
-          {revealed ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          {revealed ? <EyeOff data-icon="inline-start" /> : <Eye data-icon="inline-start" />}
           {revealed ? "Hide gold answer" : "Reveal gold answer"}
         </Button>
         {revealed ? (
@@ -29,7 +30,7 @@ export function ProblemCard({ problem, answer }: ProblemCardProps) {
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
               Gold answer
             </p>
-            {answer}
+            <MarkdownMath>{answer}</MarkdownMath>
           </div>
         ) : null}
       </CardContent>
