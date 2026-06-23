@@ -29,6 +29,8 @@ flowchart TD
 
 ## Visualizer notes
 
+- **Manual loaders** (13 datasets) use tailored overview builders in `api/overview.py` and dedicated normalization in `loaders/<module>.py`.
+- **`hf_benchmark` entries** (38 datasets) auto-register from YAML, normalize via `loaders/benchmark_normalize.py` profiles, and share `overview_generic()` plus reusable filters.
 - Generic Hugging Face benchmarks use normalized columns to produce reusable charts: category bars, answer distribution, choice/test-count histograms, text-length histograms, and date timelines.
-- Sample viewers are keyed by API `viewer`; the YAML `viewer` field can override the archetype when a benchmark needs a more specific presentation.
+- Sample viewers are keyed by API `viewer`; the YAML `viewer` field can override the archetype when a benchmark needs a more specific presentation (`code_eval`, `arc_grid`, …).
 - Math and benchmark statements render Markdown/LaTeX via the shared frontend renderer.
