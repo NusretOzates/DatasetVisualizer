@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { DatasetMeta, SamplePayload } from "@/lib/types";
-import { decodePrivateTests, fetchSample } from "@/lib/api";
+import { decodePrivateTests, fetchSample, findSample } from "@/lib/api";
 import { renderSample } from "./viewers/registry";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 type SampleInspectorProps = {
   datasetId: string;
@@ -31,6 +32,8 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
   const [privateTestsError, setPrivateTestsError] = useState<string | null>(null);
   const [privateTestsLoading, setPrivateTestsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lookupValue, setLookupValue] = useState("");
+  const [lookupError, setLookupError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -88,6 +91,29 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
 
   const total = payload?.total ?? 0;
 
+  async function handleLookup(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const idValue = lookupValue.trim();
+    if (!idValue) return;
+
+    setLoading(true);
+    setLookupError(null);
+    setError(null);
+    try {
+      const result = await findSample(datasetId, idValue, params, filters);
+      if (!result.row || result.index < 0) {
+        setLookupError(`No sample found for ${meta.id_column} = ${idValue}`);
+        return;
+      }
+      setPayload(result);
+      setIndex(result.index);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to find sample");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <Card>
@@ -130,6 +156,23 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
               onValueChange={(value) => setIndex(value[0] ?? 0)}
             />
           </div>
+
+          <form onSubmit={handleLookup} className="grid gap-2 md:grid-cols-[1fr_auto]">
+            <div className="space-y-2">
+              <Label htmlFor="sample-id-lookup">Jump to {meta.id_column}</Label>
+              <Input
+                id="sample-id-lookup"
+                value={lookupValue}
+                onChange={(event) => setLookupValue(event.target.value)}
+                placeholder={`Enter ${meta.id_column}`}
+                disabled={loading}
+              />
+            </div>
+            <Button type="submit" variant="secondary" className="self-end" disabled={loading}>
+              <Search data-icon="inline-start" />
+              Find sample
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
@@ -146,6 +189,14 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
           <AlertCircle className="size-4" />
           <AlertTitle>Private test cases unavailable</AlertTitle>
           <AlertDescription>{privateTestsError}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {lookupError ? (
+        <Alert>
+          <AlertCircle className="size-4" />
+          <AlertTitle>Sample not found</AlertTitle>
+          <AlertDescription>{lookupError}</AlertDescription>
         </Alert>
       ) : null}
 

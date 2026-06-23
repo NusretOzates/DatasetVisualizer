@@ -235,6 +235,8 @@ Filter options for multiselect/radio/date_range are built in `service._filter_op
 
 Build charts with helpers in `api/chart_data.py`. Serialize table rows with `api/serializers.serialize_rows()`.
 
+`overview_generic()` is used by auto-registered `hf_benchmark` entries. It inspects normalized benchmark columns and emits reusable charts for category-like fields, answer-letter distribution, choice/test counts, text length, and date timelines.
+
 ### Gradio API endpoints (`server.py`)
 
 | Endpoint | Purpose |
@@ -275,6 +277,7 @@ Sample rendering uses the API `viewer` field (fallback: YAML `archetype`) via `c
 | `academic_qa` | `HleViewer` | `question`, `answer`, `has_image`, `answer_type` |
 | `math_competition` | `MathViewer` | `problem`, `problem_idx`, `answer` |
 | `arxiv_math` | `ArxivMathViewer` | problem fields + model-run tables from extras |
+| `arc_grid` | `ArcGridViewer` | `puzzle_json` ARC train/test grids |
 
 Add a dedicated viewer under `frontend/components/viewers/` only when an existing viewer cannot render your samples. Register it in `registry.tsx`.
 
@@ -296,6 +299,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `agent_task` | `instance_id`, `domain`, `purpose`, user-scenario text fields | `overview_tau3_bench` | `tau3_bench` | `agent_task` | `instance_id` |
 | `academic_qa` | `question`, `answer`, `answer_type`, `has_image` | `overview_hle` | `hle` | `academic_qa` | `id` |
 | `math_competition` | Problem fields + optional joined outputs | `overview_aime` / `overview_arxivmath` | `aime_2026`, `arxivmath_0526` | `math_competition` / `arxiv_math` | `problem_idx` |
+| `arc_grid` | `puzzle_json` | `overview_generic` | `arc_agi_2` | `arc_grid` | `sample_id` |
 
 ### Column contracts (Python helpers)
 
@@ -325,6 +329,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `swe_bench_pro` | code | `swe_bench_pro` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `tau3_bench` | code | `tau3_bench` | agent_task | `agent_task` | `tau3_bench` |
 | `arxivmath_0526` | math | `arxivmath` | math_competition | `arxiv_math` | `arxivmath` |
+| `arc_agi_2` | games | `hf_benchmark` | generic | `arc_grid` | `arc_agi_2` |
 
 ## Test contract
 

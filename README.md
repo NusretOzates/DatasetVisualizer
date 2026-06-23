@@ -1,6 +1,6 @@
 # Dataset Visualizer
 
-Interactive explorer for Hugging Face benchmark datasets. The app uses a **Gradio Server** backend ([`gradio.Server`](https://huggingface.co/blog/introducing-gradio-server)) and a **Next.js** React frontend.
+Interactive explorer for Hugging Face benchmark datasets. The app uses a **Gradio Server** backend ([`gradio.Server`](https://huggingface.co/blog/introducing-gradio-server)) and a **Next.js** React frontend with benchmark-aware overviews, filters, Markdown/LaTeX rendering, and per-sample inspection.
 
 ## Setup
 
@@ -50,23 +50,9 @@ The backend serves `frontend/out/` at `/` when the build exists.
 
 ## Datasets
 
-| Category | Dataset | Source |
-|----------|---------|--------|
-| Reasoning | MMLU | `cais/mmlu` |
-| Reasoning | MMLU-Pro | `TIGER-Lab/MMLU-Pro` |
-| Reasoning | GPQA Diamond | `Idavidrein/gpqa` (`gpqa_diamond`) |
-| Reasoning | Global-MMLU | `CohereLabs/Global-MMLU` |
-| Reasoning | MMMLU | `openai/MMMLU` |
-| Reasoning | Humanity's Last Exam | `cais/hle` |
-| Code | LiveCodeBench v6 | `livecodebench/code_generation_lite` (`test6.jsonl`) |
-| Code | SWE-Bench Verified | `SWE-bench/SWE-bench_Verified` |
-| Code | SWE-Bench Multilingual | `SWE-bench/SWE-bench_Multilingual` |
-| Code | SWE-Bench PRO | `Contextbench/SWE-bench_Pro` |
-| Code | τ³-Bench | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) (GitHub JSON) |
-| Math | AIME 2026 | `MathArena/aime_2026` |
-| Math | ArXiv Math 0526 | `MathArena/arxivmath-0526` + `MathArena/arxivmath-0526_outputs` |
+The catalog is configured in [`config/datasets.yaml`](config/datasets.yaml) and currently spans reasoning, knowledge, code, long-context, instruction-following, tool-calling, assistant-task, games, forecasting, and math benchmarks. Manually registered datasets have tailored loaders/viewers; additional Hugging Face benchmarks use the generic `hf_benchmark` loader with reusable overview charts and filters.
 
-Configuration lives in [`config/datasets.yaml`](config/datasets.yaml). To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**
+To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**
 
 Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
@@ -103,6 +89,7 @@ uv run pytest
 uv run ruff check src tests scripts
 uv run ruff format src tests scripts
 cd frontend && npm run lint
+cd frontend && npm run typecheck
 ```
 
 See [`docs/index.md`](docs/index.md) for architecture and per-dataset notes.

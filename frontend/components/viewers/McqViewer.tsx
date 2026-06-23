@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { MarkdownMath } from "./MarkdownMath";
 
 type McqViewerProps = {
   row: Record<string, unknown>;
@@ -61,7 +62,7 @@ export function McqViewer({
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-medium text-muted-foreground">Question</h3>
-        <p className="mt-2 text-base leading-relaxed">{question}</p>
+        <MarkdownMath className="mt-2 text-base">{question}</MarkdownMath>
       </div>
 
       {options.length === 0 ? (
@@ -78,7 +79,10 @@ export function McqViewer({
                   : "border-border bg-muted/30",
               )}
             >
-              <span className="font-semibold">{option.letter}.</span> {option.text}
+              <span className="font-semibold">{option.letter}.</span>{" "}
+              <MarkdownMath className="inline" inline>
+                {option.text}
+              </MarkdownMath>
             </div>
           ))}
         </div>

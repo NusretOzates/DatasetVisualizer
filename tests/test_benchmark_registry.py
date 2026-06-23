@@ -22,3 +22,14 @@ def test_build_dataset_registry_is_idempotent() -> None:
     first = build_dataset_registry()
     second = build_dataset_registry()
     assert set(first.keys()) == set(second.keys())
+
+
+def test_hf_benchmark_entries_get_reusable_filters() -> None:
+    descriptor = DATASET_REGISTRY["mmlu_redux"]
+    filter_names = {filter_spec["name"] for filter_spec in descriptor.filters}
+    assert "subjects" in filter_names
+    assert "categories" in filter_names
+
+
+def test_arc_agi_uses_grid_viewer() -> None:
+    assert DATASET_REGISTRY["arc_agi_2"].viewer == "arc_grid"

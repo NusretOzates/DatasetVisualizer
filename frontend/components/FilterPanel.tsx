@@ -104,13 +104,26 @@ function MultiSelectFilter({
 export function FilterPanel({ filters, options, values, onChange }: FilterPanelProps) {
   if (!filters.length) return null;
 
+  const visibleFilters = filters.filter((filter) => {
+    if (filter.type === "multiselect") {
+      return Array.isArray(options[filter.name]) && (options[filter.name] as unknown[]).length > 0;
+    }
+    if (filter.type === "date_range") {
+      const range = options[filter.name] as { min?: string; max?: string } | undefined;
+      return Boolean(range?.min && range?.max);
+    }
+    return true;
+  });
+
+  if (!visibleFilters.length) return null;
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Filters</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filters.map((filter) => {
+        {visibleFilters.map((filter) => {
           if (filter.type === "multiselect") {
             const available = Array.isArray(options[filter.name])
               ? (options[filter.name] as unknown[]).map(String)

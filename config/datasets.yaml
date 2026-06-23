@@ -486,6 +486,7 @@ categories:
       hf_id: arc-agi-community/arc-agi-2
       split: test
       profile: arc_agi
+      viewer: arc_grid
       id_column: sample_id
       row_count: 120
       description: >

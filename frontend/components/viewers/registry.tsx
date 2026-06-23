@@ -2,6 +2,7 @@
 
 import type { ComponentType, ReactNode } from "react";
 import type { DatasetMeta } from "@/lib/types";
+import { ArcGridViewer } from "./ArcGridViewer";
 import { ArxivMathViewer } from "./ArxivMathViewer";
 import { CodeEvalViewer } from "./CodeEvalViewer";
 import { GenericViewer } from "./GenericViewer";
@@ -27,6 +28,7 @@ const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   agent_task: Tau3BenchViewer,
   generic: GenericViewer,
   code_eval: CodeEvalViewer,
+  arc_grid: ({ row }) => <ArcGridViewer row={row} />,
 };
 
 export function renderSample(
