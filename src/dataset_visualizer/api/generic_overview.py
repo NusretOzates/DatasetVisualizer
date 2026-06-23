@@ -7,8 +7,8 @@ from typing import Any
 import pandas as pd
 
 from dataset_visualizer.api.chart_data import (
+    answer_letter_pie_chart,
     histogram_data,
-    pie_chart_data,
     timeline_data,
     value_counts_chart,
 )
@@ -112,7 +112,12 @@ def overview_generic(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any
             )
         )
     if "answer_letter" in df.columns:
-        charts.append(pie_chart_data(df["answer_letter"], title="Answer letter distribution"))
+        answer_chart = answer_letter_pie_chart(
+            df["answer_letter"],
+            title="Answer letter distribution",
+        )
+        if answer_chart is not None:
+            charts.append(answer_chart)
     for chart in (
         _list_length_chart(df, "choices", "Choice count distribution", "Choices"),
         _list_length_chart(df, "public_test_cases", "Public test count distribution", "Tests"),
