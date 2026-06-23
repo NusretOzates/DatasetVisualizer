@@ -52,6 +52,7 @@ def bar_chart_data(
 
 
 MAX_PIE_CATEGORIES = 12
+ANSWER_LETTER_PATTERN = r"^[A-Z]$"
 
 
 def pie_chart_data(series: pd.Series, *, title: str) -> dict[str, Any]:
@@ -66,8 +67,11 @@ def pie_chart_data(series: pd.Series, *, title: str) -> dict[str, Any]:
 
 
 def answer_letter_pie_chart(series: pd.Series, *, title: str) -> dict[str, Any] | None:
-    """Build an answer-letter pie chart when the label cardinality stays readable."""
-    if series.dropna().nunique() > MAX_PIE_CATEGORIES:
+    """Build an answer-letter pie chart when values are single MCQ letters."""
+    letters = series.dropna().astype(str).str.strip().str.upper()
+    if letters.empty or letters.nunique() > MAX_PIE_CATEGORIES:
+        return None
+    if not letters.str.fullmatch(ANSWER_LETTER_PATTERN, na=False).all():
         return None
     return pie_chart_data(series, title=title)
 

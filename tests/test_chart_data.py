@@ -19,3 +19,9 @@ def test_answer_letter_pie_chart_skips_high_cardinality() -> None:
     series = pd.Series([f"ANSWER_{index}" for index in range(20)])
 
     assert answer_letter_pie_chart(series, title="Answer letter distribution") is None
+
+
+def test_answer_letter_pie_chart_skips_non_letter_labels() -> None:
+    series = pd.Series(["BIRD", "ALICE", "BOB", "BIRD"])
+
+    assert answer_letter_pie_chart(series, title="Answer letter distribution") is None
