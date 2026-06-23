@@ -46,16 +46,6 @@ categories:
       description: >
         OpenAI's Multilingual Massive Multitask Language Understanding benchmark
         with 14 locale-specific configs for non-English multiple-choice evaluation.
-    - id: aime_2026
-      label: AIME 2026
-      loader: aime_2026
-      icon: "🔢"
-      archetype: math_competition
-      hf_id: MathArena/aime_2026
-      row_count: 30
-      description: >
-        2026 American Invitational Mathematics Examination problems with integer
-        answers from 0 to 999, drawn from the competition math benchmark.
     - id: hle
       label: Humanity's Last Exam
       loader: hle
@@ -106,6 +96,16 @@ categories:
         Enterprise-scale SWE-Bench PRO tasks with harder, production-style
         software engineering issues and richer metadata.
   math:
+    - id: aime_2026
+      label: AIME 2026
+      loader: aime_2026
+      icon: "🔢"
+      archetype: math_competition
+      hf_id: MathArena/aime_2026
+      row_count: 30
+      description: >
+        2026 American Invitational Mathematics Examination problems with integer
+        answers from 0 to 999, drawn from the competition math benchmark.
     - id: arxivmath_0526
       label: ArXiv Math 0526
       loader: arxivmath

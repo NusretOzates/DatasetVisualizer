@@ -57,12 +57,12 @@ The backend serves `frontend/out/` at `/` when the build exists.
 | Reasoning | GPQA Diamond | `Idavidrein/gpqa` (`gpqa_diamond`) |
 | Reasoning | Global-MMLU | `CohereLabs/Global-MMLU` |
 | Reasoning | MMMLU | `openai/MMMLU` |
-| Reasoning | AIME 2026 | `MathArena/aime_2026` |
 | Reasoning | Humanity's Last Exam | `cais/hle` |
 | Code | LiveCodeBench v6 | `livecodebench/code_generation_lite` (`test6.jsonl`) |
 | Code | SWE-Bench Verified | `SWE-bench/SWE-bench_Verified` |
 | Code | SWE-Bench Multilingual | `SWE-bench/SWE-bench_Multilingual` |
 | Code | SWE-Bench PRO | `Contextbench/SWE-bench_Pro` |
+| Math | AIME 2026 | `MathArena/aime_2026` |
 | Math | ArXiv Math 0526 | `MathArena/arxivmath-0526` + `MathArena/arxivmath-0526_outputs` |
 
 Configuration lives in [`config/datasets.yaml`](config/datasets.yaml). To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**

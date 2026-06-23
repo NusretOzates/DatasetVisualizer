@@ -316,7 +316,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `gpqa_diamond` | reasoning | `gpqa` | mcq | `mcq` | `gpqa` |
 | `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `mcq` | `global_mmlu` |
 | `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mcq` | `mmmlu` |
-| `aime_2026` | reasoning | `aime_2026` | math_competition | `math_competition` | `aime_2026` |
+| `aime_2026` | math | `aime_2026` | math_competition | `math_competition` | `aime_2026` |
 | `hle` | reasoning | `hle` | academic_qa | `academic_qa` | `hle` |
 | `livecodebench_v6` | code | `livecodebench` | code_problem | `code_problem` | `livecodebench` |
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `issue_resolution` | `swe_bench` |
