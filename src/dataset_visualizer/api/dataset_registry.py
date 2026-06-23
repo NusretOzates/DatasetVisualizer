@@ -8,6 +8,7 @@ from typing import Any
 
 import pandas as pd
 
+from dataset_visualizer.api.generic_overview import overview_generic
 from dataset_visualizer.api.overview import (
     overview_aime,
     overview_arxivmath,
@@ -23,7 +24,7 @@ from dataset_visualizer.api.overview import (
     sample_extras_aime,
     sample_extras_arxivmath,
 )
-from dataset_visualizer.api.generic_overview import overview_generic
+from dataset_visualizer.config import DatasetEntry, load_config
 from dataset_visualizer.loaders.aime_2026 import load_aime_2026
 from dataset_visualizer.loaders.arxivmath import load_outputs, load_problems
 from dataset_visualizer.loaders.global_mmlu import (
@@ -33,6 +34,7 @@ from dataset_visualizer.loaders.global_mmlu import (
     load_global_mmlu,
 )
 from dataset_visualizer.loaders.gpqa import load_gpqa_diamond
+from dataset_visualizer.loaders.hf_benchmark import make_hf_benchmark_loader
 from dataset_visualizer.loaders.hle import load_hle
 from dataset_visualizer.loaders.livecodebench import load_livecodebench
 from dataset_visualizer.loaders.mmlu import load_mmlu
@@ -50,8 +52,6 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
-from dataset_visualizer.config import DatasetEntry, load_config
-from dataset_visualizer.loaders.hf_benchmark import make_hf_benchmark_loader
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
 OverviewFn = Callable[[pd.DataFrame, dict[str, Any]], dict[str, Any]]

@@ -28,12 +28,12 @@ const ARC_COLORS = [
   "#7c3aed",
 ];
 
-function parsePuzzle(row: Record<string, unknown>): ArcPuzzle | null {
+function parsePuzzle(row: Record<string, unknown>): ArcPuzzle | ArcPair[] | null {
   const raw = row.puzzle_json ?? row.question;
-  if (typeof raw === "object" && raw !== null) return raw as ArcPuzzle;
+  if (typeof raw === "object" && raw !== null) return raw as ArcPuzzle | ArcPair[];
   if (typeof raw !== "string" || !raw.trim()) return null;
   try {
-    return JSON.parse(raw) as ArcPuzzle;
+    return JSON.parse(raw) as ArcPuzzle | ArcPair[];
   } catch {
     return null;
   }
@@ -92,9 +92,13 @@ function PairView({ pair, title }: { pair: ArcPair; title: string }) {
 
 export function ArcGridViewer({ row }: { row: Record<string, unknown> }) {
   const puzzle = parsePuzzle(row);
-  const trainPairs = Array.isArray(puzzle?.train) ? puzzle.train : [];
-  const testPairs = Array.isArray(puzzle?.test) ? puzzle.test : [];
-  const inlinePair = puzzle?.input || puzzle?.output ? [{ input: puzzle.input, output: puzzle.output }] : [];
+  const topLevelPairs = Array.isArray(puzzle) ? puzzle : [];
+  const trainPairs = !Array.isArray(puzzle) && Array.isArray(puzzle?.train) ? puzzle.train : [];
+  const testPairs = !Array.isArray(puzzle) && Array.isArray(puzzle?.test) ? puzzle.test : [];
+  const inlinePair =
+    !Array.isArray(puzzle) && (puzzle?.input || puzzle?.output)
+      ? [{ input: puzzle.input, output: puzzle.output }]
+      : [];
   const pairs = [...trainPairs, ...inlinePair];
 
   if (!puzzle) {
@@ -106,12 +110,13 @@ export function ArcGridViewer({ row }: { row: Record<string, unknown> }) {
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline">ID: {String(row.sample_id ?? row.id ?? "—")}</Badge>
         <Badge variant="secondary">
-          {trainPairs.length.toLocaleString()} train · {testPairs.length.toLocaleString()} test
+          {(trainPairs.length + topLevelPairs.length).toLocaleString()} train ·{" "}
+          {testPairs.length.toLocaleString()} test
         </Badge>
       </div>
 
-      {pairs.map((pair, index) => (
-        <PairView key={index} pair={pair} title={`Training pair ${index + 1}`} />
+      {[...pairs, ...topLevelPairs].map((pair, index) => (
+        <PairView key={index} pair={pair} title={`Grid pair ${index + 1}`} />
       ))}
 
       {testPairs.map((pair, index) => (

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from dataset_visualizer.loaders.benchmark_normalize import (
     normalize_arc,
+    normalize_arc_agi,
     normalize_hellaswag,
     normalize_piqa,
     normalize_winogrande,
@@ -64,3 +66,26 @@ def test_normalize_piqa_maps_solutions() -> None:
     )
     normalized = normalize_piqa(df, "sample_id")
     assert normalized["answer_letter"].iloc[0] == "A"
+
+
+def test_normalize_arc_agi_serializes_nested_arrays() -> None:
+    df = pd.DataFrame(
+        {
+            "question": [
+                {
+                    "train": [
+                        {
+                            "input": np.array([[0, 1], [1, 0]]),
+                            "output": np.array([[1, 0], [0, 1]]),
+                        }
+                    ],
+                    "test": [{"input": [[0]], "output": [[1]]}],
+                }
+            ],
+        }
+    )
+
+    normalized = normalize_arc_agi(df, "sample_id")
+
+    assert '"train"' in normalized["puzzle_json"].iloc[0]
+    assert "array(" not in normalized["puzzle_json"].iloc[0]

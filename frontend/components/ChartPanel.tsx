@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { Config } from "plotly.js";
 import type { ChartSpec } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -15,12 +16,12 @@ const plotLayout = {
 };
 
 const PLOT_STYLE = { width: "100%", height: "380px" } as const;
-const PLOT_CONFIG = {
+const PLOT_CONFIG: Partial<Config> = {
   displaylogo: false,
   displayModeBar: true,
   responsive: true,
   modeBarButtonsToRemove: ["lasso2d", "select2d"],
-} as const;
+};
 
 type ChartPanelProps = {
   chart: ChartSpec;

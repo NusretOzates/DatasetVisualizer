@@ -28,6 +28,7 @@ def _choices_from_dict(choices: object) -> list[str]:
 
 
 def _answer_letter_from_key(answer_key: object, choices: list[str]) -> str:
+    """Resolve mixed benchmark answer keys into display letters."""
     if answer_key is None or (isinstance(answer_key, float) and pd.isna(answer_key)):
         return ""
     if isinstance(answer_key, str):
@@ -39,10 +40,12 @@ def _answer_letter_from_key(answer_key: object, choices: list[str]) -> str:
         for index, choice in enumerate(choices):
             if choice == answer_key:
                 return _letter_from_index(index)
-        return stripped
-    if isinstance(answer_key, int):
-        return _letter_from_index(answer_key)
-    return str(answer_key)
+        resolved = stripped
+    elif isinstance(answer_key, int):
+        resolved = _letter_from_index(answer_key)
+    else:
+        resolved = str(answer_key)
+    return resolved
 
 
 def _ensure_sample_id(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -127,8 +130,8 @@ def normalize_openbookqa(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
 def normalize_zebra_logic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize ZebraLogic rows."""
     normalized = _ensure_sample_id(df, id_column)
-    normalized["question"] = normalized["puzzle"].astype(str) + "\n\n" + normalized["question"].astype(
-        str
+    normalized["question"] = (
+        normalized["puzzle"].astype(str) + "\n\n" + normalized["question"].astype(str)
     )
     if "choices" in normalized.columns:
         normalized["choices"] = normalized["choices"].map(
@@ -247,9 +250,22 @@ def normalize_gaia2(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     normalized = _ensure_sample_id(df, id_column)
     if "scenario_config" not in normalized.columns and "data" in normalized.columns:
         normalized["scenario_config"] = normalized["data"].map(
-            lambda value: json.dumps(value, indent=2) if isinstance(value, (dict, list)) else str(value)
+            lambda value: (
+                json.dumps(value, indent=2) if isinstance(value, (dict, list)) else str(value)
+            )
         )
     return normalized
+
+
+def _json_ready(value: object) -> object:
+    """Convert nested array-like values into JSON-serializable containers."""
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    if hasattr(value, "tolist"):
+        return _json_ready(value.tolist())
+    return value
 
 
 def normalize_arc_agi(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -257,7 +273,11 @@ def normalize_arc_agi(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     normalized = _ensure_sample_id(df, id_column)
     if "puzzle_json" not in normalized.columns:
         normalized["puzzle_json"] = normalized["question"].map(
-            lambda value: json.dumps(value, indent=2) if isinstance(value, (dict, list)) else str(value)
+            lambda value: (
+                json.dumps(_json_ready(value), indent=2)
+                if isinstance(value, (dict, list, tuple)) or hasattr(value, "tolist")
+                else str(value)
+            )
         )
     return normalized
 
