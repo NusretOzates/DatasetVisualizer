@@ -17,13 +17,16 @@ Override port with the `PORT` environment variable.
 src/dataset_visualizer/
 ├── server.py              # gradio.Server, CORS, @app.api routes, static frontend mount
 ├── api/
-│   ├── dataset_registry.py  # DATASET_REGISTRY — single registration per dataset id
+│   ├── dataset_registry.py  # DATASET_REGISTRY — manual + auto hf_benchmark
 │   ├── service.py           # Catalog, meta, filters, overview, samples (orchestration)
 │   ├── filters.py           # Schema-driven apply_filters() + build_filter_options()
-│   ├── overview.py          # Per-dataset overview builders
+│   ├── overview.py          # Per-dataset overview builders (manual loaders)
+│   ├── generic_overview.py  # Reusable overview for hf_benchmark entries
 │   ├── chart_data.py        # Chart JSON builders
 │   └── serializers.py       # DataFrame/row → JSON
 ├── loaders/                 # HF download + normalization + @loader_cache
+│   ├── hf_benchmark.py      # Config-driven generic Hub loader
+│   └── benchmark_normalize.py  # Profile-specific column normalization
 ├── row_count.py             # Home-page row counts via DATASET_REGISTRY
 └── config.py                # Pydantic models for datasets.yaml
 ```
@@ -97,4 +100,4 @@ Register the handler in `api/service.py` and add a wrapper in `frontend/lib/api.
 
 ## Adding a new dataset
 
-Register a `DatasetDescriptor` in `api/dataset_registry.py`. See [dataset-system.md](dataset-system.md) and [adding-a-dataset.md](adding-a-dataset.md). `server.py` does not need changes for standard datasets.
+Register a `DatasetDescriptor` in `api/dataset_registry.py`, or add a `loader: hf_benchmark` YAML entry for auto-registration. See [dataset-system.md](dataset-system.md) and [how-to/add-dataset.md](how-to/add-dataset.md). `server.py` does not need changes for standard datasets.

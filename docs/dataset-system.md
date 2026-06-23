@@ -23,7 +23,19 @@ Navigation is automatic: `get_catalog()` reads YAML categories and the React sid
 
 ## Complete touchpoint checklist
 
-Every new dataset requires edits in **all** of these places. Missing one causes a runtime, build, or CLI failure.
+There are two registration paths. Pick the one that matches your benchmark — see [how-to/add-dataset.md](how-to/add-dataset.md).
+
+### Path A — `hf_benchmark` (YAML-only, 38 datasets)
+
+| # | File | What to add |
+|---|------|-------------|
+| 1 | `config/datasets.yaml` | Entry with `loader: hf_benchmark`, `hf_id`, `profile`, `split`, `id_column`, … |
+| 2 | `tests/test_benchmark_registry.py` | Optional assertion that `get_descriptor(id)` resolves |
+| 3 | `docs/datasets/<name>.md` | Only when schema or visualization is non-obvious |
+
+Auto-handled: `dataset_registry.py` (`build_dataset_registry()`), `overview_generic()`, `hf_benchmark` loader, inspect CLI cache via config `id`.
+
+### Path B — manual loader (13 datasets)
 
 | # | File | What to add |
 |---|------|-------------|
@@ -32,13 +44,13 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 | 3 | `src/dataset_visualizer/api/dataset_registry.py` | `DatasetDescriptor` with loader, overview, viewer, controls, filters |
 | 4 | `src/dataset_visualizer/api/overview.py` | `overview_<dataset>()` builder (or reuse existing) |
 | 5 | `frontend/components/viewers/` | New viewer + `registry.tsx` entry only if `viewer` key is new |
-| 6 | `scripts/inspect_dataset.py` | Optional `cache_key` on `DatasetDescriptor` when cache dir ≠ config `loader` |
+| 6 | `DatasetDescriptor.cache_key` | When on-disk cache dir ≠ config `loader` field |
 | 7 | `tests/test_loaders_<module>.py` | Mocked HF download tests |
 | 8 | `tests/test_api_service.py` | Optional smoke test for overview/meta if behavior is non-trivial |
 | 9 | `docs/datasets/<name>.md` + link in `docs/index.md` | Schema notes |
-| 10 | `README.md` | Dataset table row when user-facing |
+| 10 | `README.md` | Update when user-facing catalog or setup changes |
 
-**Also update** `docs/dataset-system.md`, `docs/adding-a-dataset.md`, `docs/backend.md`, or `docs/frontend.md` when registration steps or architecture change.
+**Also update** `docs/dataset-system.md`, `docs/how-to/`, `docs/backend.md`, or `docs/frontend.md` when registration steps or architecture change.
 
 **Do not edit** `server.py` for new datasets unless you add a brand-new API endpoint. Existing routes are dataset-agnostic.
 
@@ -57,7 +69,7 @@ Every new dataset requires edits in **all** of these places. Missing one causes 
 | Inspect CLI arg | Config `id`, **not** loader name | `swe_bench_verified` |
 | API `dataset_id` | Same as config `id` | `mmlu`, `gpqa_diamond` |
 
-**`id` vs `loader`:** The config `loader` field documents which loader module backs the dataset and maps to `LOADER_CACHE_KEYS` in the inspect CLI. API registration always uses config `id` as the `DATASET_REGISTRY` key. Multiple config entries may share one loader module (e.g. three SWE-bench variants) but each needs its own `DatasetDescriptor`.
+**`id` vs `loader`:** The config `loader` field documents which loader module backs the dataset. The inspect CLI prints `cache_dir(descriptor.cache_key or entry.loader)`. API registration always uses config `id` as the `DATASET_REGISTRY` key. Multiple config entries may share one loader module (e.g. three SWE-bench variants) but each needs its own `DatasetDescriptor` (manual path) or distinct config `id` (hf_benchmark path).
 
 ## Config schema (`DatasetEntry`)
 
@@ -79,8 +91,15 @@ Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `
 | `license` | no | License string for home page |
 | `docs` | no | Link to extended documentation |
 | `row_count` | no | Fallback for home page when loader fails |
+| `hf_config` | no | HF dataset config/subset name |
+| `split` | no | HF split to load (`test`, `validation`, …) |
+| `profile` | no | Normalization profile for `hf_benchmark` (`arc`, `gsm`, `generic`, …) |
+| `id_column` | no | Stable row id column in the normalized frame |
+| `viewer` | no | Overrides archetype for API/frontend viewer selection |
+| `source_file` | no | JSONL filename within `hf_id` repo |
+| `multi_config` | no | Load and concat all HF configs (optional `exclude_configs`) |
 
-Example entry:
+Example entry (manual loader):
 
 ```yaml
 categories:
@@ -174,16 +193,15 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
 
 The `loader` callable receives UI control values as a dict and returns `(DataFrame, extras_dict)`. Use `extras` for joined data (e.g. ArXiv model outputs).
 
-### Inspect CLI cache mapping (`scripts/inspect_dataset.py`)
+### Inspect CLI cache mapping
 
-```python
-LOADER_CACHE_KEYS: dict[str, str] = {
-  # …
-  "my_benchmark": "my_benchmark",  # omit if config loader field == cache key
-}
+The CLI calls `get_descriptor(dataset_id).loader({})` then prints:
+
+```text
+cache_dir(descriptor.cache_key or entry.loader)
 ```
 
-The CLI calls `get_descriptor(dataset_id).loader({})` then prints `cache_dir(descriptor.cache_key or entry.loader)`.
+Set `DatasetDescriptor.cache_key` when several config ids share one on-disk directory (e.g. SWE-bench → `swe_bench`). `hf_benchmark` entries use `cache_dir(entry.id)` in the loader.
 
 ## API handler contract
 
@@ -278,6 +296,9 @@ Sample rendering uses the API `viewer` field (fallback: YAML `archetype`) via `c
 | `math_competition` | `MathViewer` | `problem`, `problem_idx`, `answer` |
 | `arxiv_math` | `ArxivMathViewer` | problem fields + model-run tables from extras |
 | `arc_grid` | `ArcGridViewer` | `puzzle_json` ARC train/test grids |
+| `code_eval` | `CodeEvalViewer` | `prompt`/`prompt_text`, `test`, `entry_point`, `canonical_solution` |
+| `generic` | `GenericViewer` | Pass-through key fields; raw JSON fallback for unknown columns |
+| `agent_task` | `Tau3BenchViewer` | Domain/scenario text; also used for some `hf_benchmark` agent benchmarks |
 
 Add a dedicated viewer under `frontend/components/viewers/` only when an existing viewer cannot render your samples. Register it in `registry.tsx`.
 
@@ -300,6 +321,8 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `academic_qa` | `question`, `answer`, `answer_type`, `has_image` | `overview_hle` | `hle` | `academic_qa` | `id` |
 | `math_competition` | Problem fields + optional joined outputs | `overview_aime` / `overview_arxivmath` | `aime_2026`, `arxivmath_0526` | `math_competition` / `arxiv_math` | `problem_idx` |
 | `arc_grid` | `puzzle_json` | `overview_generic` | `arc_agi_2` | `arc_grid` | `sample_id` |
+| `code_eval` | `prompt`, parsed `test` list, optional `entry_point` | `overview_generic` | `humaneval`, `mbpp` | `code_eval` | `task_id` |
+| `generic` | Source-dependent; stable `sample_id` | `overview_generic` | `ruler`, `ifeval` | `generic` | `sample_id` |
 
 ### Column contracts (Python helpers)
 
@@ -314,6 +337,10 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 
 ## Registered datasets (lookup)
 
+**51 total** in `config/datasets.yaml`: **13 manual loaders** (table below) + **38 `hf_benchmark`** entries auto-registered at import time. Full `hf_benchmark` list by category: [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) and `config/datasets.yaml`.
+
+### Manual loaders
+
 | `id` | Category | Config `loader` | Archetype | `viewer` | Cache key |
 |------|----------|-------------------|-----------|----------|-----------|
 | `mmlu` | reasoning | `mmlu` | mcq | `mcq` | `mmlu` |
@@ -321,15 +348,29 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `gpqa_diamond` | reasoning | `gpqa` | mcq | `mcq` | `gpqa` |
 | `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `mcq` | `global_mmlu` |
 | `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mcq` | `mmmlu` |
-| `aime_2026` | math | `aime_2026` | math_competition | `math_competition` | `aime_2026` |
 | `hle` | reasoning | `hle` | academic_qa | `academic_qa` | `hle` |
 | `livecodebench_v6` | code | `livecodebench` | code_problem | `code_problem` | `livecodebench` |
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `swe_bench_pro` | code | `swe_bench_pro` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `tau3_bench` | code | `tau3_bench` | agent_task | `agent_task` | `tau3_bench` |
+| `aime_2026` | math | `aime_2026` | math_competition | `math_competition` | `aime_2026` |
 | `arxivmath_0526` | math | `arxivmath` | math_competition | `arxiv_math` | `arxivmath` |
-| `arc_agi_2` | games | `hf_benchmark` | generic | `arc_grid` | `arc_agi_2` |
+
+### `hf_benchmark` by category (config `id` → `profile`)
+
+**reasoning:** `arc_challenge` (`arc`), `winogrande`, `hellaswag`, `commonsenseqa`, `piqa`, `openbookqa`, `zebra_logic`  
+**knowledge:** `mmlu_redux`  
+**code:** `mbpp`, `apps`, `humaneval`, `humaneval_plus`, `mbpp_plus`, `evoeval_difficult`  
+**long_context:** `ruler`, `mrcr`, `mtob`  
+**instruction_following:** `ifeval`, `ifbench`, `coconot`  
+**tool_calling:** `livemcpbench`  
+**assistant_tasks:** `gaia`, `gdpval`, `gaia2`, `scicode`, `paperbench`, `dabstep`  
+**games:** `arc_agi_2` (`arc_agi`, viewer `arc_grid`)  
+**forecasters:** `futurebench`, `futurex`  
+**math:** `gsm8k`, `gsm1k`, `gsm_plus`, `gsm_symbolic`, `math`, `math_500`, `math_hard`, `math_arena`
+
+Normalization profiles live in `loaders/benchmark_normalize.py` (`NORMALIZERS` dict).
 
 ## Test contract
 
@@ -376,7 +417,7 @@ When several config entries share download logic but differ in HF source or norm
 
 1. One loader module with a shared `_load_*()` helper and **separate** `@loader_cache` functions per variant.
 2. **Separate** `DatasetDescriptor` entries — one per config `id`.
-3. Shared `LOADER_CACHE_KEYS` mapping all config `loader` values to one cache dir if appropriate.
+3. Shared `cache_key` on each `DatasetDescriptor` when variants share one cache dir.
 4. Rebuild the frontend with the backend running so each new `id` is exported.
 
 Do **not** rely on a single descriptor with a `variant` param unless the inspect CLI and `loader({})` defaults handle it (they use empty params today).

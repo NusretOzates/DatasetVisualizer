@@ -10,7 +10,7 @@ cp .env.example .env
 cd frontend && npm install
 ```
 
-Set `HF_TOKEN` in `.env` to your [Hugging Face access token](https://huggingface.co/settings/tokens). The app loads `.env` at startup; `huggingface_hub` uses `HF_TOKEN` automatically for faster downloads and higher rate limits. Without a token, downloads still work but may be slower.
+Set `HF_TOKEN` in `.env` to your [Hugging Face access token](https://huggingface.co/settings/tokens). The app loads `.env` at startup; `huggingface_hub` uses `HF_TOKEN` automatically for faster downloads and higher rate limits. Without a token, downloads still work but may be slower. Some datasets (e.g. GPQA Diamond, GAIA) are gated and require a token with accepted terms.
 
 ## Run (development)
 
@@ -50,37 +50,42 @@ The backend serves `frontend/out/` at `/` when the build exists.
 
 ## Datasets
 
-The catalog is configured in [`config/datasets.yaml`](config/datasets.yaml) and currently spans reasoning, knowledge, code, long-context, instruction-following, tool-calling, assistant-task, games, forecasting, and math benchmarks. Manually registered datasets have tailored loaders/viewers; additional Hugging Face benchmarks use the generic `hf_benchmark` loader with reusable overview charts and filters.
+The catalog in [`config/datasets.yaml`](config/datasets.yaml) currently lists **51 benchmarks** across reasoning, knowledge, code, long-context, instruction-following, tool-calling, assistant-tasks, games, forecasting, and math.
 
-To add a dataset, follow [`docs/adding-a-dataset.md`](docs/adding-a-dataset.md) and the full reference in [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**
+- **13 manual loaders** — tailored normalization and overviews (MMLU, SWE-bench, LiveCodeBench, …).
+- **38 `hf_benchmark` entries** — YAML-only registration; shared loader, profile-based normalization, and generic overviews.
 
-Per-dataset schema notes: [`docs/index.md`](docs/index.md).
+To add a dataset:
+
+- Standard Hub benchmark → [`docs/how-to/add-hf-benchmark.md`](docs/how-to/add-hf-benchmark.md)
+- Custom loader logic → [`docs/how-to/add-dataset.md`](docs/how-to/add-dataset.md)
+
+Full reference: [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**
+
+Per-dataset schema notes (manual loaders and special cases): [`docs/index.md`](docs/index.md).
 
 ## Cache
 
-Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `aime_2026`, `hle`, `livecodebench`, `swe_bench`, `tau3_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse in-process loader caching and the Hugging Face cache.
+Per-dataset cache directories are created under `data/cache/<key>/` (gitignored) and shown by the inspect CLI. Keys are typically the config `id` for `hf_benchmark` entries, or the loader/cache_key for manual loaders (e.g. `swe_bench` shared by three SWE variants). Hugging Face dataset downloads are also cached in the standard Hugging Face hub cache. First load may take a while; subsequent runs reuse in-process loader caching and the Hugging Face cache.
 
 ## Inspect CLI
 
 Inspect schema and a sample row without opening the app:
 
 ```bash
-uv run python scripts/inspect_dataset.py mmlu
-uv run python scripts/inspect_dataset.py mmlu_pro
-uv run python scripts/inspect_dataset.py gpqa_diamond
-uv run python scripts/inspect_dataset.py global_mmlu
-uv run python scripts/inspect_dataset.py mmmlu
-uv run python scripts/inspect_dataset.py aime_2026
-uv run python scripts/inspect_dataset.py hle
-uv run python scripts/inspect_dataset.py livecodebench_v6
-uv run python scripts/inspect_dataset.py swe_bench_verified
-uv run python scripts/inspect_dataset.py swe_bench_multilingual
-uv run python scripts/inspect_dataset.py swe_bench_pro
-uv run python scripts/inspect_dataset.py tau3_bench
-uv run python scripts/inspect_dataset.py arxivmath_0526
+uv run python scripts/inspect_dataset.py <dataset_id>
 ```
 
-Prints columns, dtypes, row count, one truncated sample row, and the on-disk cache path.
+`<dataset_id>` is the config `id` from `config/datasets.yaml` (e.g. `mmlu`, `humaneval`, `arc_agi_2`). On error, the CLI prints all valid ids. Prints columns, dtypes, row count, one truncated sample row, and the on-disk cache path.
+
+Examples:
+
+```bash
+uv run python scripts/inspect_dataset.py mmlu
+uv run python scripts/inspect_dataset.py humaneval
+uv run python scripts/inspect_dataset.py arc_agi_2
+uv run python scripts/inspect_dataset.py arxivmath_0526
+```
 
 ## Development
 
@@ -92,4 +97,4 @@ cd frontend && npm run lint
 cd frontend && npm run typecheck
 ```
 
-See [`docs/index.md`](docs/index.md) for architecture and per-dataset notes.
+See [`docs/index.md`](docs/index.md) for architecture, glossary, and per-dataset notes.
