@@ -20,6 +20,7 @@ from dataset_visualizer.api.service import (
     get_sample,
     parse_json_param,
 )
+from dataset_visualizer.compat import apply_warning_filters
 
 FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "out"
 DEFAULT_PORT = int(os.environ.get("PORT", "7860"))
@@ -128,6 +129,9 @@ if FRONTEND_DIST.is_dir():
         if not_found.is_file():
             return FileResponse(not_found)
         return FileResponse(FRONTEND_DIST / "index.html")
+
+
+apply_warning_filters()
 
 
 def main() -> None:
