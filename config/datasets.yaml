@@ -95,6 +95,17 @@ categories:
       description: >
         Enterprise-scale SWE-Bench PRO tasks with harder, production-style
         software engineering issues and richer metadata.
+    - id: tau3_bench
+      label: τ³-Bench
+      loader: tau3_bench
+      icon: "🤖"
+      archetype: agent_task
+      docs: docs/datasets/tau3_bench.md
+      row_count: 375
+      description: >
+        Tool-agent-user interaction benchmark (τ³-bench) with customer-service
+        tasks across airline, retail, telecom, and banking_knowledge domains.
+        Task JSON is loaded from the upstream GitHub repository.
   math:
     - id: aime_2026
       label: AIME 2026

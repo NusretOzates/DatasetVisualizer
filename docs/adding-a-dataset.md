@@ -26,6 +26,7 @@ See the [archetype reference](dataset-system.md#archetype-reference) in `dataset
 | MCQ multilingual | `global_mmlu`, `mmmlu` | `viewer="mcq"`, `overview_global_mmlu` / `overview_mmmlu` |
 | Code generation | `livecodebench_v6` | `viewer="code_problem"`, `overview_livecodebench` |
 | Issue resolution | `swe_bench_verified` | `viewer="issue_resolution"`, `overview_swe_bench` |
+| Agent task | `tau3_bench` | `viewer="agent_task"`, `overview_tau3_bench` (GitHub JSON loader) |
 | Academic QA | `hle` | `viewer="academic_qa"`, `overview_hle` |
 | Math + model runs | `arxivmath_0526` | `viewer="arxiv_math"`, `overview_arxivmath` |
 | Math final-answer | `aime_2026` | `viewer="math_competition"`, `overview_aime` |

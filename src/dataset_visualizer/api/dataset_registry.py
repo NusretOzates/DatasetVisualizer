@@ -19,6 +19,7 @@ from dataset_visualizer.api.overview import (
     overview_mmlu_pro,
     overview_mmmlu,
     overview_swe_bench,
+    overview_tau3_bench,
     sample_extras_aime,
     sample_extras_arxivmath,
 )
@@ -47,6 +48,7 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_pro,
     load_swe_bench_verified,
 )
+from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
 OverviewFn = Callable[[pd.DataFrame, dict[str, Any]], dict[str, Any]]
@@ -148,6 +150,18 @@ def _controls_mmmlu() -> list[dict[str, Any]]:
             "options": locales,
             "labels": {loc: _format_locale(loc) for loc in locales},
             "default": default,
+        }
+    ]
+
+
+def _controls_tau3_bench() -> list[dict[str, Any]]:
+    return [
+        {
+            "name": "task_split",
+            "label": "Task split",
+            "type": "select",
+            "options": ["base", "train", "test"],
+            "default": "base",
         }
     ]
 
@@ -290,6 +304,17 @@ DATASET_REGISTRY: dict[str, DatasetDescriptor] = {
         overview=overview_swe_bench,
         cache_key="swe_bench",
         filters=_swe_bench_filters(include_difficulty=True, include_language=False),
+    ),
+    "tau3_bench": DatasetDescriptor(
+        id_column="instance_id",
+        viewer="agent_task",
+        loader=lambda p: (load_tau3_bench(task_split=p.get("task_split", "base")), {}),
+        overview=overview_tau3_bench,
+        controls=_controls_tau3_bench,
+        filters=[
+            {"name": "domains", "label": "Domain", "type": "multiselect", "column": "domain"},
+        ],
+        cache_key="tau3_bench",
     ),
     "arxivmath_0526": DatasetDescriptor(
         id_column="problem_idx",

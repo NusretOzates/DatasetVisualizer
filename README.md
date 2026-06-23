@@ -62,6 +62,7 @@ The backend serves `frontend/out/` at `/` when the build exists.
 | Code | SWE-Bench Verified | `SWE-bench/SWE-bench_Verified` |
 | Code | SWE-Bench Multilingual | `SWE-bench/SWE-bench_Multilingual` |
 | Code | SWE-Bench PRO | `Contextbench/SWE-bench_Pro` |
+| Code | τ³-Bench | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) (GitHub JSON) |
 | Math | AIME 2026 | `MathArena/aime_2026` |
 | Math | ArXiv Math 0526 | `MathArena/arxivmath-0526` + `MathArena/arxivmath-0526_outputs` |
 
@@ -71,7 +72,7 @@ Per-dataset schema notes: [`docs/index.md`](docs/index.md).
 
 ## Cache
 
-Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `aime_2026`, `hle`, `livecodebench`, `swe_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse in-process loader caching and the Hugging Face cache.
+Per-dataset cache directories are created under `data/cache/<loader_key>/` (gitignored) and shown by the inspect CLI. Hugging Face dataset downloads are cached in the standard Hugging Face cache (location varies by environment). Loader keys: `mmlu`, `mmlu_pro`, `gpqa`, `global_mmlu`, `mmmlu`, `aime_2026`, `hle`, `livecodebench`, `swe_bench`, `tau3_bench`, `arxivmath`, `arxivmath_outputs`. First load may take a while; subsequent runs reuse in-process loader caching and the Hugging Face cache.
 
 ## Inspect CLI
 
@@ -89,6 +90,7 @@ uv run python scripts/inspect_dataset.py livecodebench_v6
 uv run python scripts/inspect_dataset.py swe_bench_verified
 uv run python scripts/inspect_dataset.py swe_bench_multilingual
 uv run python scripts/inspect_dataset.py swe_bench_pro
+uv run python scripts/inspect_dataset.py tau3_bench
 uv run python scripts/inspect_dataset.py arxivmath_0526
 ```
 

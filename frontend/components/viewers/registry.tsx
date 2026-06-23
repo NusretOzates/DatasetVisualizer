@@ -8,7 +8,7 @@ import { HleViewer } from "./HleViewer";
 import { IssueViewer } from "./IssueViewer";
 import { MathViewer } from "./MathViewer";
 import { McqCotViewer } from "./McqCotViewer";
-import { McqViewer } from "./McqViewer";
+import { Tau3BenchViewer } from "./Tau3BenchViewer";
 import type { SampleViewerProps } from "./types";
 
 const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
@@ -21,6 +21,7 @@ const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   academic_qa: ({ row }) => <HleViewer row={row} />,
   code_problem: CodeProblemSampleViewer,
   issue_resolution: ({ row }) => <IssueViewer row={row} />,
+  agent_task: Tau3BenchViewer,
 };
 
 export function renderSample(

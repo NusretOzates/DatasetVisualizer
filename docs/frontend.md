@@ -72,6 +72,7 @@ Defined in `components/viewers/registry.tsx` (dispatched by API `viewer`, with `
 | `mcq_cot` | `McqCotViewer` | MCQ + chain-of-thought collapsible |
 | `code_problem` | `CodeProblemSampleViewer` | Public tests plus decoded private tests (first 10 shown) |
 | `issue_resolution` | `IssueViewer` | SWE-bench style patches and test lists |
+| `agent_task` | `Tau3BenchViewer` | τ³-Bench customer-service agent tasks |
 | `academic_qa` | `HleViewer` | HLE questions, images, answer types |
 | `math_competition` | `MathViewer` | Competition problems + solution extras |
 | `arxiv_math` | `ArxivMathViewer` | ArXiv Math problems + model-run tables |

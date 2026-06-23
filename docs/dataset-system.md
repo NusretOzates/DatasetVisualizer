@@ -293,6 +293,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `mcq_multilingual` | MCQ columns + `language`/`locale`, `split` | `overview_global_mmlu` / `overview_mmmlu` | `global_mmlu`, `mmmlu` | `mcq` | `sample_id` |
 | `code_problem` | `question_content`, `starter_code`, `public_test_cases` (parsed list) | `overview_livecodebench` | `livecodebench_v6` | `code_problem` | `question_id` |
 | `issue_resolution` | `instance_id`, `repo`, `problem_statement`, `patch`, test lists | `overview_swe_bench` | `swe_bench_verified` | `issue_resolution` | `instance_id` |
+| `agent_task` | `instance_id`, `domain`, `purpose`, user-scenario text fields | `overview_tau3_bench` | `tau3_bench` | `agent_task` | `instance_id` |
 | `academic_qa` | `question`, `answer`, `answer_type`, `has_image` | `overview_hle` | `hle` | `academic_qa` | `id` |
 | `math_competition` | Problem fields + optional joined outputs | `overview_aime` / `overview_arxivmath` | `aime_2026`, `arxivmath_0526` | `math_competition` / `arxiv_math` | `problem_idx` |
 
@@ -322,6 +323,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `swe_bench_pro` | code | `swe_bench_pro` | issue_resolution | `issue_resolution` | `swe_bench` |
+| `tau3_bench` | code | `tau3_bench` | agent_task | `agent_task` | `tau3_bench` |
 | `arxivmath_0526` | math | `arxivmath` | math_competition | `arxiv_math` | `arxivmath` |
 
 ## Test contract

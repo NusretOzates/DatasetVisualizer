@@ -234,6 +234,32 @@ def overview_swe_bench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, A
     }
 
 
+def overview_tau3_bench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
+    """Build overview metrics and charts for τ³-Bench agent tasks."""
+    overview = df.copy()
+    if "purpose_preview" not in overview.columns:
+        purpose_series = overview.get("purpose", pd.Series(dtype=str)).astype(str)
+        overview["purpose_preview"] = purpose_series.str.slice(0, 120)
+    return {
+        "metrics": [
+            {"label": "Tasks", "value": f"{len(df):,}"},
+            {"label": "Domains", "value": _nunique_str(df, "domain")},
+            {"label": "Split", "value": _split_label(df)},
+        ],
+        "charts": [
+            pie_chart_data(df["domain"], title="Tasks per domain"),
+            value_counts_chart(df["domain"], title="Domain counts", x_label="Domain"),
+        ],
+        "tables": [
+            {
+                "title": "All tasks",
+                "columns": ["instance_id", "domain", "purpose_preview"],
+                "rows": serialize_rows(overview[["instance_id", "domain", "purpose_preview"]]),
+            }
+        ],
+    }
+
+
 def _author_count(authors: object) -> int:
     if authors is None or (isinstance(authors, float) and pd.isna(authors)):
         return 0
