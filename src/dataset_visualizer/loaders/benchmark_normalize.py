@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 ANSWER_LETTERS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -51,6 +52,34 @@ def _answer_letter_from_key(answer_key: object, choices: list[str]) -> str:
     else:
         resolved = str(answer_key)
     return resolved
+
+
+def _scalarize_cell(value: object) -> object:
+    """Convert HF array-like cells into hashable Python values."""
+    if value is None or value is pd.NA or (isinstance(value, float) and pd.isna(value)):
+        return value
+    if isinstance(value, np.ndarray):
+        value = value.item() if value.ndim == 0 else value.tolist()
+    if isinstance(value, (list, tuple)):
+        items = [_scalarize_cell(item) for item in value]
+        if len(items) == 1:
+            return items[0]
+        if all(isinstance(item, str) for item in items):
+            return ", ".join(sorted(items))
+        return json.dumps(items, sort_keys=True)
+    if isinstance(value, dict):
+        return {str(key): _scalarize_cell(item) for key, item in value.items()}
+    return value
+
+
+def _scalarize_object_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Scalarize object columns so filters and charts can hash values."""
+    normalized = df.copy()
+    for column in normalized.columns:
+        if normalized[column].dtype != object:
+            continue
+        normalized[column] = normalized[column].map(_scalarize_cell)
+    return normalized
 
 
 def _ensure_sample_id(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -321,4 +350,4 @@ def normalize_benchmark(df: pd.DataFrame, profile: str, id_column: str) -> pd.Da
     normalized = normalizer(df, id_column)
     if "split" not in normalized.columns:
         normalized["split"] = "test"
-    return normalized
+    return _scalarize_object_columns(normalized)

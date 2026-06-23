@@ -8,6 +8,7 @@ import pandas as pd
 from dataset_visualizer.loaders.benchmark_normalize import (
     normalize_arc,
     normalize_arc_agi,
+    normalize_benchmark,
     normalize_hellaswag,
     normalize_piqa,
     normalize_winogrande,
@@ -78,6 +79,23 @@ def test_normalize_piqa_maps_solutions() -> None:
     )
     normalized = normalize_piqa(df, "sample_id")
     assert normalized["answer_letter"].iloc[0] == "A"
+
+
+def test_normalize_benchmark_scalarizes_ndarray_cells() -> None:
+    df = pd.DataFrame(
+        {
+            "problem": ["Compute 1+1", "Solve for x"],
+            "problem_type": [
+                np.array(["Number Theory"], dtype=object),
+                np.array(["Algebra", "Number Theory"], dtype=object),
+            ],
+            "answer": ["2", "4"],
+        }
+    )
+
+    normalized = normalize_benchmark(df, "math_competition", "problem_idx")
+
+    assert normalized["problem_type"].tolist() == ["Number Theory", "Algebra, Number Theory"]
 
 
 def test_normalize_arc_agi_serializes_nested_arrays() -> None:
