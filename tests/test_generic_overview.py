@@ -46,3 +46,18 @@ def test_overview_generic_adds_date_timeline() -> None:
     overview = overview_generic(df, {})
 
     assert any(chart["type"] == "timeline" for chart in overview["charts"])
+
+
+def test_overview_generic_skips_answer_pie_for_high_cardinality() -> None:
+    df = pd.DataFrame(
+        {
+            "subject": ["logic"] * 20,
+            "answer_letter": [f"ANSWER_{index}" for index in range(20)],
+            "split": ["test"] * 20,
+        }
+    )
+
+    overview = overview_generic(df, {})
+    titles = {chart["title"] for chart in overview["charts"]}
+
+    assert "Answer letter distribution" not in titles

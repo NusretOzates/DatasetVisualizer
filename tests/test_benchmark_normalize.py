@@ -55,6 +55,18 @@ def test_normalize_hellaswag_maps_endings() -> None:
     assert normalized["choices"].iloc[0] == ["then leaves", "then sings"]
 
 
+def test_normalize_hellaswag_accepts_string_labels() -> None:
+    df = pd.DataFrame(
+        {
+            "ctx": ["A person opens a door"],
+            "endings": [["then leaves", "then sings"]],
+            "label": ["1"],
+        }
+    )
+    normalized = normalize_hellaswag(df, "sample_id")
+    assert normalized["answer_letter"].iloc[0] == "B"
+
+
 def test_normalize_piqa_maps_solutions() -> None:
     df = pd.DataFrame(
         {

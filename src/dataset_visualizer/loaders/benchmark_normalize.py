@@ -10,9 +10,14 @@ import pandas as pd
 ANSWER_LETTERS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
-def _letter_from_index(index: int) -> str:
-    if 0 <= index < len(ANSWER_LETTERS):
-        return ANSWER_LETTERS[index]
+def _letter_from_index(index: int | str) -> str:
+    """Map a zero-based choice index to a display letter."""
+    try:
+        numeric_index = int(index)
+    except (TypeError, ValueError):
+        return str(index)
+    if 0 <= numeric_index < len(ANSWER_LETTERS):
+        return ANSWER_LETTERS[numeric_index]
     return str(index)
 
 

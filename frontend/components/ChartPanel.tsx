@@ -23,6 +23,12 @@ const PLOT_CONFIG: Partial<Config> = {
   modeBarButtonsToRemove: ["lasso2d", "select2d"],
 };
 
+const HORIZONTAL_BAR_LABEL_THRESHOLD = 18;
+
+function shouldUseHorizontalBar(categories: string[]): boolean {
+  return categories.some((category) => category.length > HORIZONTAL_BAR_LABEL_THRESHOLD);
+}
+
 type ChartPanelProps = {
   chart: ChartSpec;
 };
@@ -31,14 +37,33 @@ export function ChartPanel({ chart }: ChartPanelProps) {
   let plot = null;
 
   if (chart.type === "bar") {
+    const horizontal = shouldUseHorizontalBar(chart.categories);
     plot = (
       <Plot
-        data={[{ type: "bar", x: chart.categories, y: chart.values, marker: { color: "#4f46e5" } }]}
+        data={[
+          horizontal
+            ? {
+                type: "bar",
+                orientation: "h",
+                y: chart.categories,
+                x: chart.values,
+                marker: { color: "#4f46e5" },
+              }
+            : { type: "bar", x: chart.categories, y: chart.values, marker: { color: "#4f46e5" } },
+        ]}
         layout={{
           ...plotLayout,
-          hovermode: "x unified",
-          xaxis: { title: chart.x_label, tickangle: -45 },
-          yaxis: { title: chart.y_label },
+          hovermode: horizontal ? "y unified" : "x unified",
+          margin: horizontal ? { ...plotLayout.margin, l: 160 } : plotLayout.margin,
+          ...(horizontal
+            ? {
+                xaxis: { title: chart.y_label },
+                yaxis: { title: chart.x_label, automargin: true },
+              }
+            : {
+                xaxis: { title: chart.x_label, tickangle: -45, automargin: true },
+                yaxis: { title: chart.y_label },
+              }),
         }}
         style={PLOT_STYLE}
         config={PLOT_CONFIG}

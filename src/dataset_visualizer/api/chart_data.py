@@ -51,6 +51,9 @@ def bar_chart_data(
     }
 
 
+MAX_PIE_CATEGORIES = 12
+
+
 def pie_chart_data(series: pd.Series, *, title: str) -> dict[str, Any]:
     """Build a pie chart payload from a categorical series."""
     counts = series.value_counts()
@@ -60,6 +63,13 @@ def pie_chart_data(series: pd.Series, *, title: str) -> dict[str, Any]:
         "labels": [str(label) for label in counts.index.tolist()],
         "values": [int(v) for v in counts.tolist()],
     }
+
+
+def answer_letter_pie_chart(series: pd.Series, *, title: str) -> dict[str, Any] | None:
+    """Build an answer-letter pie chart when the label cardinality stays readable."""
+    if series.dropna().nunique() > MAX_PIE_CATEGORIES:
+        return None
+    return pie_chart_data(series, title=title)
 
 
 def histogram_data(series: pd.Series, *, title: str, x_label: str = "") -> dict[str, Any]:
