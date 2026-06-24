@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+import threading
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from dataset_visualizer.api.dataset_registry import get_descriptor
 from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
@@ -18,6 +20,7 @@ GATED_HF_IDS = frozenset(
         "meta-agents-research-environments/gaia2",
     }
 )
+DEFAULT_WORKERS = 4
 
 
 def _all_dataset_ids() -> list[str]:
@@ -74,66 +77,107 @@ def _default_loader_params(entry: DatasetEntry) -> dict[str, str]:
     return {}
 
 
+def _download_one(
+    *,
+    index: int,
+    total: int,
+    dataset_id: str,
+    entry: DatasetEntry,
+    print_lock: threading.Lock,
+) -> bool:
+    """Load one dataset. Returns True when the run should count as a failure."""
+    with print_lock:
+        print(f"[{index}/{total}] Loading {entry.label} ({dataset_id}) …")
+    try:
+        descriptor = get_descriptor(dataset_id)
+        params = _default_loader_params(entry)
+        df, _extras = descriptor.loader(params)
+        split = df["split"].iloc[0] if "split" in df.columns and len(df) else "—"
+        with print_lock:
+            print(f"  OK {len(df):,} rows (split={split})")
+    except Exception as err:
+        lowered = str(err).lower()
+        with print_lock:
+            if "gated" in lowered or "authenticated" in lowered:
+                print(
+                    f"[{index}/{total}] WARN {dataset_id}: gated on Hugging Face — "
+                    f"set HF_TOKEN and accept dataset terms ({err})",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    f"[{index}/{total}] FAIL {dataset_id}: {err}",
+                    file=sys.stderr,
+                )
+        return True
+    return False
+
+
 def pre_download_datasets(
     dataset_ids: Iterable[str],
     *,
     skip_gated: bool = False,
+    workers: int = DEFAULT_WORKERS,
 ) -> int:
     """Download and normalize each dataset id, printing progress along the way.
 
     Args:
         dataset_ids: Config entry ids to warm.
         skip_gated: When true, skip datasets known to require Hub terms or a token.
+        workers: Number of parallel download threads. Use 1 for sequential loading.
 
     Returns:
         Process exit code (0 if every dataset loaded, 1 if any failed).
     """
+    if workers < 1:
+        msg = f"workers must be >= 1, got {workers}"
+        raise ValueError(msg)
+
     config = load_config()
     failures = 0
     ids = list(dataset_ids)
+    total = len(ids)
+    print_lock = threading.Lock()
+    jobs: list[tuple[int, str, DatasetEntry]] = []
 
     for index, dataset_id in enumerate(ids, start=1):
         entry = get_dataset_by_id(config, dataset_id)
         if entry is None:
-            print(f"[{index}/{len(ids)}] SKIP {dataset_id}: not in config", file=sys.stderr)
+            print(f"[{index}/{total}] SKIP {dataset_id}: not in config", file=sys.stderr)
             failures += 1
             continue
 
         if skip_gated and _is_gated_entry(entry):
             print(
-                f"[{index}/{len(ids)}] WARN {dataset_id}: skipped gated dataset "
+                f"[{index}/{total}] WARN {dataset_id}: skipped gated dataset "
                 f"({entry.hf_id or entry.problems_hf_id or 'see description'})",
                 file=sys.stderr,
             )
             continue
 
-        print(f"[{index}/{len(ids)}] Loading {entry.label} ({dataset_id}) …")
-        try:
-            descriptor = get_descriptor(dataset_id)
-            params = _default_loader_params(entry)
-            df, _extras = descriptor.loader(params)
-            split = df["split"].iloc[0] if "split" in df.columns and len(df) else "—"
-            print(f"  OK {len(df):,} rows (split={split})")
-        except Exception as err:
-            lowered = str(err).lower()
-            if "gated" in lowered or "authenticated" in lowered:
-                print(
-                    f"[{index}/{len(ids)}] WARN {dataset_id}: gated on Hugging Face — "
-                    f"set HF_TOKEN and accept dataset terms ({err})",
-                    file=sys.stderr,
-                )
-            else:
-                print(
-                    f"[{index}/{len(ids)}] FAIL {dataset_id}: {err}",
-                    file=sys.stderr,
-                )
-            failures += 1
+        jobs.append((index, dataset_id, entry))
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = [
+            executor.submit(
+                _download_one,
+                index=index,
+                total=total,
+                dataset_id=dataset_id,
+                entry=entry,
+                print_lock=print_lock,
+            )
+            for index, dataset_id, entry in jobs
+        ]
+        for future in as_completed(futures):
+            if future.result():
+                failures += 1
 
     if failures:
         print(f"\nFinished with {failures} warning(s)/failure(s).", file=sys.stderr)
         return 1
 
-    print(f"\nAll {len(ids)} dataset(s) loaded successfully.")
+    print(f"\nAll {total} dataset(s) loaded successfully.")
     return 0
 
 
@@ -154,10 +198,20 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Skip datasets known to be gated on Hugging Face.",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=DEFAULT_WORKERS,
+        metavar="N",
+        help=f"Parallel download threads (default: {DEFAULT_WORKERS}). Use 1 for sequential.",
+    )
     args = parser.parse_args(argv)
 
     if sum(bool(value) for value in (args.dataset_id, args.category, args.fast)) > 1:
         parser.error("Use only one of --id, --category, or --fast.")
+
+    if args.workers < 1:
+        parser.error("--workers must be >= 1.")
 
     try:
         dataset_ids = _resolve_dataset_ids(
@@ -170,7 +224,11 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit(1) from err
 
     raise SystemExit(
-        pre_download_datasets(dataset_ids, skip_gated=args.skip_gated),
+        pre_download_datasets(
+            dataset_ids,
+            skip_gated=args.skip_gated,
+            workers=args.workers,
+        ),
     )
 
 
