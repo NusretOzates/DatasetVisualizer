@@ -7,6 +7,19 @@ import functools
 from datasets import get_dataset_config_info
 
 _SPLIT_PREFERENCE = ("test", "validation", "dev", "train", "default")
+_UNKNOWN_SPLIT_SIZE = 10**18
+
+
+def _split_num_examples(split_info: object) -> int:
+    """Return a split's row count when Hub metadata exposes it."""
+    count = getattr(split_info, "num_examples", None)
+    if isinstance(count, int):
+        return count
+    if isinstance(split_info, dict):
+        dict_count = split_info.get("num_examples")
+        if isinstance(dict_count, int):
+            return dict_count
+    return _UNKNOWN_SPLIT_SIZE
 
 
 def _preference_key(split_name: str) -> tuple[int, str]:
@@ -42,5 +55,5 @@ def select_smallest_split(hf_id: str, hf_config: str | None = None) -> str:
 
     return min(
         info.splits.keys(),
-        key=lambda name: (info.splits[name].num_examples, _preference_key(name)),
+        key=lambda name: (_split_num_examples(info.splits[name]), _preference_key(name)),
     )

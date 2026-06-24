@@ -30,12 +30,17 @@ def _load_single(
     return dataset.to_pandas()
 
 
+def _config_names(hf_id: str, exclude_configs: list[str]) -> list[str]:
+    """Return loadable Hub config names for a multi-config dataset."""
+    return [name for name in get_dataset_config_names(hf_id) if name not in exclude_configs]
+
+
 def _load_multi_config(
     hf_id: str,
     split: str,
     exclude_configs: list[str],
 ) -> pd.DataFrame:
-    configs = [name for name in get_dataset_config_names(hf_id) if name not in exclude_configs]
+    configs = _config_names(hf_id, exclude_configs)
     frames: list[pd.DataFrame] = []
     for config_name in configs:
         frame = _load_single(hf_id, config_name, split)
@@ -49,7 +54,14 @@ def _load_multi_config(
 
 def _resolve_split(entry: DatasetEntry) -> str:
     """Pick the smallest Hub split for inspection unless the entry uses JSONL."""
-    return select_smallest_split(entry.hf_id, entry.hf_config)
+    hf_config = entry.hf_config
+    if entry.multi_config:
+        configs = _config_names(entry.hf_id, entry.exclude_configs)
+        if not configs:
+            msg = f"No configs available for dataset {entry.hf_id}"
+            raise ValueError(msg)
+        hf_config = configs[0]
+    return select_smallest_split(entry.hf_id, hf_config)
 
 
 def _load_frame(entry: DatasetEntry) -> pd.DataFrame:

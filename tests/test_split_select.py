@@ -58,3 +58,20 @@ def test_select_smallest_split_raises_when_no_splits() -> None:
         )
         with pytest.raises(ValueError, match="no published splits"):
             split_select.select_smallest_split("org/empty")
+
+
+def test_select_smallest_split_falls_back_to_preference_without_row_counts() -> None:
+    split_select.select_smallest_split.cache_clear()
+    info = MagicMock()
+    info.splits = {
+        "train": {"name": "train", "dataset_name": "org/example"},
+        "test": {"name": "test", "dataset_name": "org/example"},
+    }
+
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        monkeypatch.setattr(
+            split_select,
+            "get_dataset_config_info",
+            lambda hf_id, config_name=None: info,
+        )
+        assert split_select.select_smallest_split("org/example") == "test"
