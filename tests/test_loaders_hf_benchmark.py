@@ -118,3 +118,39 @@ def test_load_hf_benchmark_entry_reads_jsonl_source() -> None:
 
     assert df["question_content"].iloc[0] == "Write factorial"
     assert df["question_id"].iloc[0] == "1"
+
+
+def test_resolve_split_uses_representative_config_for_multi_config(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    entry = DatasetEntry.model_validate(
+        {
+            "id": "math",
+            "label": "MATH",
+            "loader": "hf_benchmark",
+            "description": "MATH benchmark.",
+            "hf_id": "EleutherAI/hendrycks_math",
+            "profile": "math_competition",
+            "id_column": "problem_idx",
+            "multi_config": True,
+        }
+    )
+    captured: dict[str, str | None] = {}
+
+    monkeypatch.setattr(
+        "dataset_visualizer.loaders.hf_benchmark._config_names",
+        lambda *_args, **_kwargs: ["algebra", "geometry"],
+    )
+    monkeypatch.setattr(
+        "dataset_visualizer.loaders.hf_benchmark.select_smallest_split",
+        lambda hf_id, hf_config: captured.update({"hf_id": hf_id, "hf_config": hf_config})
+        or "test",
+    )
+
+    from dataset_visualizer.loaders.hf_benchmark import _resolve_split
+
+    assert _resolve_split(entry) == "test"
+    assert captured == {
+        "hf_id": "EleutherAI/hendrycks_math",
+        "hf_config": "algebra",
+    }
