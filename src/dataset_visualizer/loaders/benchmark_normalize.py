@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 ANSWER_LETTERS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+GAIA_SCENARIO_PREVIEW_CHARS = 8_000
 
 
 def _letter_from_index(index: int | str) -> str:
@@ -80,6 +81,32 @@ def _scalarize_object_columns(df: pd.DataFrame) -> pd.DataFrame:
             continue
         normalized[column] = normalized[column].map(_scalarize_cell)
     return normalized
+
+
+def _json_ready(value: object) -> object:
+    """Convert nested array-like values into JSON-serializable containers."""
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    if hasattr(value, "tolist"):
+        return _json_ready(value.tolist())
+    return value
+
+
+def _scenario_config_preview(value: object) -> str:
+    """Serialize a GAIA2 scenario payload with a bounded preview length."""
+    if isinstance(value, (dict, list)) or hasattr(value, "tolist"):
+        text = json.dumps(_json_ready(value), indent=2)
+    else:
+        text = str(value)
+    if len(text) <= GAIA_SCENARIO_PREVIEW_CHARS:
+        return text
+    omitted = len(text) - GAIA_SCENARIO_PREVIEW_CHARS
+    return (
+        f"{text[:GAIA_SCENARIO_PREVIEW_CHARS]}\n\n"
+        f"… ({omitted:,} more characters truncated; full scenario omitted from API payload)"
+    )
 
 
 def _ensure_sample_id(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -282,23 +309,10 @@ def normalize_gaia2(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize GAIA2 scenario rows."""
     normalized = _ensure_sample_id(df, id_column)
     if "scenario_config" not in normalized.columns and "data" in normalized.columns:
-        normalized["scenario_config"] = normalized["data"].map(
-            lambda value: (
-                json.dumps(value, indent=2) if isinstance(value, (dict, list)) else str(value)
-            )
-        )
+        normalized["scenario_config"] = normalized["data"].map(_scenario_config_preview)
+    if "data" in normalized.columns:
+        normalized = normalized.drop(columns=["data"])
     return normalized
-
-
-def _json_ready(value: object) -> object:
-    """Convert nested array-like values into JSON-serializable containers."""
-    if isinstance(value, dict):
-        return {str(key): _json_ready(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_json_ready(item) for item in value]
-    if hasattr(value, "tolist"):
-        return _json_ready(value.tolist())
-    return value
 
 
 def normalize_arc_agi(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
