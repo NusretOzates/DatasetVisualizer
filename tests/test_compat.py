@@ -15,8 +15,6 @@ def test_compat_suppresses_starlette_422_deprecation_warning() -> None:
         assert status.HTTP_422_UNPROCESSABLE_ENTITY == 422
 
     starlette_warnings = [
-        warning
-        for warning in caught
-        if "HTTP_422_UNPROCESSABLE_ENTITY" in str(warning.message)
+        warning for warning in caught if "HTTP_422_UNPROCESSABLE_ENTITY" in str(warning.message)
     ]
     assert starlette_warnings == []

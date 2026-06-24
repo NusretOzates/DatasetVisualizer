@@ -9,6 +9,7 @@ from datasets import get_dataset_config_names, load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
 from dataset_visualizer.loaders.cache import loader_cache
+from dataset_visualizer.loaders.split_select import select_smallest_split
 
 GLOBAL_MMLU_HF_ID = "CohereLabs/Global-MMLU"
 DEFAULT_LANGUAGE = "en"
@@ -66,16 +67,16 @@ def list_global_mmlu_languages() -> list[str]:
 
 
 @loader_cache(show_spinner="Downloading Global-MMLU …")
-def load_global_mmlu(language: str = DEFAULT_LANGUAGE, split: str = "dev") -> pd.DataFrame:
+def load_global_mmlu(language: str = DEFAULT_LANGUAGE) -> pd.DataFrame:
     """Load and normalize Global-MMLU for a single language config.
 
     Args:
         language: ISO language code config (e.g. ``en``, ``es``, ``fr``).
-        split: Dataset split (``dev`` or ``test``).
 
     Returns:
         Normalized DataFrame with ``choices`` and ``answer_letter`` columns.
     """
     cache_dir("global_mmlu")
+    split = select_smallest_split(GLOBAL_MMLU_HF_ID, language)
     dataset = load_dataset(GLOBAL_MMLU_HF_ID, language, split=split)
     return _normalize_global_mmlu_frame(dataset.to_pandas(), language=language, split=split)

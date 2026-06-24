@@ -92,7 +92,7 @@ Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `
 | `docs` | no | Link to extended documentation |
 | `row_count` | no | Fallback for home page when loader fails |
 | `hf_config` | no | HF dataset config/subset name |
-| `split` | no | HF split to load (`test`, `validation`, …) |
+| `split` | no | Informational only; loaders auto-pick the smallest Hub split for inspection |
 | `profile` | no | Normalization profile for `hf_benchmark` (`arc`, `gsm`, `generic`, …) |
 | `id_column` | no | Stable row id column in the normalized frame |
 | `viewer` | no | Overrides archetype for API/frontend viewer selection |

@@ -7,6 +7,7 @@ from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
 from dataset_visualizer.loaders.cache import loader_cache
+from dataset_visualizer.loaders.split_select import select_smallest_split
 
 MMLU_HF_ID = "cais/mmlu"
 MMLU_CONFIG = "all"
@@ -23,17 +24,17 @@ def _normalize_answer(answer: int | str) -> str:
 
 
 @loader_cache(show_spinner="Downloading MMLU …")
-def load_mmlu(split: str = "test", config: str = MMLU_CONFIG) -> pd.DataFrame:
+def load_mmlu(config: str = MMLU_CONFIG) -> pd.DataFrame:
     """Load and normalize the MMLU benchmark dataset.
 
     Args:
-        split: Dataset split to load (test, validation, or dev).
         config: MMLU config name (default ``all`` combines all subjects).
 
     Returns:
         Normalized DataFrame with answer_letter column and split metadata.
     """
     cache_dir("mmlu")
+    split = select_smallest_split(MMLU_HF_ID, config)
     dataset = load_dataset(MMLU_HF_ID, config, split=split)
     df = dataset.to_pandas()
     df["answer_letter"] = df["answer"].map(_normalize_answer)

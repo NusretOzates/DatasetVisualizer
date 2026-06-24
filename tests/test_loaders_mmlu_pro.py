@@ -43,9 +43,13 @@ def test_load_mmlu_pro_filters_options_and_adds_option_count(
         "dataset_visualizer.loaders.mmlu_pro.load_dataset",
         lambda *args, **kwargs: FakeDataset(),
     )
+    monkeypatch.setattr(
+        "dataset_visualizer.loaders.mmlu_pro.select_smallest_split",
+        lambda *_args, **_kwargs: "validation",
+    )
     load_mmlu_pro.clear()
 
-    df = load_mmlu_pro(split="validation")
+    df = load_mmlu_pro()
 
     assert len(df) == 1
     assert df.loc[0, "options"] == ["A", "B", "C", "D", "E", "F", "G", "H"]

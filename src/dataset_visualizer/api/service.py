@@ -14,6 +14,7 @@ from dataset_visualizer.api.serializers import serialize_row, serialize_value
 from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
 from dataset_visualizer.loaders.livecodebench import decode_private_test_cases
 from dataset_visualizer.row_count import row_count
+from dataset_visualizer.source_links import resolve_source_link, source_link_payload
 
 
 @dataclass
@@ -25,10 +26,9 @@ class DatasetContext:
 
 
 def _hf_source(entry: DatasetEntry) -> str:
-    for attr in ("hf_id", "hf_repo", "problems_hf_id"):
-        value = getattr(entry, attr, None)
-        if value:
-            return str(value)
+    link = resolve_source_link(entry)
+    if link is not None:
+        return link.label
     return "—"
 
 
@@ -51,6 +51,7 @@ def get_catalog() -> dict[str, Any]:
                     "archetype": entry.archetype,
                     "description": entry.description,
                     "hf_source": _hf_source(entry),
+                    "source_link": source_link_payload(entry),
                     "row_count": count_label,
                 }
             )
@@ -59,6 +60,7 @@ def get_catalog() -> dict[str, Any]:
                     "category": label,
                     "dataset": entry.label,
                     "hf_source": _hf_source(entry),
+                    "source_link": source_link_payload(entry),
                     "archetype": entry.archetype or "—",
                     "rows": count_label,
                 }
@@ -81,6 +83,7 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
         "viewer": descriptor.viewer,
         "supports_private_tests": descriptor.supports_private_tests,
         "id_column": descriptor.id_column,
+        "source_link": source_link_payload(entry),
         "controls": descriptor.controls(),
         "filters": descriptor.filters,
     }

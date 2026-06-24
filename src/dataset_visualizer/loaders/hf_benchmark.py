@@ -10,6 +10,7 @@ from dataset_visualizer.config import DatasetEntry
 from dataset_visualizer.loaders.base import cache_dir
 from dataset_visualizer.loaders.benchmark_normalize import normalize_benchmark
 from dataset_visualizer.loaders.cache import loader_cache
+from dataset_visualizer.loaders.split_select import select_smallest_split
 
 
 def _load_jsonl(hf_id: str, source_file: str) -> pd.DataFrame:
@@ -46,15 +47,25 @@ def _load_multi_config(
     return pd.concat(frames, ignore_index=True)
 
 
+def _resolve_split(entry: DatasetEntry) -> str:
+    """Pick the smallest Hub split for inspection unless the entry uses JSONL."""
+    return select_smallest_split(entry.hf_id, entry.hf_config)
+
+
 def _load_frame(entry: DatasetEntry) -> pd.DataFrame:
     if not entry.hf_id:
         msg = f"Dataset {entry.id} is missing hf_id"
         raise ValueError(msg)
     if entry.source_file:
         return _load_jsonl(entry.hf_id, entry.source_file)
+    split = _resolve_split(entry)
     if entry.multi_config:
-        return _load_multi_config(entry.hf_id, entry.split or "test", entry.exclude_configs)
-    return _load_single(entry.hf_id, entry.hf_config, entry.split or "test")
+        return _load_multi_config(entry.hf_id, split, entry.exclude_configs)
+    frame = _load_single(entry.hf_id, entry.hf_config, split)
+    if "split" not in frame.columns:
+        frame = frame.copy()
+        frame["split"] = split
+    return frame
 
 
 def load_hf_benchmark_entry(entry: DatasetEntry) -> pd.DataFrame:

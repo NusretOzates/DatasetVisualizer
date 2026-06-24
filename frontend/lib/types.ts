@@ -55,6 +55,12 @@ export type OverviewPayload = {
   tables: DataTable[];
 };
 
+export type SourceLink = {
+  url: string;
+  label: string;
+  kind: "huggingface" | "github" | "web";
+};
+
 export type DatasetSummary = {
   id: string;
   label: string;
@@ -62,6 +68,7 @@ export type DatasetSummary = {
   archetype?: string | null;
   description: string;
   hf_source: string;
+  source_link?: SourceLink | null;
   row_count: string;
 };
 
@@ -77,6 +84,7 @@ export type Catalog = {
     category: string;
     dataset: string;
     hf_source: string;
+    source_link?: SourceLink | null;
     archetype: string;
     rows: string;
   }[];
@@ -144,6 +152,7 @@ export type DatasetMeta = {
   supports_private_tests?: boolean;
   icon?: string | null;
   id_column: string;
+  source_link?: SourceLink | null;
   controls: SelectControlSpec[];
   filters: FilterControlSpec[];
 };

@@ -65,8 +65,12 @@ def test_load_global_mmlu(monkeypatch: pytest.MonkeyPatch) -> None:
         "dataset_visualizer.loaders.global_mmlu.load_dataset",
         lambda *args, **kwargs: FakeDataset(),
     )
+    monkeypatch.setattr(
+        "dataset_visualizer.loaders.global_mmlu.select_smallest_split",
+        lambda *_args, **_kwargs: "dev",
+    )
     load_global_mmlu.clear()
 
-    df = load_global_mmlu(language="en", split="dev")
+    df = load_global_mmlu(language="en")
     assert len(df) == 1
     assert df.loc[0, "sample_id"] == "en_001"

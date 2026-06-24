@@ -9,7 +9,9 @@ from dataset_visualizer.api.filters import apply_filters, build_filter_options
 
 def test_apply_filters_noop_without_filters() -> None:
     df = pd.DataFrame({"subject": ["math", "physics"]})
-    filtered = apply_filters(df, [{"name": "subjects", "type": "multiselect", "column": "subject"}], {})
+    filtered = apply_filters(
+        df, [{"name": "subjects", "type": "multiselect", "column": "subject"}], {}
+    )
     assert filtered.equals(df.reset_index(drop=True))
 
 

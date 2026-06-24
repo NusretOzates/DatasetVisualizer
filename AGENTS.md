@@ -21,6 +21,7 @@ Non-obvious notes:
   copied `.env`. You do not need to paste the token into `.env` when it is already set as a secret.
   Some datasets (e.g. GPQA Diamond, GAIA) are gated on Hugging Face and require a token with accepted terms.
 - **Run the backend** with `uv run dataset-viz` (Gradio on port 7860 by default).
+- **Pre-download datasets** (optional) with `uv run pre-download` (`--fast`, `--id`, `--category`, `--skip-gated`) to warm caches before starting the backend.
 - **Run the frontend** in a second terminal: `cd frontend && NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev`.
 - **First dataset load downloads from Hugging Face** and can be slow; results are cached under
   `data/cache/<loader_key>/` (gitignored) and reused via `@loader_cache`. For a fast smoke test,

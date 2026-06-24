@@ -29,7 +29,6 @@ categories:
       archetype: mcq
       hf_id: org/my-benchmark
       hf_config: main          # omit if single-config dataset
-      split: test
       profile: arc             # must match a normalizer
       id_column: id            # stable row id column in HF schema
       row_count: 1000          # optional; speeds home page
@@ -38,6 +37,8 @@ categories:
 ```
 
 Optional fields: `source_file` (JSONL), `multi_config: true`, `exclude_configs`, `viewer` (override archetype).
+
+**Splits:** loaders auto-select the smallest published Hub split (`train` / `validation` / `test` / …) for inspection. The active split appears in the dataset overview and page header. YAML `split:` is informational only.
 
 ## 3. Verify auto-registration
 
