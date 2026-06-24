@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import threading
+import time
+
 import pandas as pd
 import pytest
 
@@ -84,3 +87,37 @@ def test_pre_download_warns_on_gated_runtime_error(
     assert code == 1
     assert "WARN" in captured.err
     assert "HF_TOKEN" in captured.err
+
+
+def test_pre_download_runs_parallel_when_workers_gt_one(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lock = threading.Lock()
+    active = 0
+    max_active = 0
+
+    class FakeDescriptor:
+        def loader(self, _params: dict[str, object]) -> tuple[pd.DataFrame, dict[str, object]]:
+            nonlocal active, max_active
+            with lock:
+                active += 1
+                max_active = max(max_active, active)
+            time.sleep(0.05)
+            with lock:
+                active -= 1
+            return pd.DataFrame(), {}
+
+    monkeypatch.setattr(
+        "dataset_visualizer.pre_download.get_descriptor",
+        lambda _dataset_id: FakeDescriptor(),
+    )
+
+    dataset_ids = list(FAST_DATASET_IDS)
+    pre_download_datasets(dataset_ids, workers=4)
+
+    assert max_active > 1
+
+
+def test_pre_download_workers_must_be_positive() -> None:
+    with pytest.raises(ValueError, match="workers must be >= 1"):
+        pre_download_datasets(["mmlu"], workers=0)

@@ -53,9 +53,10 @@ uv run pre-download --id mmlu           # one dataset
 uv run pre-download --category reasoning
 uv run pre-download                     # full catalog (large; may take a while)
 uv run pre-download --skip-gated        # skip datasets that need HF terms/token
+uv run pre-download --workers 8         # parallel downloads (default: 4; use 1 for sequential)
 ```
 
-Gated datasets (GPQA, GAIA, HLE, …) print a warning when access fails — set `HF_TOKEN` and accept dataset terms on the Hub.
+Gated datasets (GPQA, GAIA, HLE, …) print a warning when access fails — set `HF_TOKEN` and accept dataset terms on the Hub. Parallel downloads speed up full-catalog runs; without `HF_TOKEN` you may hit Hub rate limits if `--workers` is very high.
 
 Optional direct backend launch:
 
