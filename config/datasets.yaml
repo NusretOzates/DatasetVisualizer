@@ -388,6 +388,7 @@ categories:
       hf_id: ICIP/LiveMCPBench
       split: test
       profile: agent_task
+      viewer: generic
       id_column: task_id
       row_count: 95
       description: >
@@ -447,7 +448,7 @@ categories:
       viewer: code_eval
       hf_id: SciCode1/SciCode
       split: validation
-      profile: generic
+      profile: scicode
       id_column: problem_id
       row_count: 15
       description: >
@@ -460,6 +461,7 @@ categories:
       hf_id: josancamon/paperbench
       split: train
       profile: generic
+      viewer: paperbench
       id_column: sample_id
       row_count: 23
       description: >
@@ -474,6 +476,7 @@ categories:
       hf_config: tasks
       split: default
       profile: generic
+      viewer: generic
       id_column: task_id
       row_count: 450
       description: >

@@ -10,7 +10,7 @@ Use this recipe when a benchmark fits an existing **normalization profile** and 
 | Grade-school / competition math | `gsm` or `math_competition` | `math_competition` | `gsm8k`, `math` |
 | Python function completion + tests | `code_eval` or `mbpp` or `apps` | `code_eval` (set `viewer:` explicitly) | `humaneval` |
 | Long-context / instruction / forecasting QA | `generic` or `instruction` or `coconot` | `generic` | `ruler`, `ifeval` |
-| Agent / assistant scenarios | `agent_task`, `gaia`, `gaia2` | `agent_task` | `gaia`, `livemcpbench` |
+| Agent / assistant scenarios | `agent_task`, `gaia`, `gaia2` | `agent_task` (set `viewer:` — use `generic` or `gaia`, not `agent_task`) | `gaia`, `livemcpbench`, `dabstep` |
 | ARC-AGI grid puzzles | `arc_agi` | `arc_grid` (set `viewer:`) | `arc_agi_2` |
 
 Full profile list: `NORMALIZERS` in `src/dataset_visualizer/loaders/benchmark_normalize.py`.
@@ -63,6 +63,7 @@ uv run python scripts/inspect_dataset.py my_benchmark
 
 - **Gated Hub repos** — set `HF_TOKEN`; document access in the dataset doc.
 - **Wrong profile** — columns won't match the viewer; inspect CLI is the fastest check.
+- **`archetype: agent_task` without `viewer:`** — falls back to `Tau3BenchViewer`, which only renders τ³-Bench fields. Set `viewer: generic` (or `gaia` / another dedicated viewer) for Hub benchmarks that are not τ³-Bench.
 - **Missing `id_column`** — defaults to `sample_id`; set explicitly when HF uses another name.
 - **Build-time routes** — start `uv run dataset-viz` before `npm run build`.
 

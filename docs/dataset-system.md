@@ -365,7 +365,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 **long_context:** `ruler`, `mrcr`, `mtob`  
 **instruction_following:** `ifeval`, `ifbench`, `coconot`  
 **tool_calling:** `livemcpbench`  
-**assistant_tasks:** `gaia`, `gdpval`, `gaia2`, `scicode`, `paperbench`, `dabstep`  
+**assistant_tasks:** `gaia`, `gdpval`, `gaia2`, `scicode` (`scicode`, viewer `code_eval`), `paperbench`, `dabstep`  
 **games:** `arc_agi_2` (`arc_agi`, viewer `arc_grid`)  
 **forecasters:** `futurebench`, `futurex`  
 **math:** `gsm8k`, `gsm1k`, `gsm_plus`, `gsm_symbolic`, `math`, `math_500`, `math_hard`, `math_arena`

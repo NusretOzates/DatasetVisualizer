@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 ANSWER_LETTERS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-GAIA_SCENARIO_PREVIEW_CHARS = 8_000
+GAIA2_EVENTS_SUMMARY_LIMIT = 25
 
 
 def _letter_from_index(index: int | str) -> str:
@@ -94,19 +94,80 @@ def _json_ready(value: object) -> object:
     return value
 
 
-def _scenario_config_preview(value: object) -> str:
-    """Serialize a GAIA2 scenario payload with a bounded preview length."""
-    if isinstance(value, (dict, list)) or hasattr(value, "tolist"):
-        text = json.dumps(_json_ready(value), indent=2)
+def _gaia2_user_message(events: list[object]) -> str:
+    """Return the user's opening task message from a GAIA2 event list."""
+    for event in events:
+        if not isinstance(event, dict) or event.get("event_type") != "USER":
+            continue
+        action = event.get("action") or {}
+        if not isinstance(action, dict) or action.get("function") != "send_message_to_agent":
+            continue
+        for arg in action.get("args") or []:
+            if isinstance(arg, dict) and arg.get("name") == "content":
+                return str(arg.get("value") or "").strip()
+    return ""
+
+
+def _gaia2_events_summary(events: list[object]) -> list[dict[str, object]]:
+    """Summarize oracle agent actions without serializing full app state."""
+    summary: list[dict[str, object]] = []
+    for event in events[:GAIA2_EVENTS_SUMMARY_LIMIT]:
+        if not isinstance(event, dict):
+            continue
+        action = event.get("action") or {}
+        if not isinstance(action, dict):
+            action = {}
+        entry: dict[str, object] = {
+            "type": event.get("event_type"),
+            "app": action.get("app"),
+            "function": action.get("function"),
+        }
+        args = action.get("args") or []
+        if args and isinstance(args[0], dict):
+            preview_arg = args[0]
+            entry["arg"] = preview_arg.get("name")
+            value = preview_arg.get("value")
+            if isinstance(value, str) and len(value) > 120:
+                value = f"{value[:120]}…"
+            entry["value"] = value
+        summary.append(entry)
+    return summary
+
+
+def _extract_gaia2_fields(value: object) -> dict[str, object]:
+    """Extract explorer-friendly fields from a GAIA2 scenario payload."""
+    if isinstance(value, str):
+        try:
+            payload = json.loads(value)
+        except json.JSONDecodeError:
+            return {"user_message": value}
+    elif isinstance(value, dict):
+        payload = value
     else:
-        text = str(value)
-    if len(text) <= GAIA_SCENARIO_PREVIEW_CHARS:
-        return text
-    omitted = len(text) - GAIA_SCENARIO_PREVIEW_CHARS
-    return (
-        f"{text[:GAIA_SCENARIO_PREVIEW_CHARS]}\n\n"
-        f"… ({omitted:,} more characters truncated; full scenario omitted from API payload)"
-    )
+        return {}
+
+    definition = (payload.get("metadata") or {}).get("definition") or {}
+    if not isinstance(definition, dict):
+        definition = {}
+    events = payload.get("events") or []
+    if not isinstance(events, list):
+        events = []
+    apps = payload.get("apps") or []
+    if not isinstance(apps, list):
+        apps = []
+
+    return {
+        "user_message": _gaia2_user_message(events),
+        "scenario_tags": definition.get("tags") or [],
+        "scenario_hints": definition.get("hints") or [],
+        "app_names": [
+            str(app.get("name"))
+            for app in apps
+            if isinstance(app, dict) and app.get("name")
+        ],
+        "event_count": len(events),
+        "events_summary": _gaia2_events_summary(events),
+    }
 
 
 def _ensure_sample_id(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
@@ -261,6 +322,47 @@ def normalize_apps(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def _compose_scicode_prompt(row: pd.Series) -> str:
+    """Build a markdown prompt from SciCode problem columns."""
+    parts: list[str] = []
+    name = row.get("problem_name")
+    if name is not None and not (isinstance(name, float) and pd.isna(name)):
+        text = str(name).strip()
+        if text:
+            parts.append(f"**{text}**")
+    for column in ("problem_description_main", "problem_background_main"):
+        value = row.get(column)
+        if value is None or (isinstance(value, float) and pd.isna(value)):
+            continue
+        text = str(value).strip()
+        if text:
+            parts.append(text)
+    for column, heading in (
+        ("problem_io", "I/O"),
+        ("required_dependencies", "Dependencies"),
+    ):
+        value = row.get(column)
+        if value is None or (isinstance(value, float) and pd.isna(value)):
+            continue
+        text = str(value).strip()
+        if text:
+            parts.append(f"### {heading}\n```python\n{text}\n```")
+    return "\n\n".join(parts)
+
+
+def normalize_scicode(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize SciCode rows to code-eval viewer columns."""
+    normalized = normalize_code_eval(df, id_column)
+    if "problem_description_main" not in normalized.columns:
+        return normalized
+    normalized["question_content"] = normalized.apply(_compose_scicode_prompt, axis=1)
+    if "general_solution" in normalized.columns:
+        normalized["canonical_solution"] = normalized["general_solution"]
+    if "general_tests" in normalized.columns:
+        normalized["test_code"] = normalized["general_tests"]
+    return normalized
+
+
 def normalize_mbpp(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize MBPP rows."""
     normalized = normalize_code_eval(df, id_column)
@@ -273,11 +375,45 @@ def normalize_mbpp(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def _is_null_value(value: object) -> bool:
+    """Return whether an instruction kwargs value should be omitted from display."""
+    if value is None:
+        return True
+    return isinstance(value, float) and pd.isna(value)
+
+
+def _compact_kwargs(value: object) -> object | None:
+    """Drop null entries from IFEval/IFBench kwargs payloads."""
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return value
+        return _compact_kwargs(parsed)
+
+    if isinstance(value, dict):
+        compact = {
+            key: inner for key, inner in value.items() if not _is_null_value(inner)
+        }
+        return compact or None
+
+    if isinstance(value, list):
+        compact_items = [_compact_kwargs(item) for item in value]
+        compact_items = [
+            item for item in compact_items if item is not None and item != {}
+        ]
+        return compact_items or None
+
+    return value
+
+
 def normalize_instruction(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize IFEval/IFBench rows."""
     normalized = _ensure_sample_id(df, id_column)
     if "prompt" not in normalized.columns and "question" in normalized.columns:
         normalized["prompt"] = normalized["question"]
+    if "kwargs" in normalized.columns:
+        normalized["kwargs"] = normalized["kwargs"].map(_compact_kwargs)
     return normalized
 
 
@@ -290,8 +426,12 @@ def normalize_coconot(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
 def normalize_agent_task(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize agent/tool benchmark rows."""
     normalized = _ensure_sample_id(df, id_column)
-    if "question" not in normalized.columns and "Question" in normalized.columns:
-        normalized["question"] = normalized["Question"]
+    if "Question" in normalized.columns:
+        if "question" not in normalized.columns:
+            normalized["question"] = normalized["Question"]
+        normalized = normalized.drop(columns=["Question"])
+    if "Annotator Metadata" in normalized.columns:
+        normalized = normalized.rename(columns={"Annotator Metadata": "annotator_metadata"})
     return normalized
 
 
@@ -302,16 +442,30 @@ def normalize_gaia(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
         normalized["question"] = normalized["Question"]
     if "answer" not in normalized.columns and "Final answer" in normalized.columns:
         normalized["answer"] = normalized["Final answer"]
+    if "level" not in normalized.columns and "Level" in normalized.columns:
+        normalized["level"] = normalized["Level"]
+    if "Annotator Metadata" in normalized.columns:
+        normalized = normalized.rename(columns={"Annotator Metadata": "annotator_metadata"})
     return normalized
 
 
 def normalize_gaia2(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize GAIA2 scenario rows."""
     normalized = _ensure_sample_id(df, id_column)
-    if "scenario_config" not in normalized.columns and "data" in normalized.columns:
-        normalized["scenario_config"] = normalized["data"].map(_scenario_config_preview)
     if "data" in normalized.columns:
+        extracted = normalized["data"].map(_extract_gaia2_fields)
+        for field in (
+            "user_message",
+            "scenario_tags",
+            "scenario_hints",
+            "app_names",
+            "event_count",
+            "events_summary",
+        ):
+            normalized[field] = extracted.map(lambda fields, key=field: fields.get(key))
         normalized = normalized.drop(columns=["data"])
+    if "scenario_config" in normalized.columns:
+        normalized = normalized.drop(columns=["scenario_config"])
     return normalized
 
 
@@ -346,6 +500,7 @@ NORMALIZERS: dict[str, Any] = {
     "gsm": normalize_gsm,
     "math_competition": normalize_math_competition,
     "code_eval": normalize_code_eval,
+    "scicode": normalize_scicode,
     "mbpp": normalize_mbpp,
     "apps": normalize_apps,
     "instruction": normalize_instruction,

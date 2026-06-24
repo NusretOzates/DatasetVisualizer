@@ -92,6 +92,8 @@ Defined in `components/viewers/registry.tsx` (dispatched by API `viewer`, with `
 | `arxiv_math` | `ArxivMathViewer` | ArXiv Math problems + model-run tables |
 | `arc_grid` | `ArcGridViewer` | ARC-AGI input/output grid puzzles |
 | `code_eval` | `CodeEvalViewer` | HumanEval/MBPP-style prompts, tests, and solutions |
+| `gaia` | `GaiaViewer` | GAIA / GAIA2 assistant scenarios |
+| `paperbench` | `PaperBenchViewer` | ML paper replication rubrics and reference files |
 | `generic` | `GenericViewer` | Long-context, instruction-following, and other pass-through benchmarks |
 
 Custom viewers live in `components/viewers/` (e.g. `McqCotViewer.tsx`, `CodeProblemSampleViewer.tsx`).

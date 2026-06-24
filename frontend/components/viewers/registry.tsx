@@ -13,6 +13,7 @@ import { IssueViewer } from "./IssueViewer";
 import { MathViewer } from "./MathViewer";
 import { McqCotViewer } from "./McqCotViewer";
 import { McqViewer } from "./McqViewer";
+import { PaperBenchViewer } from "./PaperBenchViewer";
 import { Tau3BenchViewer } from "./Tau3BenchViewer";
 import type { SampleViewerProps } from "./types";
 
@@ -28,6 +29,7 @@ const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   issue_resolution: ({ row }) => <IssueViewer row={row} />,
   agent_task: Tau3BenchViewer,
   gaia: GaiaViewer,
+  paperbench: PaperBenchViewer,
   generic: GenericViewer,
   code_eval: CodeEvalViewer,
   arc_grid: ({ row }) => <ArcGridViewer row={row} />,

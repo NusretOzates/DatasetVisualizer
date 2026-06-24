@@ -8,13 +8,16 @@ import numpy as np
 import pandas as pd
 
 from dataset_visualizer.loaders.benchmark_normalize import (
-    GAIA_SCENARIO_PREVIEW_CHARS,
+    normalize_agent_task,
     normalize_arc,
     normalize_arc_agi,
     normalize_benchmark,
+    normalize_gaia,
     normalize_gaia2,
     normalize_hellaswag,
+    normalize_instruction,
     normalize_piqa,
+    normalize_scicode,
     normalize_winogrande,
 )
 
@@ -125,19 +128,169 @@ def test_normalize_arc_agi_serializes_nested_arrays() -> None:
     assert "array(" not in normalized["puzzle_json"].iloc[0]
 
 
-def test_normalize_gaia2_truncates_scenario_config_and_drops_data() -> None:
-    payload = {"events": ["x" * (GAIA_SCENARIO_PREVIEW_CHARS + 100)]}
+def test_normalize_gaia_maps_annotator_metadata_and_level() -> None:
+    df = pd.DataFrame(
+        {
+            "task_id": ["task-1"],
+            "Question": ["What is 2+2?"],
+            "Final answer": ["4"],
+            "Level": ["1"],
+            "Annotator Metadata": [{"Steps": "Add the numbers.", "Number of steps": "1"}],
+        }
+    )
+
+    normalized = normalize_gaia(df, "task_id")
+
+    assert normalized["question"].iloc[0] == "What is 2+2?"
+    assert normalized["answer"].iloc[0] == "4"
+    assert normalized["level"].iloc[0] == "1"
+    assert normalized["annotator_metadata"].iloc[0]["Steps"] == "Add the numbers."
+    assert "Annotator Metadata" not in normalized.columns
+
+
+def test_normalize_gaia2_extracts_scenario_summary_and_drops_raw_payload() -> None:
+    payload = {
+        "metadata": {
+            "definition": {
+                "scenario_id": "scenario-1",
+                "hints": ["Check the calendar"],
+                "tags": ["Adaptability"],
+            }
+        },
+        "apps": [{"name": "Calendar"}, {"name": "Emails"}],
+        "events": [
+            {
+                "event_type": "USER",
+                "action": {
+                    "function": "send_message_to_agent",
+                    "args": [{"name": "content", "value": "Book a meeting tomorrow."}],
+                },
+            },
+            {
+                "event_type": "AGENT",
+                "action": {
+                    "app": "Calendar",
+                    "function": "add_calendar_event",
+                    "args": [{"name": "title", "value": "Meeting"}],
+                },
+            },
+        ],
+    }
     df = pd.DataFrame(
         {
             "id": ["scenario-1"],
             "scenario_id": ["adaptability"],
-            "data": [payload],
+            "data": [json.dumps(payload)],
         }
     )
 
     normalized = normalize_gaia2(df, "id")
 
     assert "data" not in normalized.columns
-    preview = normalized["scenario_config"].iloc[0]
-    assert len(preview) < len(json.dumps(payload, indent=2))
-    assert "truncated" in preview
+    assert "scenario_config" not in normalized.columns
+    assert normalized["user_message"].iloc[0] == "Book a meeting tomorrow."
+    assert normalized["scenario_tags"].iloc[0] == ["Adaptability"]
+    assert normalized["scenario_hints"].iloc[0] == ["Check the calendar"]
+    assert normalized["app_names"].iloc[0] == ["Calendar", "Emails"]
+    assert normalized["event_count"].iloc[0] == 2
+    assert normalized["events_summary"].iloc[0][1]["function"] == "add_calendar_event"
+
+
+def test_normalize_instruction_compacts_ifbench_kwargs() -> None:
+    df = pd.DataFrame(
+        {
+            "prompt": ["Write a poem."],
+            "kwargs": [
+                {
+                    "keyword1": "kaleidoscope",
+                    "keyword2": None,
+                    "num_words": float("nan"),
+                    "relation": None,
+                }
+            ],
+        }
+    )
+
+    normalized = normalize_instruction(df, "sample_id")
+
+    assert normalized["kwargs"].iloc[0] == {"keyword1": "kaleidoscope"}
+
+
+def test_normalize_instruction_compacts_ifeval_kwargs_json() -> None:
+    kwargs = [
+        {"num_words": None, "relation": None},
+        {"num_highlights": 3, "relation": None},
+    ]
+    df = pd.DataFrame(
+        {
+            "prompt": ["Summarize the text."],
+            "kwargs": [json.dumps(kwargs)],
+        }
+    )
+
+    normalized = normalize_instruction(df, "sample_id")
+
+    assert normalized["kwargs"].iloc[0] == [{"num_highlights": 3}]
+
+
+def test_normalize_scicode_maps_code_eval_columns() -> None:
+    df = pd.DataFrame(
+        {
+            "problem_name": ["ewald_summation"],
+            "problem_id": ["10"],
+            "problem_description_main": ["Calculate Ewald energy."],
+            "problem_background_main": [""],
+            "problem_io": ["def foo(): pass"],
+            "required_dependencies": ["import numpy as np"],
+            "sub_steps": ['[{"step_number": "10.1"}]'],
+            "general_solution": ["def foo(): return 1"],
+            "general_tests": ["assert foo() == 1"],
+        }
+    )
+
+    normalized = normalize_scicode(df, "problem_id")
+
+    assert normalized["question_id"].iloc[0] == "10"
+    assert "Calculate Ewald energy." in normalized["question_content"].iloc[0]
+    assert "import numpy as np" in normalized["question_content"].iloc[0]
+    assert normalized["canonical_solution"].iloc[0] == "def foo(): return 1"
+    assert normalized["test_code"].iloc[0] == "assert foo() == 1"
+    assert normalized["sub_steps"].iloc[0] == '[{"step_number": "10.1"}]'
+
+
+def test_normalize_benchmark_scicode_profile() -> None:
+    df = pd.DataFrame(
+        {
+            "problem_id": ["1"],
+            "problem_name": ["demo"],
+            "problem_description_main": ["Do science."],
+            "general_solution": ["pass"],
+            "general_tests": ["pass"],
+        }
+    )
+
+    normalized = normalize_benchmark(df, "scicode", "problem_id")
+
+    assert normalized["question_id"].iloc[0] == "1"
+    assert normalized["question_content"].iloc[0]
+    assert normalized["canonical_solution"].iloc[0] == "pass"
+
+
+def test_normalize_agent_task_unifies_livemcpbench_columns() -> None:
+    df = pd.DataFrame(
+        {
+            "task_id": ["task-1"],
+            "Question": ["Analyze the audio file."],
+            "answers": [""],
+            "category": ["Leisure"],
+            "file_name": ["/root/music/sample.wav"],
+            "Annotator Metadata": [{"Number of steps": "5", "Steps": "Load the audio file"}],
+        }
+    )
+
+    normalized = normalize_agent_task(df, "task_id")
+
+    assert "Question" not in normalized.columns
+    assert "Annotator Metadata" not in normalized.columns
+    assert normalized["question"].iloc[0] == "Analyze the audio file."
+    assert normalized["annotator_metadata"].iloc[0]["Number of steps"] == "5"
