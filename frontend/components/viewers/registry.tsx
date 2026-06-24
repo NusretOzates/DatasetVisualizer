@@ -5,6 +5,7 @@ import type { DatasetMeta } from "@/lib/types";
 import { ArcGridViewer } from "./ArcGridViewer";
 import { ArxivMathViewer } from "./ArxivMathViewer";
 import { CodeEvalViewer } from "./CodeEvalViewer";
+import { GaiaViewer } from "./GaiaViewer";
 import { GenericViewer } from "./GenericViewer";
 import { CodeProblemSampleViewer } from "./CodeProblemSampleViewer";
 import { HleViewer } from "./HleViewer";
@@ -26,6 +27,7 @@ const VIEWER_REGISTRY: Record<string, ComponentType<SampleViewerProps>> = {
   code_problem: CodeProblemSampleViewer,
   issue_resolution: ({ row }) => <IssueViewer row={row} />,
   agent_task: Tau3BenchViewer,
+  gaia: GaiaViewer,
   generic: GenericViewer,
   code_eval: CodeEvalViewer,
   arc_grid: ({ row }) => <ArcGridViewer row={row} />,

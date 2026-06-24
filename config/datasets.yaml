@@ -403,6 +403,7 @@ categories:
       hf_config: "2023_level1"
       split: validation
       profile: gaia
+      viewer: gaia
       id_column: task_id
       row_count: 165
       description: >
@@ -429,6 +430,7 @@ categories:
       hf_id: meta-agents-research-environments/gaia2
       split: validation
       profile: gaia2
+      viewer: gaia
       id_column: id
       multi_config: true
       exclude_configs:
