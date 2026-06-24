@@ -37,6 +37,23 @@ def test_get_dataset_meta_for_mmlu() -> None:
     assert meta["id_column"] == "subject"
     assert meta["viewer"] == "mcq"
     assert meta["controls"] == []
+    assert meta["source_link"] == {
+        "url": "https://huggingface.co/datasets/cais/mmlu",
+        "label": "cais/mmlu",
+        "kind": "huggingface",
+    }
+
+
+def test_get_dataset_meta_for_tau3_bench_uses_github_source() -> None:
+    meta = get_dataset_meta("tau3_bench")
+    assert meta["source_link"]["kind"] == "github"
+    assert meta["source_link"]["url"] == "https://github.com/sierra-research/tau2-bench"
+
+
+def test_get_catalog_home_rows_include_source_links() -> None:
+    catalog = get_catalog()
+    mmlu_row = next(row for row in catalog["home_rows"] if row["dataset"] == "MMLU")
+    assert mmlu_row["source_link"]["label"] == "cais/mmlu"
 
 
 def test_get_dataset_meta_unknown_id_raises() -> None:

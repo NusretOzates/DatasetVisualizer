@@ -16,6 +16,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AlertCircle } from "lucide-react";
+import { DatasetSourceLink } from "@/components/DatasetSourceLink";
 
 type DatasetExplorerProps = {
   catalog: Catalog;
@@ -51,6 +52,12 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
             ) : null}
           </div>
           {meta ? <p className="max-w-4xl text-muted-foreground">{meta.description}</p> : null}
+          {meta?.source_link ? (
+            <DatasetSourceLink
+              source={meta.source_link}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            />
+          ) : null}
           {columns.length > 0 ? (
             <div className="space-y-2">
               <p className="text-sm font-medium text-muted-foreground">Columns</p>

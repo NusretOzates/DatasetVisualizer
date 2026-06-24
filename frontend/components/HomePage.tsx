@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { useCatalog } from "@/lib/useCatalog";
 import { AlertCircle, Database } from "lucide-react";
+import { DatasetSourceLink } from "@/components/DatasetSourceLink";
 
 export function HomePage() {
   const { catalog, error } = useCatalog();
@@ -68,7 +69,7 @@ export function HomePage() {
                 <TableRow>
                   <TableHead>Category</TableHead>
                   <TableHead>Dataset</TableHead>
-                  <TableHead>HF Source</TableHead>
+                  <TableHead>Source</TableHead>
                   <TableHead>Archetype</TableHead>
                   <TableHead className="text-right">Rows</TableHead>
                 </TableRow>
@@ -80,8 +81,17 @@ export function HomePage() {
                       <Badge variant="secondary">{row.category}</Badge>
                     </TableCell>
                     <TableCell className="font-medium">{row.dataset}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {row.hf_source}
+                    <TableCell>
+                      {row.source_link ? (
+                        <DatasetSourceLink
+                          source={row.source_link}
+                          className="inline-flex items-center gap-1.5 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                        />
+                      ) : (
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {row.hf_source}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{row.archetype}</Badge>
