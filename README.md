@@ -91,6 +91,15 @@ To add a dataset:
 
 Full reference: [`docs/dataset-system.md`](docs/dataset-system.md). **Update docs and this README when you change setup or architecture.**
 
+### Visual audit
+
+Every catalog dataset has a dedicated Sample Inspector viewer, column glossary on Overview, and screenshot proof:
+
+- Audit matrix: [`docs/audit/dataset-audit-matrix.md`](docs/audit/dataset-audit-matrix.md)
+- Screenshots: [`docs/images/audit/`](docs/images/audit/) (`{dataset_id}-overview.png`, `{dataset_id}-sample.png`)
+
+Regenerate with `uv run python scripts/audit_datasets.py` and `uv run python scripts/capture_audit_screenshots.py` (requires backend + frontend running).
+
 Per-dataset schema notes (manual loaders and special cases): [`docs/index.md`](docs/index.md).
 
 ## Cache

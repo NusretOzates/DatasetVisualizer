@@ -27,6 +27,7 @@ packages = ["src/dataset_visualizer"]
 
 [dependency-groups]
 dev = [
+    "playwright>=1.60.0",
     "pytest>=9.0.0",
     "ruff>=0.15.0",
 ]
@@ -62,7 +63,7 @@ ignore = [
 "src/dataset_visualizer/loaders/global_mmlu.py" = ["PLR0911"]
 "src/dataset_visualizer/loaders/swe_bench.py" = ["PLR0911"]
 "tests/**/*.py" = ["PLR2004", "D103"]
-"scripts/**/*.py" = ["D103", "PLR0911"]
+"scripts/**/*.py" = ["D103", "PLR0911", "PLR0912", "PLR2004", "E501", "PLC0415", "RUF059"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

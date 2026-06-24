@@ -21,7 +21,9 @@ Use this map to locate the right files before searching the whole repository.
 | Inspect CLI | `scripts.inspect_dataset:inspect_dataset` | `scripts/inspect_dataset.py` | `tests/test_inspect_dataset.py` |
 | MCQ helpers | `dataset_visualizer.utils.mcq:resolve_correct_letter` | `src/dataset_visualizer/utils/mcq.py` | `tests/test_components_mcq.py` |
 | React overview charts | `frontend/components/OverviewTab.tsx:OverviewTab` | `frontend/components/ChartPanel.tsx`, `frontend/lib/types.ts` | Frontend lint/typecheck |
-| React sample viewers | `frontend/components/viewers/registry.tsx:renderSample` | `frontend/components/viewers/*Viewer.tsx`, `frontend/components/viewers/MarkdownMath.tsx` | Frontend lint/typecheck |
+| React sample viewers | `frontend/components/viewers/registry.tsx:renderSample` | `frontend/components/viewers/datasets/*.tsx`, `frontend/components/viewers/*Viewer.tsx`, `scripts/scaffold_dataset_viewer.py` | `tests/test_benchmark_registry.py`, frontend typecheck |
+| Column glossary (Overview) | `frontend/components/ColumnGlossary.tsx:ColumnGlossary` | `config/column_glossary.yaml`, `scripts/build_column_glossary.py`, `src/dataset_visualizer/config.py:load_column_glossary` | `tests/test_column_glossary.py` |
+| Dataset visual audit | `scripts/audit_datasets.py:audit_datasets` | `docs/audit/dataset-audit-matrix.md`, `scripts/capture_audit_screenshots.py`, `docs/images/audit/` | `scripts/audit_datasets.py` |
 | ARC-AGI grid visualization | `frontend/components/viewers/ArcGridViewer.tsx:ArcGridViewer` | `config/datasets.yaml`, `frontend/components/viewers/registry.tsx` | `tests/test_benchmark_registry.py` |
 | Code-eval sample viewer | `frontend/components/viewers/CodeEvalViewer.tsx` | `frontend/components/viewers/registry.tsx` | `tests/test_benchmark_registry.py` |
 | Generic sample viewer | `frontend/components/viewers/GenericViewer.tsx` | `frontend/components/viewers/registry.tsx` | `tests/test_benchmark_registry.py` |

@@ -106,9 +106,11 @@ Overview charts are built server-side in `api/chart_data.py` and rendered client
 
 See `lib/types.ts` for the full TypeScript shapes. Filter option payloads use the `FilterOptions` type. Empty generated filters are hidden client-side so generic benchmark descriptors can advertise reusable filter candidates safely.
 
-## Sample lookup
+## Sample navigation
 
-`SampleInspector` calls `get_sample` for index navigation and `find_sample` for exact `id_column` lookup. `get_dataset_meta` provides the lookup label through `id_column`.
+`SampleInspector` loads samples through `get_sample` using the slider and previous/next controls only. Jump-to-id lookup was removed; use index navigation to browse rows.
+
+`OverviewTab` shows a collapsible **Column glossary** sourced from Hugging Face dataset READMEs (via `column_glossary` on `get_dataset_meta`).
 
 ## Documentation
 
