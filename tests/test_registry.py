@@ -13,9 +13,7 @@ from dataset_visualizer.config import load_config
 
 def test_config_dataset_ids_match_dataset_registry() -> None:
     config = load_config()
-    config_ids = {
-        entry.id for datasets in config.categories.values() for entry in datasets
-    }
+    config_ids = {entry.id for datasets in config.categories.values() for entry in datasets}
     assert config_ids == set(DATASET_REGISTRY.keys())
 
 

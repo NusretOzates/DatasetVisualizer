@@ -40,11 +40,15 @@ def test_load_mmlu_normalizes_columns(monkeypatch: pytest.MonkeyPatch) -> None:
         "dataset_visualizer.loaders.mmlu.load_dataset",
         lambda *args, **kwargs: FakeDataset(),
     )
+    monkeypatch.setattr(
+        "dataset_visualizer.loaders.mmlu.select_smallest_split",
+        lambda *_args, **_kwargs: "dev",
+    )
     load_mmlu.clear()
 
-    df = load_mmlu(split="test")
+    df = load_mmlu()
 
     assert len(df) == 1
     assert df.loc[0, "answer_letter"] == "C"
-    assert df.loc[0, "split"] == "test"
+    assert df.loc[0, "split"] == "dev"
     assert df.loc[0, "subject"] == "physics"

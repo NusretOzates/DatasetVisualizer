@@ -29,7 +29,7 @@ class DatasetEntry(BaseModel):
     docs: str | None = None
     row_count: int | None = None
     hf_config: str | None = None
-    split: str | None = None
+    split: str | None = None  # informational; loaders auto-pick the smallest Hub split
     profile: str | None = None
     id_column: str | None = None
     viewer: str | None = None

@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 dataset-viz = "dataset_visualizer.cli:main"
+pre-download = "dataset_visualizer.pre_download:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

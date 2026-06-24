@@ -43,6 +43,20 @@ NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Pre-download datasets (optional)
+
+Warm the local Hugging Face cache before starting the backend so first page loads are faster:
+
+```bash
+uv run pre-download --fast              # small smoke-test subset
+uv run pre-download --id mmlu           # one dataset
+uv run pre-download --category reasoning
+uv run pre-download                     # full catalog (large; may take a while)
+uv run pre-download --skip-gated        # skip datasets that need HF terms/token
+```
+
+Gated datasets (GPQA, GAIA, HLE, …) print a warning when access fails — set `HF_TOKEN` and accept dataset terms on the Hub.
+
 Optional direct backend launch:
 
 ```bash

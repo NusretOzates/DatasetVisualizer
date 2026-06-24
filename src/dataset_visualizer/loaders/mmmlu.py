@@ -7,10 +7,10 @@ from datasets import get_dataset_config_names, load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
 from dataset_visualizer.loaders.cache import loader_cache
+from dataset_visualizer.loaders.split_select import select_smallest_split
 
 MMMLU_HF_ID = "openai/MMMLU"
 DEFAULT_LOCALE = "DE_DE"
-MMMLU_SPLIT = "test"
 LOCALE_LABELS: dict[str, str] = {
     "AR_XY": "Arabic",
     "BN_BD": "Bengali",
@@ -28,7 +28,8 @@ LOCALE_LABELS: dict[str, str] = {
     "ZH_CN": "Chinese (Simplified)",
 }
 POPULAR_LOCALES = tuple(
-    locale for locale in ("DE_DE", "ES_LA", "FR_FR", "JA_JP", "KO_KR", "PT_BR", "AR_XY", "HI_IN")
+    locale
+    for locale in ("DE_DE", "ES_LA", "FR_FR", "JA_JP", "KO_KR", "PT_BR", "AR_XY", "HI_IN")
     if locale in LOCALE_LABELS
 )
 
@@ -56,16 +57,16 @@ def list_mmmlu_locales() -> list[str]:
 
 
 @loader_cache(show_spinner="Downloading MMMLU …")
-def load_mmmlu(locale: str = DEFAULT_LOCALE, split: str = MMMLU_SPLIT) -> pd.DataFrame:
+def load_mmmlu(locale: str = DEFAULT_LOCALE) -> pd.DataFrame:
     """Load and normalize MMMLU for a single locale config.
 
     Args:
         locale: Locale config (e.g. ``DE_DE``, ``FR_FR``, ``JA_JP``).
-        split: Dataset split (only ``test`` is published).
 
     Returns:
         Normalized DataFrame with ``choices`` and ``answer_letter`` columns.
     """
     cache_dir("mmmlu")
+    split = select_smallest_split(MMMLU_HF_ID, locale)
     dataset = load_dataset(MMMLU_HF_ID, locale, split=split)
     return _normalize_mmmlu_frame(dataset.to_pandas(), locale=locale, split=split)

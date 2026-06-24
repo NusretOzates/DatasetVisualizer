@@ -78,9 +78,7 @@ def apply_filters(
         elif ftype == "text" and column and column in filtered.columns:
             prefix = str(filters.get(name, "")).strip()
             if prefix:
-                filtered = filtered[
-                    filtered[column].astype(str).str.startswith(prefix, na=False)
-                ]
+                filtered = filtered[filtered[column].astype(str).str.startswith(prefix, na=False)]
 
         elif ftype == "radio" and column and column in filtered.columns:
             selected = filters.get(name, spec.get("default", "All"))

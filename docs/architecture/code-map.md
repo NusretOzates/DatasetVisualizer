@@ -5,6 +5,8 @@ Use this map to locate the right files before searching the whole repository.
 | Capability / Concern | Entry point | Key files | Tests |
 |------------------------|------------------------------|-------------------------------|-----------------------------|
 | App launch (`dataset-viz`) | `dataset_visualizer.cli:main` | `src/dataset_visualizer/cli.py`, `src/dataset_visualizer/server.py` | `tests/test_cli.py` |
+| Pre-download CLI | `dataset_visualizer.pre_download:main` | `src/dataset_visualizer/pre_download.py` | `tests/test_pre_download.py` |
+| Smallest Hub split selection | `dataset_visualizer.loaders.split_select:select_smallest_split` | `src/dataset_visualizer/loaders/split_select.py` | `tests/test_split_select.py` |
 | Config load / validation | `dataset_visualizer.config:load_config` | `config/datasets.yaml`, `src/dataset_visualizer/config.py` | `tests/test_config.py` |
 | Dataset catalog and metadata | `dataset_visualizer.api.service:get_catalog` | `config/datasets.yaml`, `src/dataset_visualizer/api/service.py` | `tests/test_api_service.py`, `tests/test_home.py` |
 | Dataset registration | `dataset_visualizer.api.dataset_registry:get_descriptor` | `src/dataset_visualizer/api/dataset_registry.py` | `tests/test_registry.py`, `tests/test_benchmark_registry.py` |

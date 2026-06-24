@@ -36,7 +36,7 @@ def test_get_dataset_meta_for_mmlu() -> None:
     assert meta["id"] == "mmlu"
     assert meta["id_column"] == "subject"
     assert meta["viewer"] == "mcq"
-    assert meta["controls"][0]["name"] == "split"
+    assert meta["controls"] == []
 
 
 def test_get_dataset_meta_unknown_id_raises() -> None:
@@ -81,7 +81,7 @@ def test_get_overview_mmlu_shape(monkeypatch: pytest.MonkeyPatch) -> None:
         "dataset_visualizer.api.service._load_context",
         lambda dataset_id, params: _mmlu_context(),
     )
-    overview = get_overview("mmlu", {"split": "test"}, {})
+    overview = get_overview("mmlu", {}, {})
     assert len(overview["metrics"]) == 3
     assert len(overview["charts"]) == 2
 

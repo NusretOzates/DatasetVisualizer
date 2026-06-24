@@ -37,6 +37,7 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
   } = useDatasetQuery(datasetId);
 
   const title = meta?.label ?? datasetId;
+  const activeSplit = overview?.metrics.find((metric) => metric.label === "Split")?.value;
 
   return (
     <AppShell catalog={catalog}>
@@ -45,6 +46,9 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-3xl font-semibold tracking-tight">{title}</h2>
             {meta?.archetype ? <Badge variant="secondary">{meta.archetype}</Badge> : null}
+            {activeSplit && activeSplit !== "—" ? (
+              <Badge variant="outline">Split: {activeSplit}</Badge>
+            ) : null}
           </div>
           {meta ? <p className="max-w-4xl text-muted-foreground">{meta.description}</p> : null}
           {columns.length > 0 ? (

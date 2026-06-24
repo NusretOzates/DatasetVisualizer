@@ -9,6 +9,7 @@ from datasets import load_dataset
 
 from dataset_visualizer.loaders.base import cache_dir
 from dataset_visualizer.loaders.cache import loader_cache
+from dataset_visualizer.loaders.split_select import select_smallest_split
 
 MMLU_PRO_HF_ID = "TIGER-Lab/MMLU-Pro"
 
@@ -32,16 +33,14 @@ def _normalize_row_options(options: Sequence[str] | None) -> tuple[list[str], in
 
 
 @loader_cache(show_spinner="Downloading MMLU-Pro …")
-def load_mmlu_pro(split: str = "test") -> pd.DataFrame:
+def load_mmlu_pro() -> pd.DataFrame:
     """Load and normalize the MMLU-Pro benchmark dataset.
-
-    Args:
-        split: Dataset split to load (``test`` or ``validation``).
 
     Returns:
         Normalized DataFrame with filtered options, option_count, and split metadata.
     """
     cache_dir("mmlu_pro")
+    split = select_smallest_split(MMLU_PRO_HF_ID)
     dataset = load_dataset(MMLU_PRO_HF_ID, split=split)
     df = dataset.to_pandas()
 

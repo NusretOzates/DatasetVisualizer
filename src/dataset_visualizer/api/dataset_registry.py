@@ -97,30 +97,6 @@ def _format_locale(locale: str) -> str:
     return f"{label} ({locale})"
 
 
-def _controls_mmlu() -> list[dict[str, Any]]:
-    return [
-        {
-            "name": "split",
-            "label": "Split",
-            "type": "select",
-            "options": ["test", "validation", "dev"],
-            "default": "test",
-        }
-    ]
-
-
-def _controls_mmlu_pro() -> list[dict[str, Any]]:
-    return [
-        {
-            "name": "split",
-            "label": "Split",
-            "type": "select",
-            "options": ["test", "validation"],
-            "default": "test",
-        }
-    ]
-
-
 def _controls_global_mmlu() -> list[dict[str, Any]]:
     languages = _language_options()
     default = DEFAULT_LANGUAGE if DEFAULT_LANGUAGE in languages else languages[0]
@@ -131,13 +107,6 @@ def _controls_global_mmlu() -> list[dict[str, Any]]:
             "type": "select",
             "options": languages,
             "default": default,
-        },
-        {
-            "name": "split",
-            "label": "Split",
-            "type": "select",
-            "options": ["dev", "test"],
-            "default": "dev",
         },
     ]
 
@@ -254,9 +223,8 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     "mmlu": DatasetDescriptor(
         id_column="subject",
         viewer="mcq",
-        loader=lambda p: (load_mmlu(split=p.get("split", "test")), {}),
+        loader=lambda _p: (load_mmlu(), {}),
         overview=overview_mmlu,
-        controls=_controls_mmlu,
         filters=[
             {"name": "subjects", "label": "Subject", "type": "multiselect", "column": "subject"}
         ],
@@ -264,9 +232,8 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     "mmlu_pro": DatasetDescriptor(
         id_column="question_id",
         viewer="mcq_cot",
-        loader=lambda p: (load_mmlu_pro(split=p.get("split", "test")), {}),
+        loader=lambda _p: (load_mmlu_pro(), {}),
         overview=overview_mmlu_pro,
-        controls=_controls_mmlu_pro,
         filters=[
             {
                 "name": "categories",
@@ -287,10 +254,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         id_column="sample_id",
         viewer="mcq",
         loader=lambda p: (
-            load_global_mmlu(
-                language=p.get("language", DEFAULT_LANGUAGE),
-                split=p.get("split", "dev"),
-            ),
+            load_global_mmlu(language=p.get("language", DEFAULT_LANGUAGE)),
             {},
         ),
         overview=overview_global_mmlu,

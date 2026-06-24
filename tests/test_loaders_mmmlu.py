@@ -46,9 +46,13 @@ def test_load_mmmlu(monkeypatch: pytest.MonkeyPatch) -> None:
         "dataset_visualizer.loaders.mmmlu.load_dataset",
         lambda *args, **kwargs: FakeDataset(),
     )
+    monkeypatch.setattr(
+        "dataset_visualizer.loaders.mmmlu.select_smallest_split",
+        lambda *_args, **_kwargs: "test",
+    )
     load_mmmlu.clear()
 
-    df = load_mmmlu(locale="FR_FR", split="test")
+    df = load_mmmlu(locale="FR_FR")
     assert len(df) == 1
     assert df.loc[0, "sample_id"] == "FR_FR_42"
     assert df.loc[0, "language"] == "FR_FR"

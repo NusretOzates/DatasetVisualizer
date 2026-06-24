@@ -329,9 +329,7 @@ def sample_extras_arxivmath(row: pd.Series, extras: dict[str, Any]) -> dict[str,
     problem_runs = outputs[outputs["problem_idx"] == problem_idx] if len(outputs) else outputs
     display_cols = [col for col in RUN_TABLE_COLUMNS if col in problem_runs.columns]
     runs = (
-        problem_runs[display_cols]
-        .sort_values(["model_name", "idx_answer"])
-        .reset_index(drop=True)
+        problem_runs[display_cols].sort_values(["model_name", "idx_answer"]).reset_index(drop=True)
     )
     return {
         "model_runs": serialize_rows(runs),
