@@ -93,12 +93,11 @@ Full reference: [`docs/dataset-system.md`](docs/dataset-system.md). **Update doc
 
 ### Visual audit
 
-Every catalog dataset has a dedicated Sample Inspector viewer, column glossary on Overview, and screenshot proof:
+Every catalog dataset has a dedicated Sample Inspector viewer and column glossary on Overview:
 
 - Audit matrix: [`docs/audit/dataset-audit-matrix.md`](docs/audit/dataset-audit-matrix.md)
-- Screenshots: [`docs/images/audit/`](docs/images/audit/) (`{dataset_id}-overview.png`, `{dataset_id}-sample.png`)
 
-Regenerate with `uv run python scripts/audit_datasets.py` and `uv run python scripts/capture_audit_screenshots.py` (requires backend + frontend running).
+Regenerate the matrix with `uv run python scripts/audit_datasets.py`. Optional local screenshots: `uv run python scripts/capture_audit_screenshots.py` (writes to `docs/images/audit/`, gitignored).
 
 Per-dataset schema notes (manual loaders and special cases): [`docs/index.md`](docs/index.md).
 
