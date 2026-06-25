@@ -1,9 +1,11 @@
-"""Registry alignment tests for catalog benchmarks."""
+"""Registry tests for per-dataset dedicated viewers."""
 
 from __future__ import annotations
 
 from dataset_visualizer.api.dataset_registry import DATASET_REGISTRY, build_dataset_registry
 from dataset_visualizer.config import load_config
+
+FORBIDDEN_VIEWERS = {"generic", "agent_task", "mcq", "mcq_cot", "code_eval", "arc_grid"}
 
 
 def test_catalog_entries_registered() -> None:
@@ -31,27 +33,23 @@ def test_hf_benchmark_entries_get_reusable_filters() -> None:
     assert "categories" in filter_names
 
 
-def test_arc_agi_uses_grid_viewer() -> None:
-    assert DATASET_REGISTRY["arc_agi_2"].viewer == "arc_grid"
-
-
-def test_paperbench_uses_paperbench_viewer() -> None:
-    assert DATASET_REGISTRY["paperbench"].viewer == "paperbench"
-
-
-def test_hf_benchmark_agent_task_entries_use_non_tau3_viewer() -> None:
-    """Hub agent_task benchmarks must not fall back to Tau3BenchViewer."""
+def test_every_dataset_has_dedicated_viewer() -> None:
+    """Every catalog entry must expose viewer equal to its dataset id."""
     config = load_config()
     for datasets in config.categories.values():
         for entry in datasets:
-            if entry.loader != "hf_benchmark" or entry.archetype != "agent_task":
-                continue
-            assert entry.viewer is not None, f"{entry.id} needs an explicit viewer"
-            assert entry.viewer != "agent_task", (
-                f"{entry.id} must not use Tau3BenchViewer; set viewer: generic or gaia"
+            descriptor = DATASET_REGISTRY[entry.id]
+            assert descriptor.viewer == entry.id, (
+                f"{entry.id}: expected viewer={entry.id}, got {descriptor.viewer}"
             )
+            assert descriptor.viewer not in FORBIDDEN_VIEWERS, (
+                f"{entry.id} must not route to shared viewer key {descriptor.viewer}"
+            )
+            assert entry.viewer == entry.id, f"{entry.id} config viewer must equal dataset id"
 
 
-def test_dabstep_and_livemcpbench_use_generic_viewer() -> None:
-    assert DATASET_REGISTRY["dabstep"].viewer == "generic"
-    assert DATASET_REGISTRY["livemcpbench"].viewer == "generic"
+def test_manual_and_hf_descriptors_use_dataset_id_viewer() -> None:
+    for dataset_id, descriptor in DATASET_REGISTRY.items():
+        assert descriptor.viewer == dataset_id, (
+            f"{dataset_id}: registry viewer must equal dataset id"
+        )

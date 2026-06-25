@@ -126,7 +126,12 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
                     <Skeleton className="h-80 w-full" />
                   </div>
                 ) : null}
-                {!loading && overview ? <OverviewTab overview={overview} /> : null}
+                {!loading && overview ? (
+                  <OverviewTab
+                    overview={overview}
+                    columnGlossary={meta.column_glossary ?? {}}
+                  />
+                ) : null}
               </TabsContent>
 
               <TabsContent value="sample">

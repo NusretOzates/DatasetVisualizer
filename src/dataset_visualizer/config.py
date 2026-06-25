@@ -9,6 +9,7 @@ import yaml
 from pydantic import BaseModel, Field, field_validator
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "datasets.yaml"
+DEFAULT_GLOSSARY_PATH = Path(__file__).resolve().parents[2] / "config" / "column_glossary.yaml"
 
 
 class DatasetEntry(BaseModel):
@@ -114,3 +115,30 @@ def get_dataset_by_id(config: AppConfig, dataset_id: str) -> DatasetEntry | None
             if entry.id == dataset_id:
                 return entry
     return None
+
+
+def load_column_glossary(path: Path | None = None) -> dict[str, Any]:
+    """Load the column glossary YAML keyed by dataset id.
+
+    Returns:
+        Mapping of dataset id to glossary entry with a ``columns`` dict.
+        Empty dict when the glossary file is missing.
+    """
+    glossary_path = path or DEFAULT_GLOSSARY_PATH
+    if not glossary_path.exists():
+        return {}
+    raw: dict[str, Any] = yaml.safe_load(glossary_path.read_text(encoding="utf-8"))
+    datasets = raw.get("datasets", {})
+    if not isinstance(datasets, dict):
+        return {}
+    return datasets
+
+
+def get_column_glossary_for_dataset(dataset_id: str, path: Path | None = None) -> dict[str, str]:
+    """Return column descriptions for one dataset id."""
+    glossary = load_column_glossary(path)
+    entry = glossary.get(dataset_id, {})
+    columns = entry.get("columns", {}) if isinstance(entry, dict) else {}
+    if not isinstance(columns, dict):
+        return {}
+    return {str(key): str(value) for key, value in columns.items()}

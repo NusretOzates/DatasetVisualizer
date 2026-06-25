@@ -35,7 +35,7 @@ def test_get_dataset_meta_for_mmlu() -> None:
     meta = get_dataset_meta("mmlu")
     assert meta["id"] == "mmlu"
     assert meta["id_column"] == "subject"
-    assert meta["viewer"] == "mcq"
+    assert meta["viewer"] == "mmlu"
     assert meta["controls"] == []
     assert meta["source_link"] == {
         "url": "https://huggingface.co/datasets/cais/mmlu",

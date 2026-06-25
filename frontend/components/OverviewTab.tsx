@@ -1,5 +1,6 @@
 import type { DataTable, Metric, OverviewPayload } from "@/lib/types";
 import { ChartPanel } from "./ChartPanel";
+import { ColumnGlossary } from "./ColumnGlossary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -12,6 +13,7 @@ import {
 
 type OverviewTabProps = {
   overview: OverviewPayload;
+  columnGlossary?: Record<string, string>;
 };
 
 function Metrics({ metrics }: { metrics: Metric[] }) {
@@ -65,9 +67,10 @@ function DataTableView({ table }: { table: DataTable }) {
   );
 }
 
-export function OverviewTab({ overview }: OverviewTabProps) {
+export function OverviewTab({ overview, columnGlossary = {} }: OverviewTabProps) {
   return (
     <div className="space-y-6">
+      <ColumnGlossary glossary={columnGlossary} />
       <Metrics metrics={overview.metrics} />
       <div className="grid gap-6 xl:grid-cols-2">
         {overview.charts.map((chart, index) => (

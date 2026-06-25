@@ -207,7 +207,7 @@ def _hf_benchmark_filters(entry: DatasetEntry) -> list[dict[str, Any]]:
 
 
 def _descriptor_from_hf_entry(entry: DatasetEntry) -> DatasetDescriptor:
-    viewer = entry.viewer or entry.archetype or "generic"
+    viewer = entry.viewer or entry.id
     id_column = entry.id_column or "sample_id"
     return DatasetDescriptor(
         id_column=id_column,
@@ -222,7 +222,7 @@ def _descriptor_from_hf_entry(entry: DatasetEntry) -> DatasetDescriptor:
 _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     "mmlu": DatasetDescriptor(
         id_column="subject",
-        viewer="mcq",
+        viewer="mmlu",
         loader=lambda _p: (load_mmlu(), {}),
         overview=overview_mmlu,
         filters=[
@@ -231,7 +231,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "mmlu_pro": DatasetDescriptor(
         id_column="question_id",
-        viewer="mcq_cot",
+        viewer="mmlu_pro",
         loader=lambda _p: (load_mmlu_pro(), {}),
         overview=overview_mmlu_pro,
         filters=[
@@ -246,13 +246,13 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "gpqa_diamond": DatasetDescriptor(
         id_column="question",
-        viewer="mcq",
+        viewer="gpqa_diamond",
         loader=lambda _p: (load_gpqa_diamond(), {}),
         overview=overview_gpqa,
     ),
     "global_mmlu": DatasetDescriptor(
         id_column="sample_id",
-        viewer="mcq",
+        viewer="global_mmlu",
         loader=lambda p: (
             load_global_mmlu(language=p.get("language", DEFAULT_LANGUAGE)),
             {},
@@ -271,7 +271,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "mmmlu": DatasetDescriptor(
         id_column="sample_id",
-        viewer="mcq",
+        viewer="mmmlu",
         loader=lambda p: (load_mmmlu(locale=p.get("locale", DEFAULT_LOCALE)), {}),
         overview=overview_mmmlu,
         controls=_controls_mmmlu,
@@ -281,14 +281,14 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "aime_2026": DatasetDescriptor(
         id_column="problem_idx",
-        viewer="math_competition",
+        viewer="aime_2026",
         loader=lambda _p: (load_aime_2026(), {}),
         overview=overview_aime,
         sample_extras=sample_extras_aime,
     ),
     "hle": DatasetDescriptor(
         id_column="id",
-        viewer="academic_qa",
+        viewer="hle",
         loader=lambda _p: (load_hle(), {}),
         overview=overview_hle,
         filters=[
@@ -323,7 +323,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "livecodebench_v6": DatasetDescriptor(
         id_column="question_id",
-        viewer="code_problem",
+        viewer="livecodebench_v6",
         loader=lambda _p: (load_livecodebench(), {}),
         overview=overview_livecodebench,
         supports_private_tests=True,
@@ -345,7 +345,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "swe_bench_verified": DatasetDescriptor(
         id_column="instance_id",
-        viewer="issue_resolution",
+        viewer="swe_bench_verified",
         loader=lambda _p: (load_swe_bench_verified(), {}),
         overview=overview_swe_bench,
         cache_key="swe_bench",
@@ -353,7 +353,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "swe_bench_multilingual": DatasetDescriptor(
         id_column="instance_id",
-        viewer="issue_resolution",
+        viewer="swe_bench_multilingual",
         loader=lambda _p: (load_swe_bench_multilingual(), {}),
         overview=overview_swe_bench,
         cache_key="swe_bench",
@@ -361,7 +361,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "swe_bench_pro": DatasetDescriptor(
         id_column="instance_id",
-        viewer="issue_resolution",
+        viewer="swe_bench_pro",
         loader=lambda _p: (load_swe_bench_pro(), {}),
         overview=overview_swe_bench,
         cache_key="swe_bench",
@@ -369,7 +369,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "tau3_bench": DatasetDescriptor(
         id_column="instance_id",
-        viewer="agent_task",
+        viewer="tau3_bench",
         loader=lambda p: (load_tau3_bench(task_split=p.get("task_split", "base")), {}),
         overview=overview_tau3_bench,
         controls=_controls_tau3_bench,
@@ -380,7 +380,7 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
     ),
     "arxivmath_0526": DatasetDescriptor(
         id_column="problem_idx",
-        viewer="arxiv_math",
+        viewer="arxivmath_0526",
         loader=lambda _p: (load_problems(), {"outputs": load_outputs()}),
         overview=overview_arxivmath,
         sample_extras=sample_extras_arxivmath,

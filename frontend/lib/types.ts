@@ -155,6 +155,7 @@ export type DatasetMeta = {
   source_link?: SourceLink | null;
   controls: SelectControlSpec[];
   filters: FilterControlSpec[];
+  column_glossary?: Record<string, string>;
 };
 
 export type ArxivMathExtras = {

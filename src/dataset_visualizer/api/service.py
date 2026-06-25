@@ -11,7 +11,12 @@ import pandas as pd
 from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor
 from dataset_visualizer.api.filters import apply_filters, build_filter_options
 from dataset_visualizer.api.serializers import serialize_row, serialize_value
-from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
+from dataset_visualizer.config import (
+    DatasetEntry,
+    get_column_glossary_for_dataset,
+    get_dataset_by_id,
+    load_config,
+)
 from dataset_visualizer.loaders.livecodebench import decode_private_test_cases
 from dataset_visualizer.row_count import row_count
 from dataset_visualizer.source_links import resolve_source_link, source_link_payload
@@ -86,6 +91,7 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
         "source_link": source_link_payload(entry),
         "controls": descriptor.controls(),
         "filters": descriptor.filters,
+        "column_glossary": get_column_glossary_for_dataset(dataset_id),
     }
 
 
