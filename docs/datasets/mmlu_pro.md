@@ -19,13 +19,10 @@
 | `cot_content` | str | Chain-of-thought rationale (often long) |
 | `split` | str | Loaded split name (`test` or `validation`) |
 
-## Visualization rationale
+## UI notes
 
-- **Category bar chart** — MMLU-Pro spans 14 disciplines; distribution shows coverage.
-- **Option count histogram** — Highlights variable 8–10 option sets after N/A filtering.
-- **Source provenance table** — `src` tags show which upstream benchmarks contributed each item.
-- **Dynamic MCQ inspector** — Variable option count uses shared `mcq_viewer` with filtered `options`.
-- **Chain-of-thought expander** — Long `cot_content` is shown read-only on demand to avoid clutter.
+- **Overview** — row count, category count, split; source-provenance table (top `src` tags).
+- **Sample inspector** — variable option count MCQ; chain-of-thought in a collapsible section.
 
 ## Loader
 

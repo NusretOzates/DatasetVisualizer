@@ -26,4 +26,6 @@ Non-obvious notes:
 - **First dataset load downloads from Hugging Face** and can be slow; results are cached under
   `data/cache/<loader_key>/` (gitignored) and reused via `@loader_cache`. For a fast smoke test,
   use the small `arxivmath_0526` dataset (40 rows) via the app or `uv run python scripts/inspect_dataset.py arxivmath_0526`.
+- **Overview tab** — metric cards, optional tables, Hub README (`DatasetReadme.tsx` + `dataset_readme.py`).
+- **Sample Inspector** — index navigation only (no jump-to-ID field).
 - **Most catalog entries use `loader: hf_benchmark`** — YAML-only registration with auto-generated descriptors; see `docs/how-to/add-hf-benchmark.md`.

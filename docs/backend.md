@@ -59,7 +59,7 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 | API name | Parameters | Returns |
 |----------|------------|---------|
 | `get_catalog` | — | Categories, dataset list, home table rows |
-| `get_dataset_meta` | `dataset_id` | Description, archetype, `viewer`, controls, filters, `id_column` |
+| `get_dataset_meta` | `dataset_id` | Description, archetype, `viewer`, controls, filters, `id_column`, Hub `readme` |
 | `get_filter_options` | `dataset_id`, `params_json` | Column names and unique filter values after load |
 | `get_overview` | `dataset_id`, `params_json`, `filters_json` | Metrics and tables |
 | `get_sample` | `dataset_id`, `index`, `params_json`, `filters_json` | Row + extras at index |
@@ -68,7 +68,7 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 
 `params_json` and `filters_json` are JSON strings (or dicts) matching control/filter names from `get_dataset_meta`.
 
-Filter application and option discovery are schema-driven in `api/filters.py` and `api/service.py` — no per-dataset `if dataset_id == …` branches for standard filter types. `find_sample` uses the descriptor `id_column`, which the frontend exposes as a jump-to-ID control in the sample inspector.
+Filter application and option discovery are schema-driven in `api/filters.py` and `api/service.py` — no per-dataset `if dataset_id == …` branches for standard filter types. `find_sample` is available via the API for programmatic lookup by `id_column`; the Sample Inspector browses by index only.
 
 ## Caching
 

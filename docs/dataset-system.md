@@ -252,7 +252,7 @@ Serialize table rows with `api/serializers.serialize_rows()`.
 | Endpoint | Purpose |
 |----------|---------|
 | `get_catalog` | Navigation + home table rows |
-| `get_dataset_meta` | Description, archetype, `viewer`, controls, filter schema, `id_column` |
+| `get_dataset_meta` | Description, archetype, `viewer`, controls, filter schema, `id_column`, Hub `readme` |
 | `get_filter_options` | Column names and filter option values after load |
 | `get_overview` | Metrics and tables for filtered data |
 | `get_sample` | Row at index + extras |
@@ -266,7 +266,6 @@ The React frontend calls these via `@gradio/client` (`frontend/lib/api.ts`).
 ```python
 def overview_my_benchmark(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     return {
-        "metrics": [{"label": "Total rows", "value": f"{len(df):,}"}],
         "metrics": [
             {"label": "Total rows", "value": f"{len(df):,}"},
             {"label": "Subjects", "value": str(df["subject"].nunique())},

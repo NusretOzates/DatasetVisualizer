@@ -18,7 +18,7 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | Types | `lib/types.ts` | Catalog, overview, control, and filter types |
 | Explorer | `components/DatasetExplorer.tsx` | Controls, top filters, tabs (via `lib/useDatasetQuery.ts`) |
 | Overview | `components/OverviewTab.tsx`, `DatasetReadme.tsx` | Metric cards, optional tables, README |
-| Samples | `components/SampleInspector.tsx` | Index slider, ID lookup, and viewers |
+| Samples | `components/SampleInspector.tsx` | Index slider, prev/next, and viewers |
 | Viewer registry | `components/viewers/registry.tsx` | Maps API `viewer` key → React component |
 | Rich text | `components/viewers/MarkdownMath.tsx` | Markdown + LaTeX rendering for benchmark statements |
 | Frontend linting | `eslint.config.mjs` | Next.js core web vitals + TypeScript rules |

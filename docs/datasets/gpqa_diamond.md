@@ -13,10 +13,10 @@
 | `answer_letter` | str | Correct option A–D |
 | `split` | str | Always `gpqa_diamond` |
 
-## Visualization rationale
+## UI notes
 
-- **Answer letter pie** — sanity check for option balance after shuffling.
-- **MCQ sample inspector** — reuses shared `mcq_viewer`.
+- **Overview** — question count and split.
+- **Sample inspector** — shared MCQ viewer.
 
 ## Loader
 

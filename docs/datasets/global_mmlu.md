@@ -20,11 +20,11 @@
 | `required_knowledge` | list[str] | Parsed annotation votes |
 | `culture`, `region`, `country` | list[str] | Parsed annotation lists |
 
-## Visualization rationale
+## UI notes
 
-- **Subject / category bar charts** — coverage across domains.
-- **CS vs CA pie** — cultural sensitivity distribution.
-- **Language sidebar** — load one of 42 configs at a time (defaults to `en` + `dev`).
+- **Overview** — row count, subject count, language, split.
+- **Controls** — language and split selects load one config at a time (defaults to `en` + `dev`).
+- **Sample inspector** — shared MCQ viewer.
 
 ## Loader
 

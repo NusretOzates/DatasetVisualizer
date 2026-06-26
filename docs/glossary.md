@@ -28,7 +28,7 @@ Domain terms used across the Dataset Visualizer codebase and docs. Read this onc
 |------|---------|
 | **`DatasetDescriptor`** | Per-dataset API contract: `loader`, `overview`, `viewer`, `id_column`, `controls`, `filters`, optional `sample_extras` and `cache_key`. |
 | **`DATASET_REGISTRY`** | Dict of config `id` → `DatasetDescriptor`, built from manual entries plus auto-registered `hf_benchmark` rows. |
-| **`id_column`** | DataFrame column used by `find_sample` and the sample-inspector ID jump control. |
+| **`id_column`** | DataFrame column used by `find_sample` (API only; the UI browses by index). |
 | **Controls** | Pre-load UI selects (split, language, locale, …) passed to `loader(params)` as a dict. |
 | **Filters** | Post-load schema-driven filters (multiselect, text, radio, date_range) applied in `api/filters.py`. |
 | **Extras** | Second dict returned by `loader` — joined data not in the main frame (e.g. ArXiv model outputs). |
@@ -41,7 +41,7 @@ Domain terms used across the Dataset Visualizer codebase and docs. Read this onc
 | **`viewer`** | API/frontend key selecting the React sample component (`mcq`, `code_eval`, `arc_grid`, …). YAML `viewer` can override archetype for special cases. |
 | **`profile`** | Normalization strategy for `hf_benchmark` rows (`arc`, `gsm`, `code_eval`, `generic`, …). Passed to `normalize_benchmark()` in `loaders/benchmark_normalize.py`. |
 | **Normalized columns** | Stable DataFrame column names after the loader (e.g. `question`, `choices`, `answer_letter` for MCQ). Contracts live in [dataset-system.md § Column contracts](dataset-system.md#column-contracts-python-helpers). |
-| **Overview** | JSON payload of metrics and tables for the Overview tab. Built per dataset or via `overview_generic()` for `hf_benchmark` entries. |
+| **Overview** | JSON payload of `metrics` and optional `tables` for the Overview tab. Built per dataset or via `overview_generic()` for `hf_benchmark` entries. The Hub README is fetched separately via `get_dataset_meta`. |
 
 ## Frontend and tooling
 

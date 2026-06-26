@@ -28,11 +28,10 @@ PRO adds: `requirements`, `interface`, `repo_language`, `issue_specificity`, `is
 
 Verified adds: `difficulty`.
 
-## Visualization rationale
+## UI notes
 
-- **Repository bar chart** — shows which projects dominate each split.
-- **Language / difficulty charts** — variant-specific coverage (PRO language, Verified difficulty).
-- **Issue inspector** — problem statement, hints, gold patch, and test lists in expandable sections.
+- **Overview** — issue count, repository count, median fail-to-pass count.
+- **Sample inspector** — problem statement, hints, gold patch, and test lists in collapsible sections.
 
 ## Loaders
 

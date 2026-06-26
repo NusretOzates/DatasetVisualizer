@@ -29,11 +29,10 @@
 | `has_image` | bool | True when `image` is non-empty |
 | `split` | str | Always `test` |
 
-## Visualization rationale
+## UI notes
 
-- **Category / subject bar charts** — show breadth of academic coverage.
-- **Answer type pie** — exact-match vs multiple-choice mix.
-- **Modality pie** — text-only vs multimodal questions.
+- **Overview** — question count, category count, subject count, split.
+- **Filters** — category, subject, answer type, modality.
 - **Sample inspector** — question text, optional image, answer reveal, rationale expander.
 
 ## Loader

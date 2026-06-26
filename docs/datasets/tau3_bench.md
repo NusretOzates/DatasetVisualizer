@@ -41,8 +41,7 @@ Other splits (`train`, `test`) are available for airline, retail, and telecom vi
 
 Downloaded JSON is cached under `data/cache/tau3_bench/`.
 
-## Visualization rationale
+## UI notes
 
-- **Domain distribution** — shows benchmark composition across customer-service domains.
-- **Task table** — quick scan of all tasks with previews.
-- **Sample inspector** — purpose, user scenario, and expandable evaluation criteria / ticket / initial state.
+- **Overview** — task count, domain count, split; full task table with purpose previews.
+- **Sample inspector** — purpose, user scenario, evaluation criteria, ticket, and initial state expanders.

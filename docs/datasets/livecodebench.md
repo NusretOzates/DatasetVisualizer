@@ -46,13 +46,10 @@ ds = load_dataset("json", data_files=path, split="train")
 
 Do **not** use `load_dataset("livecodebench/code_generation_lite", ...)` — the dataset script is incompatible with `datasets>=5`.
 
-## Visualization rationale
+## UI notes
 
-- **Difficulty × platform stacked bar:** Shows benchmark composition across sources and hardness levels.
-- **Contest date timeline:** Highlights the temporal evaluation window (contamination control).
-- **Public test table:** Core inspectability — inputs, outputs, and harness type per case.
-- **Private test cases:** Decoded on sample view and shown below public tests (first 10 of large sets).
-- **Functional metadata:** Surfaces `func_name` when tests are not stdin-based.
+- **Overview** — problem count, platform count, median public test count.
+- **Sample inspector** — public test table, decoded private tests (first 10), functional-test metadata.
 
 ## Cache
 

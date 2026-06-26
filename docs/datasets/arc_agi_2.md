@@ -12,10 +12,10 @@
 | `puzzle_json` | `string` | JSON-serialized ARC puzzle with train/test input-output grids |
 | `split` | `string` | Dataset split |
 
-## Visualization rationale
+## UI notes
 
-- **Grid viewer** — renders train/test input-output matrices with ARC color IDs instead of showing raw JSON.
-- **Raw JSON fallback** — remains available under the sample inspector for exact schema inspection.
+- **Overview** — row count, split, group count (via generic overview).
+- **Sample inspector** — ARC color grids for train/test pairs; raw JSON fallback.
 
 ## Touchpoints
 

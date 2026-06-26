@@ -1,119 +1,84 @@
 # Dataset Visualizer Docs
 
-Internal developer documentation for the Dataset Visualizer project.
+Internal developer documentation.
 
 ## Before exploring code
 
-Read [architecture/code-map.md](architecture/code-map.md) first to locate relevant files.  
-Prefer [how-to/](how-to/) recipes over full-codebase search for common tasks.
+1. [architecture/code-map.md](architecture/code-map.md) — capability → file lookup
+2. [how-to/](how-to/) — recipes for common tasks
+3. [dataset-system.md](dataset-system.md) — contracts and touchpoints
 
 ## Start here
 
-- **Changing how a visualizer feature works?** → [Architecture overview](architecture/overview.md) → [Code map](architecture/code-map.md) → [Frontend](frontend.md) or [Backend](backend.md)
-- **Adding or modifying a dataset?** → [How to add a dataset](how-to/add-dataset.md) (YAML-only benchmarks: [add-hf-benchmark.md](how-to/add-hf-benchmark.md))
-- **[Dataset system reference](dataset-system.md)** — architecture, touchpoint checklist, loader/API contracts, archetype table, templates, pitfalls
-- **[Glossary](glossary.md)** — domain terms (`id`, `profile`, `viewer`, `hf_benchmark`, …)
-- [Backend (Gradio Server)](backend.md) — API endpoints, caching, static frontend mount
-- [Frontend (Next.js)](frontend.md) — React app structure, dev workflow, viewers
-
-Legacy link: [adding-a-dataset.md](adding-a-dataset.md) redirects to the how-to playbooks.
+| Goal | Read |
+|------|------|
+| Change overview, filters, or a viewer | [architecture/overview.md](architecture/overview.md) → [code-map.md](architecture/code-map.md) → [frontend.md](frontend.md) or [backend.md](backend.md) |
+| Add a YAML-only Hub benchmark | [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) |
+| Add a custom loader | [how-to/add-dataset.md](how-to/add-dataset.md) |
+| Understand terms (`profile`, `viewer`, …) | [glossary.md](glossary.md) |
+| User setup and commands | [../README.md](../README.md) |
 
 ## Datasets
 
-The catalog has **51 datasets** (13 manual loaders + 38 `hf_benchmark` auto-registered entries) across 10 categories in [`config/datasets.yaml`](../config/datasets.yaml).
+**51 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 13 manual loaders + 38 `hf_benchmark` entries across eight categories.
 
-Per-dataset schema and visualization notes (hand-written loaders and special cases):
+Per-dataset notes (manual loaders and special cases):
 
-- [MMLU](datasets/mmlu.md)
-- [MMLU-Pro](datasets/mmlu_pro.md)
-- [GPQA Diamond](datasets/gpqa_diamond.md)
-- [Global-MMLU](datasets/global_mmlu.md)
-- [MMMLU](datasets/mmmlu.md)
-- [AIME 2026](datasets/aime_2026.md)
-- [Humanity's Last Exam](datasets/hle.md)
-- [LiveCodeBench v6](datasets/livecodebench.md)
-- [SWE-Bench](datasets/swe_bench.md)
-- [τ³-Bench](datasets/tau3_bench.md)
-- [ArXiv Math 0526](datasets/arxivmath.md)
-- [ARC-AGI 2](datasets/arc_agi_2.md)
+| Dataset | Doc |
+|---------|-----|
+| MMLU | [datasets/mmlu.md](datasets/mmlu.md) |
+| MMLU-Pro | [datasets/mmlu_pro.md](datasets/mmlu_pro.md) |
+| GPQA Diamond | [datasets/gpqa_diamond.md](datasets/gpqa_diamond.md) |
+| Global-MMLU | [datasets/global_mmlu.md](datasets/global_mmlu.md) |
+| MMMLU | [datasets/mmmlu.md](datasets/mmmlu.md) |
+| AIME 2026 | [datasets/aime_2026.md](datasets/aime_2026.md) |
+| Humanity's Last Exam | [datasets/hle.md](datasets/hle.md) |
+| LiveCodeBench v6 | [datasets/livecodebench.md](datasets/livecodebench.md) |
+| SWE-Bench | [datasets/swe_bench.md](datasets/swe_bench.md) |
+| τ³-Bench | [datasets/tau3_bench.md](datasets/tau3_bench.md) |
+| ArXiv Math 0526 | [datasets/arxivmath.md](datasets/arxivmath.md) |
+| ARC-AGI 2 | [datasets/arc_agi_2.md](datasets/arc_agi_2.md) |
 
-`hf_benchmark` entries do not need individual docs unless schema or visualization is non-obvious — use the inspect CLI and [add-hf-benchmark.md](how-to/add-hf-benchmark.md).
+`hf_benchmark` entries usually need no per-dataset doc — use the inspect CLI and [add-hf-benchmark.md](how-to/add-hf-benchmark.md).
 
-## Architecture (summary)
+## Architecture
 
 ```
-config/datasets.yaml  →  config.py (Pydantic)
-                      →  api/dataset_registry.py (DATASET_REGISTRY)
-                      →  loaders/<module>.py or loaders/hf_benchmark.py (@loader_cache)
-                      →  loaders/benchmark_normalize.py (profile normalizers)
-                      →  api/service.py (orchestration)
-                      →  api/filters.py, api/overview.py, api/generic_overview.py
-                      →  server.py (gradio.Server API)
-                      →  frontend/ (Next.js + @gradio/client)
+config/datasets.yaml → config.py → dataset_registry.py → loaders/
+    → api/service.py → server.py (@app.api) → frontend/ (@gradio/client)
 ```
 
-Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset-system.md). Public capability entry points: [architecture/code-map.md](architecture/code-map.md).
+Details: [architecture/overview.md](architecture/overview.md), [dataset-system.md](dataset-system.md), [architecture/code-map.md](architecture/code-map.md).
 
-## Shared modules
+## Key modules
 
-| Module | Purpose |
-|--------|---------|
-| `server.py` | `gradio.Server` entry point, CORS, `@app.api` routes, static frontend mount |
-| `api/dataset_registry.py` | Single registration point: `DatasetDescriptor` per config `id` |
-| `api/service.py` | Catalog, meta, filter options, overview, and sample handlers |
-| `api/filters.py` | Schema-driven `apply_filters()` and `build_filter_options()` |
-| `api/overview.py` | Per-dataset overview builders (manual loaders) |
-| `api/generic_overview.py` | Reusable overview for `hf_benchmark` entries |
-| `api/serializers.py` | DataFrame/row JSON serialization |
-| `loaders/hf_benchmark.py` | Config-driven Hub download + normalization |
-| `loaders/benchmark_normalize.py` | Profile-specific column normalization |
-| `loaders/cache.py` | `@loader_cache` in-process memoization |
-| `utils/mcq.py` | MCQ helper functions (letter resolution, option formatting) |
+| Module | Role |
+|--------|------|
+| `server.py` | Gradio Server, CORS, API routes, static frontend mount |
+| `api/dataset_registry.py` | `DatasetDescriptor` per config `id` |
+| `api/service.py` | Catalog, meta, filters, overview, samples |
+| `api/overview.py` / `generic_overview.py` | Overview metrics and tables |
+| `api/filters.py` | Schema-driven filtering |
+| `dataset_readme.py` | Fetch Hub README for Overview tab |
+| `loaders/hf_benchmark.py` | Config-driven Hub loader |
+| `loaders/benchmark_normalize.py` | Profile normalizers |
 
-Column contracts per archetype: [dataset-system.md § Column contracts](dataset-system.md#column-contracts-python-helpers).
+## Run and test
 
-## Inspect CLI
+See [README.md](../README.md) for setup. Quick dev:
 
 ```bash
+uv run dataset-viz
+cd frontend && NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
+```
+
+```bash
+uv run pytest
 uv run python scripts/inspect_dataset.py <dataset_id>
 ```
 
-`<dataset_id>` is the config `id` (e.g. `mmlu`, `humaneval`, `arc_agi_2`). The CLI calls `get_descriptor(id).loader({})` — loaders must define safe defaults for an empty params dict. Cache path uses `descriptor.cache_key` or config `loader`. See [dataset-system.md § Loader contract](dataset-system.md#loader-contract).
-
-## Run
-
-### Development (hot-reload frontend)
-
-Backend (Gradio API on port 7860):
-
-```bash
-uv run dataset-viz
-```
-
-Frontend (Next.js on port 3000):
-
-```bash
-cd frontend && npm install
-NEXT_PUBLIC_API_URL=http://localhost:7860 npm run dev
-```
-
-### Production (single server)
-
-Start the backend first so `npm run build` can fetch the catalog for static routes:
-
-```bash
-uv run dataset-viz
-```
-
-In another terminal:
-
-```bash
-cd frontend && npm install
-NEXT_PUBLIC_API_URL=http://localhost:7860 npm run build && cd ..
-```
-
-Then restart or keep the backend running and open http://localhost:7860 — the Gradio server serves the built React app and API on the same origin.
-
 ## Documentation policy
 
-**Always update docs when you change setup, architecture, or developer workflows.** At minimum touch `docs/index.md`, the relevant topic file (`backend.md`, `frontend.md`, `dataset-system.md`, `how-to/`), and `README.md` when user-facing behavior changes.
+Update `docs/`, affected how-to files, and `README.md` when you change architecture, setup, or user-visible behavior.
+
+Legacy redirect: [adding-a-dataset.md](adding-a-dataset.md) → how-to playbooks.

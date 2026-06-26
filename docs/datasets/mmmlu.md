@@ -24,11 +24,11 @@ Professional human translations of the MMLU test set into 14 locales:
 
 The combined `default` config (~197k rows, all locales) is excluded from the app; load one locale at a time.
 
-## Visualization rationale
+## UI notes
 
-- **Subject bar chart** — same 57 subjects as MMLU; shows per-locale coverage.
-- **Answer letter pie** — quick sanity check on label distribution.
-- **Locale sidebar** — load one of 14 configs at a time (defaults to `DE_DE`).
+- **Overview** — row count, subject count, locale, split.
+- **Controls** — locale select loads one of 14 configs at a time (defaults to `DE_DE`).
+- **Sample inspector** — shared MCQ viewer.
 
 ## Loader
 

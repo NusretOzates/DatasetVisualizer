@@ -15,11 +15,10 @@
 | `subject` | str | Academic subject |
 | `split` | str | Loaded split name |
 
-## Visualization rationale
+## UI notes
 
-- **Subject bar chart** — MMLU spans 57 subjects; distribution shows coverage.
-- **Answer letter pie** — Sanity check for class balance.
-- **MCQ sample inspector** — Uniform 4-option format suits shared `mcq_viewer`.
+- **Overview** — row count, subject count, active split.
+- **Sample inspector** — shared MCQ viewer with highlighted correct answer.
 
 ## Loader
 

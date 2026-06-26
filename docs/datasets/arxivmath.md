@@ -50,10 +50,7 @@ Problems store `problem_idx` as `int64`; outputs store it as `string`. Both load
 - Problems: `data/cache/arxivmath/`
 - Model outputs: `data/cache/arxivmath_outputs/`
 
-## Visualization rationale
+## UI notes
 
-- **Overview table** — only 40 problems; a full listing with title, arXiv id, and author count is the fastest way to orient.
-- **Model accuracy bar chart** — aggregates `correct` by `model_name` from outputs to compare models at a glance.
-- **Token scatter** — `input_tokens` vs `output_tokens` colored by `correct` surfaces cost/length patterns vs success.
-- **Sample inspector** — two-column layout: problem + revealable gold answer on the left; paper metadata and per-problem model runs on the right.
-- **Model runs sub-panel** — filter by `model_name`, tabular summary, parsed vs gold diff, expanders for full response and user prompt.
+- **Overview** — problem count, model-run count, model count; full problem table.
+- **Sample inspector** — two-column layout: LaTeX problem + gold answer; paper metadata; per-problem model-run table with parsed vs gold diff.
