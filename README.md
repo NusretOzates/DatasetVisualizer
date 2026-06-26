@@ -2,38 +2,6 @@
 
 Interactive explorer for Hugging Face benchmark datasets. The app uses a **Gradio Server** backend ([`gradio.Server`](https://huggingface.co/blog/introducing-gradio-server)) and a **Next.js** React frontend with benchmark-aware overviews, filters, Markdown/LaTeX rendering, and per-sample inspection.
 
-## Screenshots
-
-**Home** — browse 51 registered benchmarks by category, archetype, and row count.
-
-![Dataset catalog home page](docs/images/homepage.jpg)
-
-**Overview** — summary metric cards and the dataset README ([MMLU](https://huggingface.co/datasets/cais/mmlu), dev split).
-
-![MMLU overview with metrics and README](docs/images/mmlu_homepage.jpg)
-
-**Filters** — schema-driven multiselect and radio filters ([Humanity's Last Exam](https://huggingface.co/datasets/cais/hle)).
-
-![HLE category, subject, and modality filters](docs/images/hle_filter_card.jpg)
-
-**Sample Inspector** — per-dataset viewers with Markdown/LaTeX rendering, highlighted answers, and raw JSON.
-
-MCQ ([MMLU](https://huggingface.co/datasets/cais/mmlu)):
-
-![MMLU sample with highlighted correct answer](docs/images/mmlu_sample.jpg)
-
-Multimodal academic QA ([HLE](https://huggingface.co/datasets/cais/hle)):
-
-![HLE multimodal sample with chess board and exact answer](docs/images/hle_sample.jpg)
-
-Math competition + model runs ([ArXiv Math 0526](https://huggingface.co/datasets/ArtificialAnalysis/arxivmath_0526)):
-
-![ArXiv Math sample with LaTeX gold answer and model run table](docs/images/arxivmath_sample.jpg)
-
-Issue resolution ([SWE-Bench PRO](https://huggingface.co/datasets/ScaleAI/SWE-bench_Pro)):
-
-![SWE-Bench PRO sample with problem statement and patch sections](docs/images/swe_bench_pro_sample.jpg)
-
 ## Setup
 
 ```bash
@@ -153,3 +121,35 @@ cd frontend && npm run typecheck
 ```
 
 See [`docs/index.md`](docs/index.md) for architecture, glossary, and per-dataset notes.
+
+## Screenshots
+
+**Home** — browse 51 registered benchmarks by category, archetype, and row count.
+
+![Dataset catalog home page](docs/images/homepage.jpg)
+
+**Overview** — summary metric cards and the dataset README ([MMLU](https://huggingface.co/datasets/cais/mmlu), dev split).
+
+![MMLU overview with metrics and README](docs/images/mmlu_homepage.jpg)
+
+**Filters** — schema-driven multiselect and radio filters ([Humanity's Last Exam](https://huggingface.co/datasets/cais/hle)).
+
+![HLE category, subject, and modality filters](docs/images/hle_filter_card.jpg)
+
+**Sample Inspector** — per-dataset viewers with Markdown/LaTeX rendering, highlighted answers, and raw JSON.
+
+MCQ ([MMLU](https://huggingface.co/datasets/cais/mmlu)):
+
+![MMLU sample with highlighted correct answer](docs/images/mmlu_sample.jpg)
+
+Multimodal academic QA ([HLE](https://huggingface.co/datasets/cais/hle)):
+
+![HLE multimodal sample with chess board and exact answer](docs/images/hle_sample.jpg)
+
+Math competition + model runs ([ArXiv Math 0526](https://huggingface.co/datasets/ArtificialAnalysis/arxivmath_0526)):
+
+![ArXiv Math sample with LaTeX gold answer and model run table](docs/images/arxivmath_sample.jpg)
+
+Issue resolution ([SWE-Bench PRO](https://huggingface.co/datasets/ScaleAI/SWE-bench_Pro)):
+
+![SWE-Bench PRO sample with problem statement and patch sections](docs/images/swe_bench_pro_sample.jpg)
