@@ -49,6 +49,48 @@ function isGrid(value: unknown): value is ArcGrid {
   );
 }
 
+function parseGrid(value: unknown): ArcGrid | null {
+  if (isGrid(value)) return value;
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  for (const candidate of [trimmed, `[${trimmed}]`]) {
+    try {
+      const parsed: unknown = JSON.parse(candidate);
+      if (isGrid(parsed)) return parsed;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+function parsePair(pair: ArcPair | Record<string, unknown>): ArcPair {
+  return {
+    input: parseGrid(pair.input) ?? undefined,
+    output: parseGrid(pair.output) ?? undefined,
+  };
+}
+
+function parseFewshots(value: unknown): ArcPair[] {
+  if (value == null) return [];
+  let parsed: unknown = value;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => parsePair(item))
+    .filter((pair) => pair.input || pair.output);
+}
+
 function GridView({ grid, title }: { grid: ArcGrid; title: string }) {
   const width = Math.max(...grid.map((row) => row.length));
   return (
@@ -77,14 +119,15 @@ function GridView({ grid, title }: { grid: ArcGrid; title: string }) {
 }
 
 function PairView({ pair, title }: { pair: ArcPair; title: string }) {
+  const normalized = parsePair(pair);
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2">
-        {isGrid(pair.input) ? <GridView grid={pair.input} title="Input" /> : null}
-        {isGrid(pair.output) ? <GridView grid={pair.output} title="Output" /> : null}
+        {isGrid(normalized.input) ? <GridView grid={normalized.input} title="Input" /> : null}
+        {isGrid(normalized.output) ? <GridView grid={normalized.output} title="Output" /> : null}
       </CardContent>
     </Card>
   );
@@ -92,16 +135,25 @@ function PairView({ pair, title }: { pair: ArcPair; title: string }) {
 
 export function ArcGridViewer({ row }: { row: Record<string, unknown> }) {
   const puzzle = parsePuzzle(row);
-  const topLevelPairs = Array.isArray(puzzle) ? puzzle : [];
-  const trainPairs = !Array.isArray(puzzle) && Array.isArray(puzzle?.train) ? puzzle.train : [];
-  const testPairs = !Array.isArray(puzzle) && Array.isArray(puzzle?.test) ? puzzle.test : [];
+  const fewshotPairs = parseFewshots(row.fewshots);
+  const topLevelPairs = Array.isArray(puzzle) ? puzzle.map((pair) => parsePair(pair)) : [];
+  const trainPairs =
+    !Array.isArray(puzzle) && Array.isArray(puzzle?.train)
+      ? puzzle.train.map((pair) => parsePair(pair))
+      : [];
+  const testPairs =
+    !Array.isArray(puzzle) && Array.isArray(puzzle?.test)
+      ? puzzle.test.map((pair) => parsePair(pair))
+      : [];
   const inlinePair =
     !Array.isArray(puzzle) && (puzzle?.input || puzzle?.output)
-      ? [{ input: puzzle.input, output: puzzle.output }]
+      ? [parsePair({ input: puzzle.input, output: puzzle.output })]
       : [];
-  const pairs = [...trainPairs, ...inlinePair];
+  const puzzlePairs = [...trainPairs, ...inlinePair, ...topLevelPairs, ...testPairs].filter(
+    (pair) => pair.input || pair.output,
+  );
 
-  if (!puzzle) {
+  if (!puzzle && !fewshotPairs.length) {
     return <pre className="code-block">{String(row.puzzle_json ?? row.question ?? "")}</pre>;
   }
 
@@ -110,17 +162,17 @@ export function ArcGridViewer({ row }: { row: Record<string, unknown> }) {
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline">ID: {String(row.sample_id ?? row.id ?? "—")}</Badge>
         <Badge variant="secondary">
-          {(trainPairs.length + topLevelPairs.length).toLocaleString()} train ·{" "}
-          {testPairs.length.toLocaleString()} test
+          {fewshotPairs.length.toLocaleString()} few-shot · {puzzlePairs.length.toLocaleString()}{" "}
+          puzzle
         </Badge>
       </div>
 
-      {[...pairs, ...topLevelPairs].map((pair, index) => (
-        <PairView key={index} pair={pair} title={`Grid pair ${index + 1}`} />
+      {fewshotPairs.map((pair, index) => (
+        <PairView key={`fewshot-${index}`} pair={pair} title={`Few-shot example ${index + 1}`} />
       ))}
 
-      {testPairs.map((pair, index) => (
-        <PairView key={index} pair={pair} title={`Test pair ${index + 1}`} />
+      {puzzlePairs.map((pair, index) => (
+        <PairView key={`puzzle-${index}`} pair={pair} title={`Test puzzle ${index + 1}`} />
       ))}
     </div>
   );

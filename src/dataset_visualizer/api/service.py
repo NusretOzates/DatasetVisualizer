@@ -11,12 +11,8 @@ import pandas as pd
 from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor
 from dataset_visualizer.api.filters import apply_filters, build_filter_options
 from dataset_visualizer.api.serializers import serialize_row, serialize_value
-from dataset_visualizer.config import (
-    DatasetEntry,
-    get_column_glossary_for_dataset,
-    get_dataset_by_id,
-    load_config,
-)
+from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
+from dataset_visualizer.dataset_readme import get_dataset_readme
 from dataset_visualizer.loaders.livecodebench import decode_private_test_cases
 from dataset_visualizer.row_count import row_count
 from dataset_visualizer.source_links import resolve_source_link, source_link_payload
@@ -28,6 +24,22 @@ class DatasetContext:
 
     df: pd.DataFrame
     extras: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class FilteredContext:
+    """Filtered dataframe plus loader extras for repeated sample navigation."""
+
+    filtered: pd.DataFrame
+    extras: dict[str, Any] = field(default_factory=dict)
+
+
+_filtered_context_cache: dict[tuple[str, str, str], FilteredContext] = {}
+
+
+def clear_filtered_context_cache() -> None:
+    """Clear the filtered-context cache (used in tests)."""
+    _filtered_context_cache.clear()
 
 
 def _hf_source(entry: DatasetEntry) -> str:
@@ -91,7 +103,7 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
         "source_link": source_link_payload(entry),
         "controls": descriptor.controls(),
         "filters": descriptor.filters,
-        "column_glossary": get_column_glossary_for_dataset(dataset_id),
+        "readme": get_dataset_readme(dataset_id),
     }
 
 
@@ -109,11 +121,10 @@ def get_overview(
     params: dict[str, Any] | None = None,
     filters: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Return overview metrics, tables, and chart payloads."""
+    """Return overview metrics and tables."""
     descriptor = get_descriptor(dataset_id)
-    context = _load_context(dataset_id, params or {})
-    filtered = apply_filters(context.df, descriptor.filters, filters or {})
-    return descriptor.overview(filtered, context.extras)
+    context = _get_filtered_context(dataset_id, params or {}, filters or {})
+    return descriptor.overview(context.filtered, context.extras)
 
 
 def get_sample(
@@ -124,8 +135,8 @@ def get_sample(
 ) -> dict[str, Any]:
     """Return a single sample row and any dataset-specific extras."""
     descriptor = get_descriptor(dataset_id)
-    context = _load_context(dataset_id, params or {})
-    filtered = apply_filters(context.df, descriptor.filters, filters or {})
+    context = _get_filtered_context(dataset_id, params or {}, filters or {})
+    filtered = context.filtered
     if filtered.empty:
         return {"total": 0, "index": 0, "row": None, "extras": {}}
     bounded_index = max(0, min(index, len(filtered) - 1))
@@ -146,8 +157,8 @@ def find_sample(
 ) -> dict[str, Any]:
     """Find a sample by its id column value."""
     descriptor = get_descriptor(dataset_id)
-    context = _load_context(dataset_id, params or {})
-    filtered = apply_filters(context.df, descriptor.filters, filters or {})
+    context = _get_filtered_context(dataset_id, params or {}, filters or {})
+    filtered = context.filtered
     id_column = descriptor.id_column
     if id_column not in filtered.columns:
         return {"total": len(filtered), "index": -1, "row": None, "extras": {}}
@@ -190,6 +201,37 @@ def _load_context(dataset_id: str, params: dict[str, Any]) -> DatasetContext:
         msg = _loader_error_message(dataset_id, exc)
         raise ValueError(msg) from exc
     return DatasetContext(df=df, extras=extras)
+
+
+def _filtered_context_key(
+    dataset_id: str,
+    params: dict[str, Any],
+    filters: dict[str, Any],
+) -> tuple[str, str, str]:
+    return (
+        dataset_id,
+        json.dumps(params, sort_keys=True, default=str),
+        json.dumps(filters, sort_keys=True, default=str),
+    )
+
+
+def _get_filtered_context(
+    dataset_id: str,
+    params: dict[str, Any],
+    filters: dict[str, Any],
+) -> FilteredContext:
+    """Return a cached filtered dataframe for fast sample navigation."""
+    key = _filtered_context_key(dataset_id, params, filters)
+    cached = _filtered_context_cache.get(key)
+    if cached is not None:
+        return cached
+
+    context = _load_context(dataset_id, params)
+    descriptor = get_descriptor(dataset_id)
+    filtered = apply_filters(context.df, descriptor.filters, filters)
+    result = FilteredContext(filtered=filtered, extras=context.extras)
+    _filtered_context_cache[key] = result
+    return result
 
 
 def _loader_error_message(dataset_id: str, exc: Exception) -> str:

@@ -20,21 +20,33 @@ def test_overview_generic_uses_benchmark_columns() -> None:
     )
 
     overview = overview_generic(df, {})
-    titles = {chart["title"] for chart in overview["charts"]}
 
-    assert overview["metrics"][:3] == [
+    assert overview["metrics"] == [
         {"label": "Total rows", "value": "3"},
         {"label": "Split", "value": "test"},
         {"label": "Groups", "value": "2"},
     ]
-    assert "Rows per subject" in titles
-    assert "Rows per difficulty" in titles
-    assert "Answer letter distribution" in titles
-    assert "Choice count distribution" in titles
-    assert "Question length" in titles
+    assert overview["tables"] == []
 
 
-def test_overview_generic_adds_date_timeline() -> None:
+def test_overview_generic_without_grouping_column() -> None:
+    df = pd.DataFrame(
+        {
+            "choices": [["1", "2"], ["3", "4"], ["5", "6"]],
+            "question": ["Q1?", "Q2?", "Q3?"],
+            "split": ["test", "test", "test"],
+        }
+    )
+
+    overview = overview_generic(df, {"dataset_id": "winogrande"})
+
+    assert overview["metrics"] == [
+        {"label": "Total rows", "value": "3"},
+        {"label": "Split", "value": "test"},
+    ]
+
+
+def test_overview_generic_uses_first_multi_value_category_column() -> None:
     df = pd.DataFrame(
         {
             "event_type": ["market", "news"],
@@ -45,19 +57,4 @@ def test_overview_generic_adds_date_timeline() -> None:
 
     overview = overview_generic(df, {})
 
-    assert any(chart["type"] == "timeline" for chart in overview["charts"])
-
-
-def test_overview_generic_skips_answer_pie_for_high_cardinality() -> None:
-    df = pd.DataFrame(
-        {
-            "subject": ["logic"] * 20,
-            "answer_letter": [f"ANSWER_{index}" for index in range(20)],
-            "split": ["test"] * 20,
-        }
-    )
-
-    overview = overview_generic(df, {})
-    titles = {chart["title"] for chart in overview["charts"]}
-
-    assert "Answer letter distribution" not in titles
+    assert overview["metrics"][-1] == {"label": "Groups", "value": "2"}

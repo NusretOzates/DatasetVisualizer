@@ -10,6 +10,7 @@ import pytest
 from dataset_visualizer.api.filters import apply_filters
 from dataset_visualizer.api.service import (
     DatasetContext,
+    clear_filtered_context_cache,
     decode_private_tests_api,
     find_sample,
     get_catalog,
@@ -19,6 +20,13 @@ from dataset_visualizer.api.service import (
     get_sample,
     parse_json_param,
 )
+
+
+@pytest.fixture(autouse=True)
+def _clear_filtered_context_cache() -> None:
+    clear_filtered_context_cache()
+    yield
+    clear_filtered_context_cache()
 
 
 def test_get_catalog_includes_registered_datasets() -> None:
@@ -100,7 +108,7 @@ def test_get_overview_mmlu_shape(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     overview = get_overview("mmlu", {}, {})
     assert len(overview["metrics"]) == 3
-    assert len(overview["charts"]) == 2
+    assert overview["tables"] == []
 
 
 def test_get_filter_options_multiselect_and_radio(monkeypatch: pytest.MonkeyPatch) -> None:

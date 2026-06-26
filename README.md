@@ -6,15 +6,33 @@ Interactive explorer for Hugging Face benchmark datasets. The app uses a **Gradi
 
 **Home** — browse 51 registered benchmarks by category, archetype, and row count.
 
-![Dataset catalog home page](docs/images/home.png)
+![Dataset catalog home page](docs/images/homepage.jpg)
 
-**Overview** — per-dataset charts and summary stats (example: [ArXiv Math 0526](https://huggingface.co/datasets/ArtificialAnalysis/arxivmath_0526)).
+**Overview** — summary metric cards and the dataset README ([MMLU](https://huggingface.co/datasets/cais/mmlu), dev split).
 
-![Dataset overview with charts](docs/images/dataset-overview.png)
+![MMLU overview with metrics and README](docs/images/mmlu_homepage.jpg)
 
-**Sample Inspector** — navigate samples with Markdown/LaTeX rendering and metadata.
+**Filters** — schema-driven multiselect and radio filters ([Humanity's Last Exam](https://huggingface.co/datasets/cais/hle)).
 
-![Sample inspector with math problem](docs/images/sample-inspector.png)
+![HLE category, subject, and modality filters](docs/images/hle_filter_card.jpg)
+
+**Sample Inspector** — per-dataset viewers with Markdown/LaTeX rendering, highlighted answers, and raw JSON.
+
+MCQ ([MMLU](https://huggingface.co/datasets/cais/mmlu)):
+
+![MMLU sample with highlighted correct answer](docs/images/mmlu_sample.jpg)
+
+Multimodal academic QA ([HLE](https://huggingface.co/datasets/cais/hle)):
+
+![HLE multimodal sample with chess board and exact answer](docs/images/hle_sample.jpg)
+
+Math competition + model runs ([ArXiv Math 0526](https://huggingface.co/datasets/ArtificialAnalysis/arxivmath_0526)):
+
+![ArXiv Math sample with LaTeX gold answer and model run table](docs/images/arxivmath_sample.jpg)
+
+Issue resolution ([SWE-Bench PRO](https://huggingface.co/datasets/ScaleAI/SWE-bench_Pro)):
+
+![SWE-Bench PRO sample with problem statement and patch sections](docs/images/swe_bench_pro_sample.jpg)
 
 ## Setup
 
@@ -79,7 +97,7 @@ The backend serves `frontend/out/` at `/` when the build exists.
 
 ## Datasets
 
-The catalog in [`config/datasets.yaml`](config/datasets.yaml) currently lists **51 benchmarks** across reasoning, knowledge, code, long-context, instruction-following, tool-calling, assistant-tasks, games, forecasting, and math.
+The catalog in [`config/datasets.yaml`](config/datasets.yaml) currently lists **51 benchmarks** across reasoning, code, long-context, instruction-following, tool-calling, assistant-tasks, games, forecasting, and math.
 
 - **13 manual loaders** — tailored normalization and overviews (MMLU, SWE-bench, LiveCodeBench, …).
 - **38 `hf_benchmark` entries** — YAML-only registration; shared loader, profile-based normalization, and generic overviews.

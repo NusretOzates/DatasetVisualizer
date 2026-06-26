@@ -1,6 +1,6 @@
 # Architecture overview
 
-The Dataset Visualizer is a Gradio Server API plus a static-exportable Next.js frontend. Dataset metadata lives in YAML, Python loaders normalize benchmark rows, API services return chart/sample payloads, and React viewers render overviews plus per-sample inspection.
+The Dataset Visualizer is a Gradio Server API plus a static-exportable Next.js frontend. Dataset metadata lives in YAML, Python loaders normalize benchmark rows, API services return overview/sample payloads, and React viewers render summaries plus per-sample inspection.
 
 ## System boundaries
 
@@ -21,7 +21,7 @@ flowchart TD
   Select["User selects dataset / controls"] --> Meta["get_dataset_meta"]
   Meta --> Options["get_filter_options"]
   Options --> Overview["get_overview"]
-  Overview --> Charts["OverviewTab + ChartPanel"]
+  Overview --> Summary["OverviewTab metrics + README"]
   Options --> Sample["get_sample or find_sample"]
   Sample --> Viewer["viewer registry"]
   Viewer --> Raw["Raw JSON fallback"]
@@ -31,6 +31,6 @@ flowchart TD
 
 - **Manual loaders** (13 datasets) use tailored overview builders in `api/overview.py` and dedicated normalization in `loaders/<module>.py`.
 - **`hf_benchmark` entries** (38 datasets) auto-register from YAML, normalize via `loaders/benchmark_normalize.py` profiles, and share `overview_generic()` plus reusable filters.
-- Generic Hugging Face benchmarks use normalized columns to produce reusable charts: category bars, answer distribution, choice/test-count histograms, text-length histograms, and date timelines.
+- Generic Hugging Face benchmarks emit summary metrics (row count, split, group count) from normalized category columns.
 - Sample viewers are keyed by API `viewer`; the YAML `viewer` field can override the archetype when a benchmark needs a more specific presentation (`code_eval`, `arc_grid`, …).
 - Math and benchmark statements render Markdown/LaTeX via the shared frontend renderer.

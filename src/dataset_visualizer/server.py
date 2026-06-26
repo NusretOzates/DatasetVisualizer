@@ -64,7 +64,7 @@ def api_get_overview(
     params_json: str = "",
     filters_json: str = "",
 ) -> dict:
-    """Return overview metrics, charts, and tables."""
+    """Return overview metrics and tables."""
     return get_overview(
         dataset_id,
         parse_json_param(params_json),

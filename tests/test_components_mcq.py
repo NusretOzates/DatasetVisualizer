@@ -13,6 +13,11 @@ def test_resolve_correct_letter_from_answer_letter() -> None:
     assert resolve_correct_letter(row) == "C"
 
 
+def test_resolve_correct_letter_from_numeric_answer_letter_string() -> None:
+    row = pd.Series({"answer_letter": "1"})
+    assert resolve_correct_letter(row) == "B"
+
+
 def test_resolve_correct_letter_from_int_answer() -> None:
     row = pd.Series({"answer": 1})
     assert resolve_correct_letter(row) == "B"

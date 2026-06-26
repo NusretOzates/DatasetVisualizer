@@ -1,48 +1,5 @@
 export type Metric = { label: string; value: string };
 
-export type ChartSpec =
-  | {
-      type: "bar";
-      title: string;
-      x_label?: string;
-      y_label?: string;
-      categories: string[];
-      values: number[];
-    }
-  | {
-      type: "pie";
-      title: string;
-      labels: string[];
-      values: number[];
-    }
-  | {
-      type: "histogram";
-      title: string;
-      x_label?: string;
-      values: number[];
-    }
-  | {
-      type: "stacked_bar";
-      title: string;
-      x_label?: string;
-      y_label?: string;
-      categories: string[];
-      series: { name: string; values: number[] }[];
-    }
-  | {
-      type: "timeline";
-      title: string;
-      values: string[];
-    }
-  | {
-      type: "scatter";
-      title: string;
-      x_label?: string;
-      y_label?: string;
-      color_label?: string | null;
-      points: { x: number | string | null; y: number | string | null; color?: number | string | null }[];
-    };
-
 export type DataTable = {
   title: string;
   columns: string[];
@@ -51,7 +8,6 @@ export type DataTable = {
 
 export type OverviewPayload = {
   metrics: Metric[];
-  charts: ChartSpec[];
   tables: DataTable[];
 };
 
@@ -155,7 +111,7 @@ export type DatasetMeta = {
   source_link?: SourceLink | null;
   controls: SelectControlSpec[];
   filters: FilterControlSpec[];
-  column_glossary?: Record<string, string>;
+  readme?: string;
 };
 
 export type ArxivMathExtras = {

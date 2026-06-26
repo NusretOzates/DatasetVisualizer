@@ -38,7 +38,7 @@ categories:
 
 Optional fields: `source_file` (JSONL), `multi_config: true`, `exclude_configs`, `viewer` (override archetype).
 
-**Splits:** loaders auto-select the smallest published Hub split (`train` / `validation` / `test` / …) for inspection. The active split appears in the dataset overview and page header. YAML `split:` is informational only.
+**Splits:** set `split:` to the Hub split you want for inspection (for example `validation` when the `test` split omits labels). When omitted, loaders auto-select the smallest published split. The active split appears in the dataset overview and page header.
 
 ## 3. Verify auto-registration
 

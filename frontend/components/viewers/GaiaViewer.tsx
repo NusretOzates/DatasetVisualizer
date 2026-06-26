@@ -7,6 +7,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { SampleViewerProps } from "./types";
 
+type Gaia2Event = {
+  type?: string;
+  app?: string;
+  function?: string;
+  arg?: string;
+  value?: unknown;
+};
+
 function displayText(value: unknown): string {
   if (value == null) return "";
   if (typeof value === "string") return value;
@@ -25,6 +33,40 @@ function hasDisplayValue(value: unknown): boolean {
   return true;
 }
 
+function asStringList(value: unknown): string[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+  const text = String(value).trim();
+  if (!text) return [];
+  return text.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function asEventList(value: unknown): Gaia2Event[] {
+  if (value == null) return [];
+  let parsed: unknown = value;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      type: typeof item.type === "string" ? item.type : undefined,
+      app: typeof item.app === "string" ? item.app : undefined,
+      function: typeof item.function === "string" ? item.function : undefined,
+      arg: typeof item.arg === "string" ? item.arg : undefined,
+      value: item.value,
+    }));
+}
+
 function annotatorMetadataEntries(
   metadata: Record<string, unknown>,
 ): Array<[string, unknown]> {
@@ -39,11 +81,17 @@ export function GaiaViewer({ row }: SampleViewerProps) {
   const annotatorMetadata =
     (row.annotator_metadata as Record<string, unknown> | undefined) ??
     (row["Annotator Metadata"] as Record<string, unknown> | undefined);
-  const scenarioTags = Array.isArray(row.scenario_tags) ? row.scenario_tags : [];
-  const scenarioHints = Array.isArray(row.scenario_hints) ? row.scenario_hints : [];
-  const appNames = Array.isArray(row.app_names) ? row.app_names : [];
-  const eventsSummary = Array.isArray(row.events_summary) ? row.events_summary : [];
+  const scenarioTags = asStringList(row.scenario_tags);
+  const scenarioHints = asStringList(row.scenario_hints);
+  const appNames = asStringList(row.app_names);
+  const eventsSummary = asEventList(row.events_summary);
   const metadataEntries = annotatorMetadata ? annotatorMetadataEntries(annotatorMetadata) : [];
+  const eventCount =
+    typeof row.event_count === "number"
+      ? row.event_count
+      : Number.isFinite(Number(row.event_count))
+        ? Number(row.event_count)
+        : eventsSummary.length;
 
   return (
     <div className="space-y-4">
@@ -54,13 +102,11 @@ export function GaiaViewer({ row }: SampleViewerProps) {
         {row.scenario_id ? <Badge variant="secondary">{String(row.scenario_id)}</Badge> : null}
         {level ? <Badge variant="secondary">Level {String(level)}</Badge> : null}
         {scenarioTags.map((tag) => (
-          <Badge key={String(tag)} variant="outline">
-            {String(tag)}
+          <Badge key={tag} variant="outline">
+            {tag}
           </Badge>
         ))}
-        {typeof row.event_count === "number" ? (
-          <Badge variant="secondary">{row.event_count} events</Badge>
-        ) : null}
+        {eventCount > 0 ? <Badge variant="secondary">{eventCount} events</Badge> : null}
       </div>
 
       {question ? (
@@ -98,8 +144,8 @@ export function GaiaViewer({ row }: SampleViewerProps) {
           <h4 className="text-sm font-medium text-muted-foreground">Simulated apps</h4>
           <div className="mt-2 flex flex-wrap gap-2">
             {appNames.map((app) => (
-              <Badge key={String(app)} variant="outline">
-                {String(app)}
+              <Badge key={app} variant="outline">
+                {app}
               </Badge>
             ))}
           </div>
@@ -111,7 +157,7 @@ export function GaiaViewer({ row }: SampleViewerProps) {
           <h4 className="text-sm font-medium text-muted-foreground">Hints</h4>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">
             {scenarioHints.map((hint) => (
-              <li key={String(hint)}>{String(hint)}</li>
+              <li key={hint}>{hint}</li>
             ))}
           </ul>
         </div>
@@ -140,13 +186,39 @@ export function GaiaViewer({ row }: SampleViewerProps) {
       ) : null}
 
       {eventsSummary.length ? (
-        <Accordion type="single" collapsible>
+        <Accordion type="single" collapsible defaultValue="events-summary">
           <AccordionItem value="events-summary">
-            <AccordionTrigger>Expected agent actions</AccordionTrigger>
+            <AccordionTrigger className="text-sm">
+              Expected agent actions{" "}
+              <Badge variant="secondary" className="ml-2">
+                {eventsSummary.length}
+              </Badge>
+            </AccordionTrigger>
             <AccordionContent>
-              <pre className="code-block whitespace-pre-wrap">
-                {displayText(eventsSummary)}
-              </pre>
+              <ol className="space-y-3">
+                {eventsSummary.map((event, index) => (
+                  <li key={`${event.type}-${event.function}-${index}`} className="rounded-md border p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground tabular-nums">
+                        #{index + 1}
+                      </span>
+                      {event.type ? <Badge variant="outline">{event.type}</Badge> : null}
+                      {event.app ? <Badge variant="secondary">{event.app}</Badge> : null}
+                      {event.function ? (
+                        <code className="text-xs text-muted-foreground">{event.function}</code>
+                      ) : null}
+                    </div>
+                    {event.arg ? (
+                      <p className="mt-2 text-xs text-muted-foreground">arg: {event.arg}</p>
+                    ) : null}
+                    {event.value != null && String(event.value).trim() ? (
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+                        {displayText(event.value)}
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

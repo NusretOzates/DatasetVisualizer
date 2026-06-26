@@ -22,7 +22,6 @@ src/dataset_visualizer/
 │   ├── filters.py           # Schema-driven apply_filters() + build_filter_options()
 │   ├── overview.py          # Per-dataset overview builders (manual loaders)
 │   ├── generic_overview.py  # Reusable overview for hf_benchmark entries
-│   ├── chart_data.py        # Chart JSON builders
 │   └── serializers.py       # DataFrame/row → JSON
 ├── loaders/                 # HF download + normalization + @loader_cache
 │   ├── hf_benchmark.py      # Config-driven generic Hub loader
@@ -40,7 +39,7 @@ Each config `id` has one `DatasetDescriptor`:
 | `id_column` | Sample ID search column for `find_sample` |
 | `viewer` | Frontend viewer key (`mcq`, `code_problem`, …) |
 | `loader` | `Callable[[dict], tuple[DataFrame, dict]]` — params from UI controls |
-| `overview` | `Callable[[DataFrame, dict], dict]` — metrics/charts/tables |
+| `overview` | `Callable[[DataFrame, dict], dict]` — metrics/tables |
 | `controls` | Zero-arg callable returning pre-load select controls |
 | `filters` | Filter schema (multiselect, text, radio, date_range) |
 | `sample_extras` | Optional per-row extras (model runs, solutions, …) |
@@ -62,7 +61,7 @@ All endpoints are registered with `@app.api(name="…")` in `server.py` and call
 | `get_catalog` | — | Categories, dataset list, home table rows |
 | `get_dataset_meta` | `dataset_id` | Description, archetype, `viewer`, controls, filters, `id_column` |
 | `get_filter_options` | `dataset_id`, `params_json` | Column names and unique filter values after load |
-| `get_overview` | `dataset_id`, `params_json`, `filters_json` | Metrics, charts, tables |
+| `get_overview` | `dataset_id`, `params_json`, `filters_json` | Metrics and tables |
 | `get_sample` | `dataset_id`, `index`, `params_json`, `filters_json` | Row + extras at index |
 | `find_sample` | `dataset_id`, `id_value`, `params_json`, `filters_json` | Row + extras by id column |
 | `decode_private_tests` | `raw` | Decoded LiveCodeBench private test cases |

@@ -2,8 +2,15 @@
 
 from __future__ import annotations
 
-from dataset_visualizer.api.dataset_registry import DATASET_REGISTRY, build_dataset_registry
-from dataset_visualizer.config import load_config
+import pandas as pd
+
+from dataset_visualizer.api.dataset_registry import (
+    DATASET_REGISTRY,
+    _descriptor_from_hf_entry,
+    build_dataset_registry,
+)
+from dataset_visualizer.config import get_dataset_by_id, load_config
+from dataset_visualizer.loaders import hf_benchmark
 
 FORBIDDEN_VIEWERS = {"generic", "agent_task", "mcq", "mcq_cot", "code_eval", "arc_grid"}
 
@@ -46,6 +53,22 @@ def test_every_dataset_has_dedicated_viewer() -> None:
                 f"{entry.id} must not route to shared viewer key {descriptor.viewer}"
             )
             assert entry.viewer == entry.id, f"{entry.id} config viewer must equal dataset id"
+
+
+def test_hf_benchmark_loader_cached_across_requests(monkeypatch) -> None:
+    """Descriptor loader must not rebuild the cached loader on every API call."""
+    calls: list[str] = []
+
+    def fake_load(entry):  # noqa: ANN001 — test double matches loader signature
+        calls.append(entry.id)
+        return pd.DataFrame({"sample_id": ["a"]})
+
+    monkeypatch.setattr(hf_benchmark, "load_hf_benchmark_entry", fake_load)
+    entry = get_dataset_by_id(load_config(), "mmlu_redux")
+    descriptor = _descriptor_from_hf_entry(entry)
+    descriptor.loader({})
+    descriptor.loader({})
+    assert calls == ["mmlu_redux"]
 
 
 def test_manual_and_hf_descriptors_use_dataset_id_viewer() -> None:

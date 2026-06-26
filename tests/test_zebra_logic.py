@@ -24,7 +24,7 @@ def test_normalize_zebra_logic_does_not_create_answer_letter() -> None:
     assert normalized["answer"].iloc[0] == "BOB"
 
 
-def test_overview_generic_omits_answer_pie_for_zebra_logic() -> None:
+def test_overview_generic_for_zebra_logic() -> None:
     df = pd.DataFrame(
         {
             "question": ["Who owns the bird?", "Who has roses?"],
@@ -35,6 +35,5 @@ def test_overview_generic_omits_answer_pie_for_zebra_logic() -> None:
     )
 
     overview = overview_generic(df, {})
-    titles = {chart["title"] for chart in overview["charts"]}
 
-    assert "Answer letter distribution" not in titles
+    assert overview["metrics"][0] == {"label": "Total rows", "value": "2"}

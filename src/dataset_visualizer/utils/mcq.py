@@ -7,26 +7,33 @@ import pandas as pd
 ANSWER_LETTERS = tuple(chr(ord("A") + i) for i in range(26))
 
 
+def _letter_from_answer_value(answer: object) -> str:
+    """Map a letter, numeric index, or raw answer cell to a display letter."""
+    if answer is None or (isinstance(answer, float) and pd.isna(answer)):
+        return ""
+    if isinstance(answer, int):
+        idx = answer
+        if 0 <= idx < len(ANSWER_LETTERS):
+            return ANSWER_LETTERS[idx]
+        return str(answer)
+    raw = str(answer).strip().upper()
+    if len(raw) == 1 and raw in ANSWER_LETTERS:
+        return raw
+    if raw.isdigit():
+        idx = int(raw)
+        if 0 <= idx < len(ANSWER_LETTERS):
+            return ANSWER_LETTERS[idx]
+    return raw
+
+
 def resolve_correct_letter(row: pd.Series, answer_col: str = "answer_letter") -> str:
     """Extract the correct answer letter from a normalized or raw row."""
     if answer_col in row and pd.notna(row[answer_col]):
-        return str(row[answer_col]).upper()
-
+        return _letter_from_answer_value(row[answer_col])
     if "answer" in row and pd.notna(row["answer"]):
-        answer = row["answer"]
-        try:
-            idx = int(answer)
-        except (TypeError, ValueError):
-            return str(answer).upper()
-        if 0 <= idx < len(ANSWER_LETTERS):
-            return ANSWER_LETTERS[idx]
-        return str(answer).upper()
-
+        return _letter_from_answer_value(row["answer"])
     if "answer_index" in row and pd.notna(row["answer_index"]):
-        idx = int(row["answer_index"])
-        if 0 <= idx < len(ANSWER_LETTERS):
-            return ANSWER_LETTERS[idx]
-
+        return _letter_from_answer_value(row["answer_index"])
     return ""
 
 

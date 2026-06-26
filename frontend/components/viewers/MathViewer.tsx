@@ -1,13 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { ProblemCard } from "./ProblemCard";
 
 type MathViewerProps = {
@@ -25,22 +18,8 @@ export function MathViewer({ row, solution }: MathViewerProps) {
       <ProblemCard
         problem={String(row.problem ?? "")}
         answer={String(row.answer ?? "")}
+        solution={solution}
       />
-
-      {solution ? (
-        <Card>
-          <CardContent className="pt-6">
-            <Accordion type="single" collapsible>
-              <AccordionItem value="solution">
-                <AccordionTrigger>Solution / working</AccordionTrigger>
-                <AccordionContent className="whitespace-pre-wrap text-sm">
-                  {solution}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </CardContent>
-        </Card>
-      ) : null}
     </div>
   );
 }

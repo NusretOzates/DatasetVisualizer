@@ -123,13 +123,13 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
                         <Skeleton key={index} className="h-24 w-full" />
                       ))}
                     </div>
-                    <Skeleton className="h-80 w-full" />
+                    <Skeleton className="h-48 w-full" />
                   </div>
                 ) : null}
                 {!loading && overview ? (
                   <OverviewTab
                     overview={overview}
-                    columnGlossary={meta.column_glossary ?? {}}
+                    readme={meta.readme ?? ""}
                   />
                 ) : null}
               </TabsContent>

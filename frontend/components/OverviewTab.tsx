@@ -1,6 +1,5 @@
 import type { DataTable, Metric, OverviewPayload } from "@/lib/types";
-import { ChartPanel } from "./ChartPanel";
-import { ColumnGlossary } from "./ColumnGlossary";
+import { DatasetReadme } from "./DatasetReadme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -13,21 +12,17 @@ import {
 
 type OverviewTabProps = {
   overview: OverviewPayload;
-  columnGlossary?: Record<string, string>;
+  readme?: string;
 };
 
 function Metrics({ metrics }: { metrics: Metric[] }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
       {metrics.map((metric) => (
-        <Card key={metric.label}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {metric.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold tracking-tight tabular-nums">{metric.value}</p>
+        <Card key={metric.label} className="gap-1 py-3 shadow-none">
+          <CardContent className="px-4 py-0">
+            <p className="text-xs font-medium text-muted-foreground">{metric.label}</p>
+            <p className="mt-0.5 text-lg font-semibold tracking-tight tabular-nums">{metric.value}</p>
           </CardContent>
         </Card>
       ))}
@@ -67,19 +62,14 @@ function DataTableView({ table }: { table: DataTable }) {
   );
 }
 
-export function OverviewTab({ overview, columnGlossary = {} }: OverviewTabProps) {
+export function OverviewTab({ overview, readme = "" }: OverviewTabProps) {
   return (
     <div className="space-y-6">
-      <ColumnGlossary glossary={columnGlossary} />
       <Metrics metrics={overview.metrics} />
-      <div className="grid gap-6 xl:grid-cols-2">
-        {overview.charts.map((chart, index) => (
-          <ChartPanel key={`${chart.title}-${index}`} chart={chart} />
-        ))}
-      </div>
       {overview.tables.map((table) => (
         <DataTableView key={table.title} table={table} />
       ))}
+      <DatasetReadme readme={readme} />
     </div>
   );
 }

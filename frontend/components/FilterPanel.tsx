@@ -1,6 +1,7 @@
 "use client";
 
 import type { FilterControlSpec, FilterOptions, SelectControlSpec } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -83,7 +84,17 @@ function MultiSelectFilter({
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label>{label}</Label>
+        <div className="flex shrink-0 gap-1">
+          <Button type="button" variant="ghost" size="sm" onClick={() => onChange(available)}>
+            Select all
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={() => onChange([])}>
+            Select none
+          </Button>
+        </div>
+      </div>
       <ScrollArea className="h-40 rounded-md border p-3">
         <div className="space-y-2">
           {available.map((option) => (

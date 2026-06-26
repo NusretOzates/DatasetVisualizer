@@ -145,16 +145,16 @@ export function ArxivMathViewer({ row, extras }: ArxivMathViewerProps) {
 
             {fullRun ? (
               <Accordion type="multiple" className="space-y-2">
-                <AccordionItem value="response">
-                  <AccordionTrigger>Full model response</AccordionTrigger>
-                  <AccordionContent>
-                    <pre className="code-block">{String(fullRun.answer ?? "")}</pre>
-                  </AccordionContent>
-                </AccordionItem>
                 <AccordionItem value="message">
                   <AccordionTrigger>User message</AccordionTrigger>
                   <AccordionContent>
                     <pre className="code-block">{String(fullRun.user_message ?? "")}</pre>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="response">
+                  <AccordionTrigger>Full model response</AccordionTrigger>
+                  <AccordionContent>
+                    <pre className="code-block">{String(fullRun.answer ?? "")}</pre>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

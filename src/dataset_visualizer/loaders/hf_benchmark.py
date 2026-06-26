@@ -53,7 +53,9 @@ def _load_multi_config(
 
 
 def _resolve_split(entry: DatasetEntry) -> str:
-    """Pick the smallest Hub split for inspection unless the entry uses JSONL."""
+    """Pick the Hub split to load for inspection."""
+    if entry.split:
+        return entry.split
     hf_config = entry.hf_config
     if entry.multi_config:
         configs = _config_names(entry.hf_id, entry.exclude_configs)

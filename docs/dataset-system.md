@@ -4,7 +4,7 @@ Read this document **before** opening loader or API source files. It describes e
 
 ## Mental model
 
-The app is a **config-driven dataset explorer** with a **Gradio Server** backend and a **Next.js** React frontend. It is not an evaluation harness. Each dataset: download from Hugging Face → normalize to a `pandas.DataFrame` → serve JSON via `@app.api()` endpoints → render overview charts and per-sample inspection in the browser.
+The app is a **config-driven dataset explorer** with a **Gradio Server** backend and a **Next.js** React frontend. It is not an evaluation harness. Each dataset: download from Hugging Face → normalize to a `pandas.DataFrame` → serve JSON via `@app.api()` endpoints → render overview summaries and per-sample inspection in the browser.
 
 ```
 config/datasets.yaml
@@ -92,7 +92,7 @@ Defined in `src/dataset_visualizer/config.py`. Required fields: `id`, `label`, `
 | `docs` | no | Link to extended documentation |
 | `row_count` | no | Fallback for home page when loader fails |
 | `hf_config` | no | HF dataset config/subset name |
-| `split` | no | Informational only; loaders auto-pick the smallest Hub split for inspection |
+| `split` | no | Hub split to load for inspection; when omitted, loaders auto-pick the smallest published split |
 | `profile` | no | Normalization profile for `hf_benchmark` (`arc`, `gsm`, `generic`, …) |
 | `id_column` | no | Stable row id column in the normalized frame |
 | `viewer` | no | Overrides archetype for API/frontend viewer selection |
@@ -233,14 +233,6 @@ Filter options for multiselect/radio/date_range are built in `service._filter_op
 ```python
 {
     "metrics": [{"label": "Total rows", "value": "1,234"}],
-    "charts": [
-        {
-            "type": "bar",  # bar | pie | histogram | stacked_bar | timeline | scatter
-            "title": "Rows per subject",
-            "categories": ["math", "physics"],
-            "values": [100, 200],
-        }
-    ],
     "tables": [
         {
             "title": "All problems",
@@ -251,9 +243,9 @@ Filter options for multiselect/radio/date_range are built in `service._filter_op
 }
 ```
 
-Build charts with helpers in `api/chart_data.py`. Serialize table rows with `api/serializers.serialize_rows()`.
+Serialize table rows with `api/serializers.serialize_rows()`.
 
-`overview_generic()` is used by auto-registered `hf_benchmark` entries. It inspects normalized benchmark columns and emits reusable charts for category-like fields, answer-letter distribution, choice/test counts, text length, and date timelines.
+`overview_generic()` is used by auto-registered `hf_benchmark` entries. It inspects normalized benchmark columns and emits summary metrics (row count, split, group count).
 
 ### Gradio API endpoints (`server.py`)
 
@@ -262,7 +254,7 @@ Build charts with helpers in `api/chart_data.py`. Serialize table rows with `api
 | `get_catalog` | Navigation + home table rows |
 | `get_dataset_meta` | Description, archetype, `viewer`, controls, filter schema, `id_column` |
 | `get_filter_options` | Column names and filter option values after load |
-| `get_overview` | Metrics, charts, tables for filtered data |
+| `get_overview` | Metrics and tables for filtered data |
 | `get_sample` | Row at index + extras |
 | `find_sample` | Row by `id_column` value |
 | `decode_private_tests` | LiveCodeBench private test decoding |
@@ -275,7 +267,10 @@ The React frontend calls these via `@gradio/client` (`frontend/lib/api.ts`).
 def overview_my_benchmark(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     return {
         "metrics": [{"label": "Total rows", "value": f"{len(df):,}"}],
-        "charts": [value_counts_chart(df["subject"], title="Rows per subject")],
+        "metrics": [
+            {"label": "Total rows", "value": f"{len(df):,}"},
+            {"label": "Subjects", "value": str(df["subject"].nunique())},
+        ],
         "tables": [],
     }
 ```
@@ -359,13 +354,11 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 
 ### `hf_benchmark` by category (config `id` → `profile`)
 
-**reasoning:** `arc_challenge` (`arc`), `winogrande`, `hellaswag`, `commonsenseqa`, `piqa`, `openbookqa`, `zebra_logic`  
-**knowledge:** `mmlu_redux`  
+**reasoning:** `arc_challenge` (`arc`), `winogrande`, `hellaswag`, `commonsenseqa`, `piqa`, `openbookqa`, `zebra_logic`, `mmlu_redux`  
 **code:** `mbpp`, `apps`, `humaneval`, `humaneval_plus`, `mbpp_plus`, `evoeval_difficult`  
 **long_context:** `ruler`, `mrcr`, `mtob`  
 **instruction_following:** `ifeval`, `ifbench`, `coconot`  
-**tool_calling:** `livemcpbench`  
-**assistant_tasks:** `gaia`, `gdpval`, `gaia2`, `scicode` (`scicode`, viewer `code_eval`), `paperbench`, `dabstep`  
+**assistant_tasks:** `gaia`, `gdpval`, `gaia2`, `scicode` (`scicode`, viewer `code_eval`), `paperbench`, `dabstep`, `livemcpbench`  
 **games:** `arc_agi_2` (`arc_agi`, viewer `arc_grid`)  
 **forecasters:** `futurebench`, `futurex`  
 **math:** `gsm8k`, `gsm1k`, `gsm_plus`, `gsm_symbolic`, `math`, `math_500`, `math_hard`, `math_arena`
@@ -446,7 +439,7 @@ Create `docs/datasets/<short_name>.md` with:
 
 - HF source URL and archetype
 - Normalized column table (post-loader schema, not raw HF schema)
-- Visualization rationale (why each chart exists)
+- Overview metrics rationale (what each summary stat represents)
 - Loader call signature and defaults
 - Cache path
 - Access notes (gated, large download, etc.)

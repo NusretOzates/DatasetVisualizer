@@ -23,36 +23,56 @@ REGISTRY_PATH = ROOT / "frontend" / "components" / "viewers" / "registry.tsx"
 
 STRUCTURED_CONFIGS: dict[str, dict[str, object]] = {
     "ruler": {
-        "heroFields": ["input", "context", "question", "answer"],
-        "badgeFields": ["task_id", "category", "length"],
+        "heroFields": ["prompt"],
+        "badgeFields": ["category"],
+        "hideFields": ["extra_info"],
     },
     "mrcr": {
-        "heroFields": ["prompt", "answer", "context"],
-        "badgeFields": ["task_id", "sample_id"],
+        "heroFields": ["answer"],
+        "badgeFields": ["sample_id", "n_needles", "desired_msg_index", "total_messages"],
+        "hideFields": ["prompt", "random_string_to_prepend", "n_chars", "date_added"],
     },
     "mtob": {
-        "heroFields": ["source_text", "target_text", "prompt"],
-        "badgeFields": ["task_id", "language_pair"],
+        "heroFields": ["source_text", "target_text"],
+        "badgeFields": ["subtask", "original_id"],
+        "hideFields": [
+            "original_ciphertext",
+            "original_nonce",
+            "ground_truth_ciphertext",
+            "ground_truth_nonce",
+        ],
     },
     "gdpval": {
-        "heroFields": ["task", "description", "question", "reference_answer"],
+        "heroFields": ["prompt"],
         "badgeFields": ["task_id", "occupation", "sector"],
+        "hideFields": [
+            "reference_files",
+            "reference_file_urls",
+            "reference_file_hf_uris",
+            "deliverable_files",
+            "deliverable_file_urls",
+            "deliverable_file_hf_uris",
+            "rubric_pretty",
+            "rubric_json",
+        ],
     },
     "futurebench": {
-        "heroFields": ["question", "prompt", "answer"],
-        "badgeFields": ["task_id", "category"],
+        "heroFields": ["question"],
+        "badgeFields": ["event_id", "event_type", "result", "model_count"],
+        "hideFields": ["predictions"],
     },
     "futurex": {
-        "heroFields": ["question", "prompt", "answer"],
-        "badgeFields": ["task_id", "category"],
+        "heroFields": ["title", "prompt"],
+        "badgeFields": ["id", "level", "end_time"],
+        "hideFields": ["ground_truth"],
     },
     "coconot": {
         "heroFields": ["prompt", "response", "question"],
         "badgeFields": ["id", "category", "label"],
     },
     "dabstep": {
-        "heroFields": ["question", "task", "instruction", "ground_truth"],
-        "badgeFields": ["task_id", "category"],
+        "heroFields": ["question", "guidelines", "answer"],
+        "badgeFields": ["task_id", "level"],
     },
 }
 

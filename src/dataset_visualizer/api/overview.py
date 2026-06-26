@@ -6,16 +6,7 @@ from typing import Any
 
 import pandas as pd
 
-from dataset_visualizer.api.chart_data import (
-    bar_chart_data,
-    histogram_data,
-    pie_chart_data,
-    scatter_chart_data,
-    stacked_bar_chart,
-    timeline_data,
-    value_counts_chart,
-)
-from dataset_visualizer.api.serializers import serialize_rows, serialize_value
+from dataset_visualizer.api.serializers import serialize_rows
 from dataset_visualizer.row_values import has_display_value
 
 SOLUTION_COLUMNS = ("solution", "working", "work", "explanation", "rationale")
@@ -50,10 +41,6 @@ def overview_mmlu(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
             {"label": "Subjects", "value": _nunique_str(df, "subject")},
             {"label": "Split", "value": _split_label(df)},
         ],
-        "charts": [
-            value_counts_chart(df["subject"], title="Rows per subject", x_label="Subject"),
-            pie_chart_data(df["answer_letter"], title="Answer letter distribution"),
-        ],
         "tables": [],
     }
 
@@ -66,12 +53,6 @@ def overview_mmlu_pro(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, An
             {"label": "Total rows", "value": f"{len(df):,}"},
             {"label": "Categories", "value": _nunique_str(df, "category")},
             {"label": "Split", "value": _split_label(df)},
-        ],
-        "charts": [
-            value_counts_chart(df["category"], title="Rows per category", x_label="Category"),
-            histogram_data(
-                df["option_count"], title="Option count distribution", x_label="Options"
-            ),
         ],
         "tables": [
             {
@@ -89,30 +70,12 @@ def overview_gpqa(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
             {"label": "Total questions", "value": f"{len(df):,}"},
             {"label": "Split", "value": _split_label(df)},
         ],
-        "charts": [pie_chart_data(df["answer_letter"], title="Answer letter distribution")],
         "tables": [],
     }
 
 
 def overview_global_mmlu(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     language = str(df["language"].iloc[0]) if "language" in df.columns and len(df) else "—"
-    charts = [
-        value_counts_chart(df["subject"], title="Rows per subject", x_label="Subject"),
-    ]
-    if "subject_category" in df.columns:
-        charts.append(
-            value_counts_chart(
-                df["subject_category"],
-                title="Subject categories",
-                x_label="Category",
-            )
-        )
-    if "cultural_sensitivity_label" in df.columns:
-        charts.append(
-            pie_chart_data(
-                df["cultural_sensitivity_label"], title="Cultural sensitivity (CS vs CA)"
-            )
-        )
     return {
         "metrics": [
             {"label": "Total rows", "value": f"{len(df):,}"},
@@ -120,7 +83,6 @@ def overview_global_mmlu(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str,
             {"label": "Language", "value": language},
             {"label": "Split", "value": _split_label(df)},
         ],
-        "charts": charts,
         "tables": [],
     }
 
@@ -134,10 +96,6 @@ def overview_mmmlu(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
             {"label": "Locale", "value": language},
             {"label": "Split", "value": _split_label(df)},
         ],
-        "charts": [
-            value_counts_chart(df["subject"], title="Rows per subject", x_label="Subject"),
-            pie_chart_data(df["answer_letter"], title="Answer letter distribution"),
-        ],
         "tables": [],
     }
 
@@ -150,7 +108,6 @@ def overview_aime(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
             {"label": "Problems", "value": f"{len(df):,}"},
             {"label": "Split", "value": "train"},
         ],
-        "charts": [],
         "tables": [
             {
                 "title": "All problems",
@@ -162,20 +119,6 @@ def overview_aime(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
 
 
 def overview_hle(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
-    charts = []
-    if "category" in df.columns:
-        charts.append(
-            value_counts_chart(df["category"], title="Rows per category", x_label="Category")
-        )
-    if "raw_subject" in df.columns:
-        charts.append(
-            value_counts_chart(df["raw_subject"], title="Rows per subject", x_label="Subject")
-        )
-    if "answer_type" in df.columns:
-        charts.append(pie_chart_data(df["answer_type"], title="Answer type distribution"))
-    if "has_image" in df.columns:
-        image_counts = df["has_image"].map({True: "Multimodal", False: "Text only"})
-        charts.append(pie_chart_data(image_counts, title="Modality"))
     return {
         "metrics": [
             {"label": "Total questions", "value": f"{len(df):,}"},
@@ -183,24 +126,12 @@ def overview_hle(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
             {"label": "Subjects", "value": _nunique_str(df, "raw_subject")},
             {"label": "Split", "value": _split_label(df)},
         ],
-        "charts": charts,
         "tables": [],
     }
 
 
 def overview_livecodebench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     median_tests = df["public_test_count"].median() if len(df) else 0
-    charts = [
-        stacked_bar_chart(
-            df,
-            x_col="difficulty",
-            color_col="platform",
-            title="Problems by difficulty and platform",
-            x_label="Difficulty",
-        )
-    ]
-    if "contest_date" in df.columns and len(df):
-        charts.append(timeline_data(df["contest_date"], title="Contest date distribution"))
     return {
         "metrics": [
             {"label": "Total problems", "value": f"{len(df):,}"},
@@ -210,16 +141,12 @@ def overview_livecodebench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[st
                 "value": f"{median_tests:.0f}" if len(df) else "—",
             },
         ],
-        "charts": charts,
         "tables": [],
     }
 
 
 def overview_swe_bench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
     median_fail = df["fail_to_pass_count"].median() if len(df) else 0
-    charts = [value_counts_chart(df["repo"], title="Issues per repository", x_label="Repository")]
-    if "difficulty" in df.columns and df["difficulty"].notna().any():
-        charts.append(pie_chart_data(df["difficulty"], title="Difficulty distribution"))
     return {
         "metrics": [
             {"label": "Total issues", "value": f"{len(df):,}"},
@@ -229,13 +156,12 @@ def overview_swe_bench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, A
                 "value": f"{median_fail:.0f}" if len(df) else "—",
             },
         ],
-        "charts": charts,
         "tables": [],
     }
 
 
 def overview_tau3_bench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, Any]:
-    """Build overview metrics and charts for τ³-Bench agent tasks."""
+    """Build overview metrics for τ³-Bench agent tasks."""
     overview = df.copy()
     if "purpose_preview" not in overview.columns:
         purpose_series = overview.get("purpose", pd.Series(dtype=str)).astype(str)
@@ -245,10 +171,6 @@ def overview_tau3_bench(df: pd.DataFrame, _extras: dict[str, Any]) -> dict[str, 
             {"label": "Tasks", "value": f"{len(df):,}"},
             {"label": "Domains", "value": _nunique_str(df, "domain")},
             {"label": "Split", "value": _split_label(df)},
-        ],
-        "charts": [
-            pie_chart_data(df["domain"], title="Tasks per domain"),
-            value_counts_chart(df["domain"], title="Domain counts", x_label="Domain"),
         ],
         "tables": [
             {
@@ -274,41 +196,6 @@ def overview_arxivmath(df: pd.DataFrame, extras: dict[str, Any]) -> dict[str, An
     overview = df.copy()
     overview["author_count"] = overview["authors"].map(_author_count)
 
-    charts: list[dict[str, Any]] = []
-    tables = [
-        {
-            "title": "All problems",
-            "columns": ["problem_idx", "title", "source", "author_count"],
-            "rows": serialize_rows(overview[["problem_idx", "title", "source", "author_count"]]),
-        }
-    ]
-
-    if not scoped_outputs.empty:
-        accuracy = (
-            scoped_outputs.groupby("model_name", as_index=False)["correct"]
-            .mean()
-            .rename(columns={"correct": "accuracy"})
-            .sort_values("accuracy", ascending=False)
-        )
-        charts.append(
-            bar_chart_data(
-                categories=[str(name) for name in accuracy["model_name"].tolist()],
-                values=[float(value) for value in accuracy["accuracy"].tolist()],
-                title="Model accuracy (mean correct rate)",
-                x_label="Model",
-                y_label="Accuracy",
-            )
-        )
-        charts.append(
-            scatter_chart_data(
-                scoped_outputs,
-                x="input_tokens",
-                y="output_tokens",
-                color="correct",
-                title="Token usage by attempt",
-            )
-        )
-
     return {
         "metrics": [
             {"label": "Problems", "value": f"{len(df):,}"},
@@ -318,8 +205,15 @@ def overview_arxivmath(df: pd.DataFrame, extras: dict[str, Any]) -> dict[str, An
                 "value": str(scoped_outputs["model_name"].nunique() if len(scoped_outputs) else 0),
             },
         ],
-        "charts": charts,
-        "tables": tables,
+        "tables": [
+            {
+                "title": "All problems",
+                "columns": ["problem_idx", "title", "source", "author_count"],
+                "rows": serialize_rows(
+                    overview[["problem_idx", "title", "source", "author_count"]]
+                ),
+            }
+        ],
     }
 
 

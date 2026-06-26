@@ -41,7 +41,7 @@ def test_load_hf_benchmark_entry_normalizes_arc() -> None:
         df = load_hf_benchmark_entry(entry)
 
     assert df["answer_letter"].iloc[0] == "A"
-    assert df["choices"].iloc[0] == "feather, rock"
+    assert df["choices"].iloc[0] == ["rock", "feather"]
 
 
 def test_load_hf_benchmark_entry_uses_smallest_split(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -154,3 +154,41 @@ def test_resolve_split_uses_representative_config_for_multi_config(
         "hf_id": "EleutherAI/hendrycks_math",
         "hf_config": "algebra",
     }
+
+
+def test_resolve_split_uses_yaml_split_when_set() -> None:
+    entry = DatasetEntry.model_validate(
+        {
+            "id": "hellaswag",
+            "label": "HellaSwag",
+            "loader": "hf_benchmark",
+            "description": "HellaSwag benchmark.",
+            "hf_id": "Rowan/hellaswag",
+            "profile": "hellaswag",
+            "id_column": "sample_id",
+            "split": "validation",
+        }
+    )
+
+    from dataset_visualizer.loaders.hf_benchmark import _resolve_split
+
+    assert _resolve_split(entry) == "validation"
+
+
+def test_resolve_split_uses_yaml_split_for_commonsenseqa() -> None:
+    entry = DatasetEntry.model_validate(
+        {
+            "id": "commonsenseqa",
+            "label": "CommonsenseQA",
+            "loader": "hf_benchmark",
+            "description": "CommonsenseQA benchmark.",
+            "hf_id": "tau/commonsense_qa",
+            "profile": "commonsenseqa",
+            "id_column": "id",
+            "split": "validation",
+        }
+    )
+
+    from dataset_visualizer.loaders.hf_benchmark import _resolve_split
+
+    assert _resolve_split(entry) == "validation"

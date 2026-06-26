@@ -15,9 +15,9 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | Dataset routes | `app/dataset/[id]/page.tsx` | Static export; routes from `generateStaticParams` |
 | API client | `lib/api.ts` | `@gradio/client` wrappers |
 | Catalog hook | `lib/useCatalog.ts` | Client-side catalog fetch |
-| Types | `lib/types.ts` | Catalog, overview, chart, control, and filter types |
+| Types | `lib/types.ts` | Catalog, overview, control, and filter types |
 | Explorer | `components/DatasetExplorer.tsx` | Controls, top filters, tabs (via `lib/useDatasetQuery.ts`) |
-| Overview | `components/OverviewTab.tsx`, `ChartPanel.tsx` | Metrics + Plotly charts |
+| Overview | `components/OverviewTab.tsx`, `DatasetReadme.tsx` | Metric cards, optional tables, README |
 | Samples | `components/SampleInspector.tsx` | Index slider, ID lookup, and viewers |
 | Viewer registry | `components/viewers/registry.tsx` | Maps API `viewer` key → React component |
 | Rich text | `components/viewers/MarkdownMath.tsx` | Markdown + LaTeX rendering for benchmark statements |
@@ -98,19 +98,15 @@ Defined in `components/viewers/registry.tsx` (dispatched by API `viewer`, with `
 
 Custom viewers live in `components/viewers/` (e.g. `McqCotViewer.tsx`, `CodeProblemSampleViewer.tsx`).
 
-## Chart payloads
+## Overview tab
 
-Overview charts are built server-side in `api/chart_data.py` and rendered client-side with `react-plotly.js`. Charts expose Plotly's mode bar without the logo so users can zoom, inspect, and download chart images. Supported `type` values:
-
-- `bar`, `pie`, `histogram`, `stacked_bar`, `timeline`, `scatter`
-
-See `lib/types.ts` for the full TypeScript shapes. Filter option payloads use the `FilterOptions` type. Empty generated filters are hidden client-side so generic benchmark descriptors can advertise reusable filter candidates safely.
+`OverviewTab` shows summary metric cards, optional overview tables, and the Hugging Face dataset **README** at the bottom (via `readme` on `get_dataset_meta`), rendered with `MarkdownContent` (GFM tables, links, math).
 
 ## Sample navigation
 
 `SampleInspector` loads samples through `get_sample` using the slider and previous/next controls only. Jump-to-id lookup was removed; use index navigation to browse rows.
 
-`OverviewTab` shows a collapsible **Column glossary** sourced from Hugging Face dataset READMEs (via `column_glossary` on `get_dataset_meta`).
+Filter option payloads use the `FilterOptions` type. Empty generated filters are hidden client-side so generic benchmark descriptors can advertise reusable filter candidates safely.
 
 ## Documentation
 

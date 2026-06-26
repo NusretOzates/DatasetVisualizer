@@ -40,6 +40,9 @@ export function HleViewer({ row }: HleViewerProps) {
           className="max-h-96 rounded-lg border object-contain"
         />
       ) : null}
+      {isMultipleChoice ? (
+        <McqViewer row={row} answerCol="answer" hideQuestion />
+      ) : null}
       {row.answer && !isMultipleChoice ? (
         <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
           <strong>Exact answer:</strong> {String(row.answer)}
@@ -66,7 +69,6 @@ export function HleViewer({ row }: HleViewerProps) {
           </AccordionItem>
         </Accordion>
       ) : null}
-      {isMultipleChoice ? <McqViewer row={row} answerCol="answer" /> : null}
     </div>
   );
 }

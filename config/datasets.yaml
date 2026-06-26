@@ -22,6 +22,22 @@ categories:
 
       '
     viewer: mmlu_pro
+  - id: mmlu_redux
+    label: MMLU-Redux
+    loader: hf_benchmark
+    icon: 🧠
+    archetype: mcq
+    hf_id: edinburgh-dawg/mmlu-redux
+    split: test
+    profile: mmlu_redux
+    id_column: sample_id
+    multi_config: true
+    row_count: 3000
+    description: 'Cleaned and re-annotated MMLU subset from Edinburgh Dawg, combining
+      all subject configs with error-type metadata.
+
+      '
+    viewer: mmlu_redux
   - id: gpqa_diamond
     label: GPQA Diamond
     loader: gpqa
@@ -177,23 +193,6 @@ categories:
 
       '
     viewer: zebra_logic
-  knowledge:
-  - id: mmlu_redux
-    label: MMLU-Redux
-    loader: hf_benchmark
-    icon: 📚
-    archetype: mcq
-    hf_id: edinburgh-dawg/mmlu-redux
-    split: test
-    profile: mmlu_redux
-    id_column: sample_id
-    multi_config: true
-    row_count: 3000
-    description: 'Cleaned and re-annotated MMLU subset from Edinburgh Dawg, combining
-      all subject configs with error-type metadata.
-
-      '
-    viewer: mmlu_redux
   code:
   - id: livecodebench_v6
     label: LiveCodeBench v6
@@ -383,7 +382,7 @@ categories:
     archetype: generic
     hf_id: Groq/mtob
     split: test
-    profile: generic
+    profile: mtob
     id_column: sample_id
     row_count: 100
     description: 'Machine Translation from One Book: low-resource Kalamang translation
@@ -438,22 +437,6 @@ categories:
 
       '
     viewer: coconot
-  tool_calling:
-  - id: livemcpbench
-    label: LiveMCPBench
-    loader: hf_benchmark
-    icon: 🔧
-    archetype: agent_task
-    hf_id: ICIP/LiveMCPBench
-    split: test
-    profile: agent_task
-    viewer: livemcpbench
-    id_column: task_id
-    row_count: 95
-    description: 'Locally deployable MCP tool-selection benchmark across many real-world
-      MCP servers.
-
-      '
   assistant_tasks:
   - id: gaia
     label: GAIA
@@ -550,6 +533,21 @@ categories:
       real-world financial workloads.
 
       '
+  - id: livemcpbench
+    label: LiveMCPBench
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: ICIP/LiveMCPBench
+    split: test
+    profile: agent_task
+    viewer: livemcpbench
+    id_column: task_id
+    row_count: 95
+    description: 'Locally deployable MCP tool-selection benchmark across many real-world
+      MCP servers.
+
+      '
   games:
   - id: arc_agi_2
     label: ARC-AGI 2
@@ -574,11 +572,12 @@ categories:
     archetype: generic
     hf_id: futurebench/data
     split: train
-    profile: generic
+    profile: futurebench
     id_column: event_id
-    row_count: 2337
+    row_count: 156
     description: 'Forecasting benchmark built from prediction-market and news-worthy
-      future events.
+      future events. Samples are grouped by event (one item per question, all model
+      predictions shown together).
 
       '
     viewer: futurebench

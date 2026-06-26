@@ -1,18 +1,15 @@
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff } from "lucide-react";
 import { MarkdownMath } from "./MarkdownMath";
 
 type ProblemCardProps = {
   problem: string;
   answer: string;
+  solution?: string;
 };
 
-export function ProblemCard({ problem, answer }: ProblemCardProps) {
-  const [revealed, setRevealed] = useState(false);
+export function ProblemCard({ problem, answer, solution }: ProblemCardProps) {
+  const goldAnswer = answer.trim();
+  const working = solution?.trim() ?? "";
 
   return (
     <Card>
@@ -20,17 +17,27 @@ export function ProblemCard({ problem, answer }: ProblemCardProps) {
         <CardTitle className="text-base">Problem</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <MarkdownMath className="text-sm" >{problem}</MarkdownMath>
-        <Button variant="outline" size="sm" onClick={() => setRevealed((current) => !current)}>
-          {revealed ? <EyeOff data-icon="inline-start" /> : <Eye data-icon="inline-start" />}
-          {revealed ? "Hide gold answer" : "Reveal gold answer"}
-        </Button>
-        {revealed ? (
+        <MarkdownMath className="text-sm">{problem}</MarkdownMath>
+        {goldAnswer ? (
           <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
               Gold answer
             </p>
-            <MarkdownMath>{answer}</MarkdownMath>
+            <MarkdownMath autoWrapLatex inline>
+              {goldAnswer}
+            </MarkdownMath>
+          </div>
+        ) : null}
+        {working ? (
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Solution / working
+            </p>
+            <div className="rounded-lg border bg-muted/20 px-4 py-3 text-sm leading-relaxed">
+              <MarkdownMath autoWrapLatex className="text-sm">
+                {working}
+              </MarkdownMath>
+            </div>
           </div>
         ) : null}
       </CardContent>

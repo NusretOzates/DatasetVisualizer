@@ -41,7 +41,7 @@ Domain terms used across the Dataset Visualizer codebase and docs. Read this onc
 | **`viewer`** | API/frontend key selecting the React sample component (`mcq`, `code_eval`, `arc_grid`, …). YAML `viewer` can override archetype for special cases. |
 | **`profile`** | Normalization strategy for `hf_benchmark` rows (`arc`, `gsm`, `code_eval`, `generic`, …). Passed to `normalize_benchmark()` in `loaders/benchmark_normalize.py`. |
 | **Normalized columns** | Stable DataFrame column names after the loader (e.g. `question`, `choices`, `answer_letter` for MCQ). Contracts live in [dataset-system.md § Column contracts](dataset-system.md#column-contracts-python-helpers). |
-| **Overview** | JSON payload of metrics, charts, and tables for the Overview tab. Built per dataset or via `overview_generic()` for `hf_benchmark` entries. |
+| **Overview** | JSON payload of metrics and tables for the Overview tab. Built per dataset or via `overview_generic()` for `hf_benchmark` entries. |
 
 ## Frontend and tooling
 

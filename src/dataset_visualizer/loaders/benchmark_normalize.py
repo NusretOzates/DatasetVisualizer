@@ -8,7 +8,19 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from dataset_visualizer.loaders.mtob_crypto import decrypt_mtob_text
+
 ANSWER_LETTERS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+_PRESERVE_LIST_COLUMNS = frozenset({
+    "choices",
+    "options",
+    "endings",
+    "scenario_tags",
+    "scenario_hints",
+    "app_names",
+    "events_summary",
+    "predictions",
+})
 GAIA2_EVENTS_SUMMARY_LIMIT = 25
 
 
@@ -23,15 +35,41 @@ def _letter_from_index(index: int | str) -> str:
     return str(index)
 
 
+def _sequence_values(value: object) -> list[object] | None:
+    """Return list contents from HF list, tuple, or ndarray cells."""
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if hasattr(value, "tolist") and not isinstance(value, (str, bytes, dict)):
+        try:
+            coerced = value.tolist()
+        except (TypeError, ValueError):
+            return None
+        if isinstance(coerced, list):
+            return coerced
+    return None
+
+
 def _choices_from_dict(choices: object) -> list[str]:
     if isinstance(choices, dict):
-        if "text" in choices and isinstance(choices["text"], list):
-            labels = choices.get("label", list(range(len(choices["text"]))))
-            return [str(text) for text, label in zip(choices["text"], labels, strict=False)]
+        text_values = choices.get("text")
+        text_seq = _sequence_values(text_values) if text_values is not None else None
+        if text_seq is not None:
+            labels = choices.get("label")
+            label_seq = _sequence_values(labels) if labels is not None else None
+            if label_seq is None:
+                label_seq = list(range(len(text_seq)))
+            return [str(text) for text, _label in zip(text_seq, label_seq, strict=False)]
         return [str(value) for value in choices.values()]
-    if isinstance(choices, list):
-        return [str(item) for item in choices]
-    return []
+    text_seq = _sequence_values(choices)
+    if text_seq is not None:
+        return [str(item) for item in text_seq]
+    if choices is None:
+        return []
+    return [str(choices)]
 
 
 def _answer_letter_from_key(answer_key: object, choices: list[str]) -> str:
@@ -55,31 +93,41 @@ def _answer_letter_from_key(answer_key: object, choices: list[str]) -> str:
     return resolved
 
 
-def _scalarize_cell(value: object) -> object:
+def _scalarize_cell(value: object, *, preserve_list: bool = False) -> object:
     """Convert HF array-like cells into hashable Python values."""
     if value is None or value is pd.NA or (isinstance(value, float) and pd.isna(value)):
         return value
     if isinstance(value, np.ndarray):
         value = value.item() if value.ndim == 0 else value.tolist()
     if isinstance(value, (list, tuple)):
-        items = [_scalarize_cell(item) for item in value]
-        if len(items) == 1:
-            return items[0]
-        if all(isinstance(item, str) for item in items):
-            return ", ".join(sorted(items))
-        return json.dumps(items, sort_keys=True)
+        items = [_scalarize_cell(item, preserve_list=preserve_list) for item in value]
+        if preserve_list:
+            value = items
+        elif len(items) == 1:
+            value = items[0]
+        elif all(isinstance(item, str) for item in items):
+            value = ", ".join(sorted(items))
+        else:
+            value = json.dumps(items, sort_keys=True)
+        return value
     if isinstance(value, dict):
-        return {str(key): _scalarize_cell(item) for key, item in value.items()}
+        return {
+            str(key): _scalarize_cell(item, preserve_list=preserve_list)
+            for key, item in value.items()
+        }
     return value
 
 
 def _scalarize_object_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Scalarize object columns so filters and charts can hash values."""
+    """Scalarize object columns so filters can hash values."""
     normalized = df.copy()
     for column in normalized.columns:
         if normalized[column].dtype != object:
             continue
-        normalized[column] = normalized[column].map(_scalarize_cell)
+        preserve_list = column in _PRESERVE_LIST_COLUMNS
+        normalized[column] = normalized[column].map(
+            lambda value, preserve=preserve_list: _scalarize_cell(value, preserve_list=preserve)
+        )
     return normalized
 
 
@@ -270,7 +318,7 @@ def normalize_mmlu_redux(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             lambda value: value if isinstance(value, list) else _choices_from_dict(value)
         )
     if "answer" in normalized.columns and "answer_letter" not in normalized.columns:
-        normalized["answer_letter"] = normalized["answer"].astype(str).str.upper()
+        normalized["answer_letter"] = normalized["answer"].map(_letter_from_index)
     return normalized
 
 
@@ -483,6 +531,74 @@ def normalize_arc_agi(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def normalize_mtob(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Decrypt MTOB ciphertext columns into readable source/target text."""
+    normalized = _ensure_sample_id(df, id_column)
+
+    def _decrypt_row(row: pd.Series) -> pd.Series:
+        try:
+            source = decrypt_mtob_text(str(row["original_nonce"]), str(row["original_ciphertext"]))
+            target = decrypt_mtob_text(
+                str(row["ground_truth_nonce"]),
+                str(row["ground_truth_ciphertext"]),
+            )
+        except (KeyError, TypeError, ValueError) as err:
+            msg = f"MTOB decryption failed: {err}"
+            raise ValueError(msg) from err
+        row = row.copy()
+        row["source_text"] = source
+        row["target_text"] = target
+        return row
+
+    required = {
+        "original_nonce",
+        "original_ciphertext",
+        "ground_truth_nonce",
+        "ground_truth_ciphertext",
+    }
+    if not required.issubset(normalized.columns):
+        missing = ", ".join(sorted(required - set(normalized.columns)))
+        msg = f"MTOB rows are missing encryption columns: {missing}"
+        raise ValueError(msg)
+
+    return normalized.apply(_decrypt_row, axis=1)
+
+
+def normalize_futurebench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Group FutureBench model runs into one row per forecast event."""
+    normalized = _ensure_sample_id(df, id_column)
+    if "event_id" not in normalized.columns:
+        return normalized
+
+    rows: list[dict[str, object]] = []
+    for event_id, group in normalized.groupby("event_id", sort=False):
+        first = group.iloc[0]
+        predictions = [
+            {
+                "algorithm_name": row.get("algorithm_name"),
+                "actual_prediction": row.get("actual_prediction"),
+                "prediction_created_at": row.get("prediction_created_at"),
+                "source": row.get("source"),
+            }
+            for _, row in group.iterrows()
+        ]
+        rows.append(
+            {
+                id_column: str(event_id),
+                "sample_id": str(event_id),
+                "event_id": str(event_id),
+                "question": first.get("question"),
+                "event_type": first.get("event_type"),
+                "open_to_bet_until": first.get("open_to_bet_until"),
+                "result": first.get("result"),
+                "model_count": len(predictions),
+                "predictions": predictions,
+                "split": first.get("split"),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def normalize_generic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Pass through rows with a stable sample id."""
     return _ensure_sample_id(df, id_column)
@@ -509,6 +625,8 @@ NORMALIZERS: dict[str, Any] = {
     "gaia": normalize_gaia,
     "gaia2": normalize_gaia2,
     "arc_agi": normalize_arc_agi,
+    "mtob": normalize_mtob,
+    "futurebench": normalize_futurebench,
     "generic": normalize_generic,
 }
 

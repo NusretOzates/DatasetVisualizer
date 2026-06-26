@@ -46,8 +46,8 @@ def _audit_dataset(dataset_id: str) -> AuditRow:
     try:
         overview = get_overview(dataset_id, {}, {})
         overview_ok = bool(overview.get("metrics"))
-        if not overview.get("charts") and not overview.get("tables"):
-            notes.append("no charts/tables")
+        if not overview.get("tables"):
+            notes.append("no tables")
     except Exception as err:
         notes.append(f"overview: {err}")
 

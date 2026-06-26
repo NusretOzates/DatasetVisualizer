@@ -12,10 +12,13 @@ from dataset_visualizer.loaders.benchmark_normalize import (
     normalize_arc,
     normalize_arc_agi,
     normalize_benchmark,
+    normalize_commonsenseqa,
     normalize_gaia,
     normalize_gaia2,
+    normalize_futurebench,
     normalize_hellaswag,
     normalize_instruction,
+    normalize_mmlu_redux,
     normalize_piqa,
     normalize_scicode,
     normalize_winogrande,
@@ -33,6 +36,56 @@ def test_normalize_arc_maps_answer_key() -> None:
     )
     normalized = normalize_arc(df, "id")
     assert normalized["choices"].iloc[0] == ["3", "4"]
+    assert normalized["answer_letter"].iloc[0] == "B"
+
+
+def test_normalize_arc_maps_numpy_choice_arrays() -> None:
+    df = pd.DataFrame(
+        {
+            "id": ["1"],
+            "question": ["Ramp experiment?"],
+            "choices": [
+                {
+                    "label": np.array(["A", "B", "C", "D"]),
+                    "text": np.array(
+                        [
+                            "Put the objects in groups.",
+                            "Change the height of the ramp.",
+                            "Choose different objects to roll.",
+                            "Record the steps they took.",
+                        ]
+                    ),
+                }
+            ],
+            "answerKey": ["D"],
+        }
+    )
+    normalized = normalize_arc(df, "id")
+    assert normalized["choices"].iloc[0] == [
+        "Put the objects in groups.",
+        "Change the height of the ramp.",
+        "Choose different objects to roll.",
+        "Record the steps they took.",
+    ]
+    assert normalized["answer_letter"].iloc[0] == "D"
+
+
+def test_normalize_commonsenseqa_maps_numpy_choice_arrays() -> None:
+    df = pd.DataFrame(
+        {
+            "id": ["1"],
+            "question": ["Where is the library?"],
+            "choices": [
+                {
+                    "label": np.array(["A", "B", "C", "D", "E"]),
+                    "text": np.array(["bank", "library", "store", "mall", "park"]),
+                }
+            ],
+            "answerKey": ["B"],
+        }
+    )
+    normalized = normalize_commonsenseqa(df, "id")
+    assert normalized["choices"].iloc[0] == ["bank", "library", "store", "mall", "park"]
     assert normalized["answer_letter"].iloc[0] == "B"
 
 
@@ -196,6 +249,28 @@ def test_normalize_gaia2_extracts_scenario_summary_and_drops_raw_payload() -> No
     assert normalized["events_summary"].iloc[0][1]["function"] == "add_calendar_event"
 
 
+def test_normalize_benchmark_preserves_gaia2_list_columns() -> None:
+    payload = {
+        "metadata": {"definition": {"tags": ["Adaptability"], "hints": []}},
+        "apps": [{"name": "Calendar"}],
+        "events": [
+            {
+                "event_type": "AGENT",
+                "action": {
+                    "app": "Calendar",
+                    "function": "add_calendar_event",
+                    "args": [{"name": "title", "value": "Meeting"}],
+                },
+            }
+        ],
+    }
+    df = pd.DataFrame({"id": ["scenario-1"], "data": [json.dumps(payload)]})
+    normalized = normalize_benchmark(df, "gaia2", "id")
+    assert normalized["scenario_tags"].iloc[0] == ["Adaptability"]
+    assert normalized["app_names"].iloc[0] == ["Calendar"]
+    assert isinstance(normalized["events_summary"].iloc[0], list)
+
+
 def test_normalize_instruction_compacts_ifbench_kwargs() -> None:
     df = pd.DataFrame(
         {
@@ -294,3 +369,48 @@ def test_normalize_agent_task_unifies_livemcpbench_columns() -> None:
     assert "Annotator Metadata" not in normalized.columns
     assert normalized["question"].iloc[0] == "Analyze the audio file."
     assert normalized["annotator_metadata"].iloc[0]["Number of steps"] == "5"
+
+
+def test_normalize_futurebench_groups_model_runs_by_event() -> None:
+    df = pd.DataFrame(
+        {
+            "event_id": ["120", "120", "121"],
+            "question": [
+                "Will airport reopen?",
+                "Will airport reopen?",
+                "Will rates rise?",
+            ],
+            "event_type": ["news", "news", "market"],
+            "open_to_bet_until": ["2025-06-18", "2025-06-18", "2025-07-01"],
+            "result": ["Yes", "Yes", "No"],
+            "algorithm_name": ["model-a", "model-b", "model-a"],
+            "actual_prediction": ["No", "Yes", "No"],
+            "prediction_created_at": ["t1", "t2", "t3"],
+            "source": ["app", "app", "app"],
+            "split": ["train", "train", "train"],
+        }
+    )
+
+    normalized = normalize_futurebench(df, "event_id")
+
+    assert len(normalized) == 2
+    event_120 = normalized[normalized["event_id"] == "120"].iloc[0]
+    assert event_120["question"] == "Will airport reopen?"
+    assert event_120["model_count"] == 2
+    assert len(event_120["predictions"]) == 2
+    assert event_120["predictions"][0]["algorithm_name"] == "model-a"
+
+
+def test_normalize_mmlu_redux_maps_numeric_answer_to_letter() -> None:
+    df = pd.DataFrame(
+        {
+            "question": ["Which bundle is correct?"],
+            "choices": [["Option A", "Option B", "Option C", "Option D"]],
+            "answer": [1],
+            "subject": ["anatomy"],
+        }
+    )
+
+    normalized = normalize_mmlu_redux(df, "sample_id")
+
+    assert normalized["answer_letter"].iloc[0] == "B"

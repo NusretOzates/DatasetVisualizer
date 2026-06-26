@@ -206,14 +206,24 @@ def _hf_benchmark_filters(entry: DatasetEntry) -> list[dict[str, Any]]:
     return filters
 
 
+def _overview_for_entry(entry: DatasetEntry) -> OverviewFn:
+    """Bind catalog dataset id into generic overview extras."""
+
+    def _overview(df: pd.DataFrame, extras: dict[str, Any]) -> dict[str, Any]:
+        return overview_generic(df, {**extras, "dataset_id": entry.id})
+
+    return _overview
+
+
 def _descriptor_from_hf_entry(entry: DatasetEntry) -> DatasetDescriptor:
     viewer = entry.viewer or entry.id
     id_column = entry.id_column or "sample_id"
+    hf_loader = make_hf_benchmark_loader(entry)
     return DatasetDescriptor(
         id_column=id_column,
         viewer=viewer,
-        loader=lambda params, entry=entry: (make_hf_benchmark_loader(entry)(params), {}),
-        overview=overview_generic,
+        loader=lambda params, loader=hf_loader: (loader(params), {}),
+        overview=_overview_for_entry(entry),
         filters=_hf_benchmark_filters(entry),
         cache_key=entry.id,
     )

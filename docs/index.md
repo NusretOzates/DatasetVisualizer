@@ -64,7 +64,6 @@ Details, naming rules, and the full touchpoint list: [dataset-system.md](dataset
 | `api/filters.py` | Schema-driven `apply_filters()` and `build_filter_options()` |
 | `api/overview.py` | Per-dataset overview builders (manual loaders) |
 | `api/generic_overview.py` | Reusable overview for `hf_benchmark` entries |
-| `api/chart_data.py` | Chart JSON builders for the React frontend |
 | `api/serializers.py` | DataFrame/row JSON serialization |
 | `loaders/hf_benchmark.py` | Config-driven Hub download + normalization |
 | `loaders/benchmark_normalize.py` | Profile-specific column normalization |

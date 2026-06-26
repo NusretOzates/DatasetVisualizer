@@ -7,7 +7,7 @@ Prefer `docs/how-to/` recipes over full-codebase search for common tasks.
 
 ## Cursor Cloud specific instructions
 
-This is a Python 3.12 project managed with **uv**. The product is a **Gradio Server** backend plus a **Next.js** React frontend ("Dataset Visualizer") that loads Hugging Face benchmark datasets and renders overview charts plus per-sample inspection.
+This is a Python 3.12 project managed with **uv**. The product is a **Gradio Server** backend plus a **Next.js** React frontend ("Dataset Visualizer") that loads Hugging Face benchmark datasets and renders overview summaries plus per-sample inspection.
 
 Standard commands are documented in `README.md` (Setup/Run/Development) and `docs/index.md`; prefer those instead of duplicating them here.
 

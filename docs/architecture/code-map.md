@@ -12,17 +12,18 @@ Use this map to locate the right files before searching the whole repository.
 | Dataset registration | `dataset_visualizer.api.dataset_registry:get_descriptor` | `src/dataset_visualizer/api/dataset_registry.py` | `tests/test_registry.py`, `tests/test_benchmark_registry.py` |
 | Manual Hugging Face loaders | `dataset_visualizer.loaders.*:load_*` | `src/dataset_visualizer/loaders/*.py`, `src/dataset_visualizer/loaders/base.py` | `tests/test_loaders_*.py` |
 | Generic HF benchmark loading | `dataset_visualizer.loaders.hf_benchmark:load_hf_benchmark_entry` | `src/dataset_visualizer/loaders/hf_benchmark.py`, `src/dataset_visualizer/loaders/benchmark_normalize.py` | `tests/test_loaders_hf_benchmark.py`, `tests/test_benchmark_normalize.py` |
+| MTOB ciphertext decryption | `dataset_visualizer.loaders.mtob_crypto:decrypt_mtob_text` | `src/dataset_visualizer/loaders/mtob_crypto.py`, `profile: mtob` in `benchmark_normalize.py` | `tests/test_mtob_crypto.py` |
 | Loader in-process cache | `dataset_visualizer.loaders.cache:loader_cache` | `src/dataset_visualizer/loaders/cache.py` | `tests/test_cache.py` |
-| Overview payloads (manual) | `dataset_visualizer.api.overview:overview_*` | `src/dataset_visualizer/api/overview.py`, `src/dataset_visualizer/api/chart_data.py` | `tests/test_api_service.py` |
-| Overview payloads (generic HF) | `dataset_visualizer.api.generic_overview:overview_generic` | `src/dataset_visualizer/api/generic_overview.py`, `src/dataset_visualizer/api/chart_data.py` | `tests/test_generic_overview.py` |
+| Overview payloads (manual) | `dataset_visualizer.api.overview:overview_*` | `src/dataset_visualizer/api/overview.py` | `tests/test_api_service.py` |
+| Overview payloads (generic HF) | `dataset_visualizer.api.generic_overview:overview_generic` | `src/dataset_visualizer/api/generic_overview.py` | `tests/test_generic_overview.py` |
 | Filter options and filtering | `dataset_visualizer.api.service:get_filter_options` | `src/dataset_visualizer/api/filters.py`, `src/dataset_visualizer/api/dataset_registry.py` | `tests/test_filters.py`, `tests/test_api_service.py` |
 | Sample lookup and inspection | `dataset_visualizer.api.service:get_sample` | `src/dataset_visualizer/api/service.py`, `src/dataset_visualizer/api/serializers.py` | `tests/test_api_service.py` |
 | Home-page row counts | `dataset_visualizer.row_count:row_count` | `src/dataset_visualizer/row_count.py`, `src/dataset_visualizer/api/service.py` | `tests/test_home.py` |
 | Inspect CLI | `scripts.inspect_dataset:inspect_dataset` | `scripts/inspect_dataset.py` | `tests/test_inspect_dataset.py` |
 | MCQ helpers | `dataset_visualizer.utils.mcq:resolve_correct_letter` | `src/dataset_visualizer/utils/mcq.py` | `tests/test_components_mcq.py` |
-| React overview charts | `frontend/components/OverviewTab.tsx:OverviewTab` | `frontend/components/ChartPanel.tsx`, `frontend/lib/types.ts` | Frontend lint/typecheck |
+| React overview tab | `frontend/components/OverviewTab.tsx:OverviewTab` | `frontend/components/DatasetReadme.tsx`, `frontend/lib/types.ts` | Frontend lint/typecheck |
 | React sample viewers | `frontend/components/viewers/registry.tsx:renderSample` | `frontend/components/viewers/datasets/*.tsx`, `frontend/components/viewers/*Viewer.tsx`, `scripts/scaffold_dataset_viewer.py` | `tests/test_benchmark_registry.py`, frontend typecheck |
-| Column glossary (Overview) | `frontend/components/ColumnGlossary.tsx:ColumnGlossary` | `config/column_glossary.yaml`, `scripts/build_column_glossary.py`, `src/dataset_visualizer/config.py:load_column_glossary` | `tests/test_column_glossary.py` |
+| Dataset README (Overview) | `frontend/components/DatasetReadme.tsx:DatasetReadme` | `src/dataset_visualizer/dataset_readme.py:get_dataset_readme`, `frontend/components/MarkdownContent.tsx` | `tests/test_dataset_readme.py` |
 | Dataset visual audit | `scripts/audit_datasets.py:audit_datasets` | `docs/audit/dataset-audit-matrix.md`, `scripts/capture_audit_screenshots.py` | `scripts/audit_datasets.py` |
 | ARC-AGI grid visualization | `frontend/components/viewers/ArcGridViewer.tsx:ArcGridViewer` | `config/datasets.yaml`, `frontend/components/viewers/registry.tsx` | `tests/test_benchmark_registry.py` |
 | Code-eval sample viewer | `frontend/components/viewers/CodeEvalViewer.tsx` | `frontend/components/viewers/registry.tsx` | `tests/test_benchmark_registry.py` |

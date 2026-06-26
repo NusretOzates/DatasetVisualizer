@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DatasetMeta, SamplePayload } from "@/lib/types";
 import { decodePrivateTests, fetchSample } from "@/lib/api";
 import { renderSample } from "./viewers/registry";
@@ -24,6 +24,19 @@ type SampleInspectorProps = {
   filters: Record<string, unknown>;
 };
 
+type SampleCache = {
+  key: string;
+  samples: Map<number, SamplePayload>;
+};
+
+function sampleQueryKey(
+  datasetId: string,
+  params: Record<string, unknown>,
+  filters: Record<string, unknown>,
+): string {
+  return `${datasetId}:${JSON.stringify(params)}:${JSON.stringify(filters)}`;
+}
+
 export function SampleInspector({ datasetId, meta, params, filters }: SampleInspectorProps) {
   const [index, setIndex] = useState(0);
   const [payload, setPayload] = useState<SamplePayload | null>(null);
@@ -32,48 +45,121 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
   const [privateTestsLoading, setPrivateTestsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadToken, setLoadToken] = useState(0);
+
+  const queryKey = useMemo(
+    () => sampleQueryKey(datasetId, params, filters),
+    [datasetId, params, filters],
+  );
+  const cacheRef = useRef<SampleCache>({ key: "", samples: new Map() });
+  const inflightRef = useRef<Map<number, Promise<SamplePayload>>>(new Map());
+  const indexRef = useRef(index);
+  indexRef.current = index;
+
+  useEffect(() => {
+    cacheRef.current = { key: queryKey, samples: new Map() };
+    inflightRef.current.clear();
+    setIndex(0);
+    setPayload(null);
+    setError(null);
+    setPrivateTests(null);
+    setPrivateTestsError(null);
+    setPrivateTestsLoading(false);
+    setLoadToken((token) => token + 1);
+  }, [queryKey]);
+
+  const loadPrivateTests = useCallback(
+    async (row: Record<string, unknown> | null | undefined, cancelled: () => boolean) => {
+      const rawPrivateTests = row?.private_test_cases;
+      if (meta.supports_private_tests && rawPrivateTests && String(rawPrivateTests).trim()) {
+        setPrivateTestsLoading(true);
+        try {
+          const decoded = await decodePrivateTests(String(rawPrivateTests));
+          if (!cancelled()) {
+            setPrivateTests(decoded.cases);
+            setPrivateTestsError(null);
+          }
+        } catch (decodeErr) {
+          if (!cancelled()) {
+            setPrivateTests(null);
+            setPrivateTestsError(
+              decodeErr instanceof Error
+                ? decodeErr.message
+                : "Failed to decode private test cases",
+            );
+          }
+        } finally {
+          if (!cancelled()) setPrivateTestsLoading(false);
+        }
+        return;
+      }
+      if (!cancelled()) {
+        setPrivateTests(null);
+        setPrivateTestsError(null);
+        setPrivateTestsLoading(false);
+      }
+    },
+    [meta.supports_private_tests],
+  );
+
+  const requestSample = useCallback(
+    (targetIndex: number) => {
+      let promise = inflightRef.current.get(targetIndex);
+      if (!promise) {
+        promise = fetchSample(datasetId, targetIndex, params, filters);
+        inflightRef.current.set(targetIndex, promise);
+        void promise.finally(() => {
+          inflightRef.current.delete(targetIndex);
+        });
+      }
+      return promise;
+    },
+    [datasetId, params, filters],
+  );
+
+  const prefetchNeighbors = useCallback(
+    (centerIndex: number, total: number) => {
+      for (const neighbor of [centerIndex - 1, centerIndex + 1]) {
+        if (neighbor < 0 || neighbor >= total) continue;
+        if (cacheRef.current.samples.has(neighbor)) continue;
+        if (inflightRef.current.has(neighbor)) continue;
+        void requestSample(neighbor).then((result) => {
+          cacheRef.current.samples.set(result.index, result);
+        });
+      }
+    },
+    [requestSample],
+  );
 
   useEffect(() => {
     let cancelled = false;
+    const isCancelled = () => cancelled;
+
+    const cached = cacheRef.current.samples.get(index);
+    if (cached) {
+      setPayload(cached);
+      setIndex(cached.index);
+      setLoading(false);
+      setError(null);
+      void loadPrivateTests(cached.row, isCancelled);
+      prefetchNeighbors(cached.index, cached.total);
+      return () => {
+        cancelled = true;
+      };
+    }
+
     setLoading(true);
     setError(null);
-    setPrivateTestsError(null);
-    setPrivateTests(null);
-    setPrivateTestsLoading(Boolean(meta.supports_private_tests));
-    fetchSample(datasetId, index, params, filters)
+
+    void requestSample(index)
       .then(async (result) => {
         if (cancelled) return;
+        cacheRef.current.samples.set(result.index, result);
+        if (indexRef.current !== index) return;
         setPayload(result);
         setIndex(result.index);
-        const rawPrivateTests = result.row?.private_test_cases;
-        if (
-          meta.supports_private_tests &&
-          rawPrivateTests &&
-          String(rawPrivateTests).trim()
-        ) {
-          try {
-            const decoded = await decodePrivateTests(String(rawPrivateTests));
-            if (!cancelled) {
-              setPrivateTests(decoded.cases);
-              setPrivateTestsError(null);
-            }
-          } catch (decodeErr) {
-            if (!cancelled) {
-              setPrivateTests(null);
-              setPrivateTestsError(
-                decodeErr instanceof Error
-                  ? decodeErr.message
-                  : "Failed to decode private test cases",
-              );
-            }
-          } finally {
-            if (!cancelled) setPrivateTestsLoading(false);
-          }
-        } else if (!cancelled) {
-          setPrivateTests(null);
-          setPrivateTestsError(null);
-          setPrivateTestsLoading(false);
-        }
+        await loadPrivateTests(result.row, isCancelled);
+        if (!cancelled) prefetchNeighbors(result.index, result.total);
       })
       .catch((err: Error) => {
         if (!cancelled) setError(err.message);
@@ -81,12 +167,14 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
-  }, [datasetId, index, params, filters, meta.supports_private_tests]);
+  }, [index, loadToken, requestSample, loadPrivateTests, prefetchNeighbors]);
 
   const total = payload?.total ?? 0;
+  const navigating = loading && payload !== null;
 
   return (
     <div className="space-y-4">
@@ -99,7 +187,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
             <Button
               variant="outline"
               size="sm"
-              disabled={index <= 0 || loading}
+              disabled={index <= 0 || (loading && !payload)}
               onClick={() => setIndex(index - 1)}
             >
               <ChevronLeft className="size-4" />
@@ -108,7 +196,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
             <Button
               variant="outline"
               size="sm"
-              disabled={!total || index >= total - 1 || loading}
+              disabled={!total || index >= total - 1 || (loading && !payload)}
               onClick={() => setIndex(index + 1)}
             >
               Next
@@ -116,6 +204,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
             </Button>
             <span className="text-sm text-muted-foreground tabular-nums">
               Sample {total ? index + 1 : 0} of {total}
+              {navigating ? " · loading…" : ""}
             </span>
           </div>
 
@@ -126,7 +215,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
               min={0}
               max={Math.max(total - 1, 0)}
               step={1}
-              disabled={!total || loading}
+              disabled={!total || (loading && !payload)}
               onValueChange={(value) => setIndex(value[0] ?? 0)}
             />
           </div>
@@ -152,7 +241,7 @@ export function SampleInspector({ datasetId, meta, params, filters }: SampleInsp
       {loading && !payload ? <Skeleton className="h-64 w-full" /> : null}
 
       {payload ? (
-        <Card>
+        <Card className={navigating ? "opacity-70 transition-opacity" : undefined}>
           <CardContent className="pt-6">
             {renderSample(meta, payload, privateTests, privateTestsLoading)}
           </CardContent>
