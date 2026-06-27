@@ -15,6 +15,7 @@ def test_load_config_reads_project_yaml() -> None:
     config = load_config()
     assert "knowledge" in config.categories
     assert any(ds.id == "mmlu" for ds in config.categories["knowledge"])
+    assert any(ds.id == "mmmlu" for ds in config.categories["knowledge"])
 
 
 def test_dataset_entry_requires_core_fields() -> None:

@@ -343,7 +343,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 | `mmlu_pro` | knowledge | `mmlu_pro` | mcq_cot | `mcq_cot` | `mmlu_pro` |
 | `gpqa_diamond` | knowledge | `gpqa` | mcq | `mcq` | `gpqa` |
 | `global_mmlu` | knowledge | `global_mmlu` | mcq_multilingual | `mcq` | `global_mmlu` |
-| `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mcq` | `mmmlu` |
+| `mmmlu` | knowledge | `mmmlu` | mcq_multilingual | `mcq` | `mmmlu` |
 | `hle` | knowledge | `hle` | academic_qa | `academic_qa` | `hle` |
 | `livecodebench_v6` | code | `livecodebench` | code_problem | `code_problem` | `livecodebench` |
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `issue_resolution` | `swe_bench` |

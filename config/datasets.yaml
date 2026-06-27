@@ -61,6 +61,17 @@ categories:
 
       '
     viewer: global_mmlu
+  - id: mmmlu
+    label: MMMLU
+    loader: mmmlu
+    icon: 🌐
+    archetype: mcq_multilingual
+    hf_id: openai/MMMLU
+    description: 'OpenAI''s Multilingual Massive Multitask Language Understanding
+      benchmark with 14 locale-specific configs for non-English multiple-choice evaluation.
+
+      '
+    viewer: mmmlu
   - id: hle
     label: Humanity's Last Exam
     loader: hle
@@ -75,17 +86,6 @@ categories:
       '
     viewer: hle
   reasoning:
-  - id: mmmlu
-    label: MMMLU
-    loader: mmmlu
-    icon: 🌐
-    archetype: mcq_multilingual
-    hf_id: openai/MMMLU
-    description: 'OpenAI''s Multilingual Massive Multitask Language Understanding
-      benchmark with 14 locale-specific configs for non-English multiple-choice evaluation.
-
-      '
-    viewer: mmmlu
   - id: arc_challenge
     label: ARC Challenge
     loader: hf_benchmark
