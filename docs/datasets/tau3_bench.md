@@ -43,5 +43,5 @@ Downloaded JSON is cached under `data/cache/tau3_bench/`.
 
 ## UI notes
 
-- **Overview** — task count, domain count, split; full task table with purpose previews.
+- **Overview** — task count, domain count, split; tasks-by-domain summary.
 - **Sample inspector** — purpose, user scenario, evaluation criteria, ticket, and initial state expanders.

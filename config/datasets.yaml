@@ -1,5 +1,5 @@
 categories:
-  reasoning:
+  knowledge:
   - id: mmlu
     label: MMLU
     loader: mmlu
@@ -61,17 +61,6 @@ categories:
 
       '
     viewer: global_mmlu
-  - id: mmmlu
-    label: MMMLU
-    loader: mmmlu
-    icon: 🌐
-    archetype: mcq_multilingual
-    hf_id: openai/MMMLU
-    description: 'OpenAI''s Multilingual Massive Multitask Language Understanding
-      benchmark with 14 locale-specific configs for non-English multiple-choice evaluation.
-
-      '
-    viewer: mmmlu
   - id: hle
     label: Humanity's Last Exam
     loader: hle
@@ -85,6 +74,18 @@ categories:
 
       '
     viewer: hle
+  reasoning:
+  - id: mmmlu
+    label: MMMLU
+    loader: mmmlu
+    icon: 🌐
+    archetype: mcq_multilingual
+    hf_id: openai/MMMLU
+    description: 'OpenAI''s Multilingual Massive Multitask Language Understanding
+      benchmark with 14 locale-specific configs for non-English multiple-choice evaluation.
+
+      '
+    viewer: mmmlu
   - id: arc_challenge
     label: ARC Challenge
     loader: hf_benchmark
@@ -253,6 +254,19 @@ categories:
 
       '
     viewer: tau3_bench
+  - id: terminal_bench_21
+    label: Terminal-Bench 2.1
+    loader: terminal_bench_21
+    icon: 🖥️
+    archetype: agent_task
+    docs: docs/datasets/terminal_bench_21.md
+    row_count: 89
+    description: 'Terminal-Bench 2.1 tasks for measuring agents in containerized CLI
+      environments — debugging, systems work, security, and other hard real-world command-line
+      problems. Loaded from the Harbor GitHub repository.
+
+      '
+    viewer: terminal_bench_21
   - id: mbpp
     label: MBPP
     loader: hf_benchmark
@@ -390,6 +404,19 @@ categories:
 
       '
     viewer: mtob
+  - id: nocha
+    label: NoCha
+    loader: nocha
+    icon: 📏
+    archetype: long_context_qa
+    docs: docs/datasets/nocha.md
+    row_count: 126
+    description: 'Public sample of the NoCha long-context benchmark — true/false claim
+      pairs about classic novels with full book text as context. Upstream source is the
+      marzenakrp/nocha GitHub repository.
+
+      '
+    viewer: nocha
   instruction_following:
   - id: ifeval
     label: IFEval
@@ -437,7 +464,20 @@ categories:
 
       '
     viewer: coconot
-  assistant_tasks:
+  agentic_tasks:
+  - id: browsecomp
+    label: BrowseComp
+    loader: browsecomp
+    icon: 🤝
+    archetype: agent_task
+    docs: docs/datasets/browsecomp.md
+    row_count: 1266
+    description: 'OpenAI browsing-agent benchmark of 1,266 hard web-search questions
+      with short verifiable answers. Questions and answers are XOR-encrypted in the
+      upstream CSV; decrypted at load time from simple-evals.
+
+      '
+    viewer: browsecomp
   - id: gaia
     label: GAIA
     loader: hf_benchmark
@@ -548,6 +588,49 @@ categories:
       MCP servers.
 
       '
+  - id: mcp_atlas
+    label: MCP-Atlas
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: ScaleAI/MCP-Atlas
+    split: train
+    profile: mcp_atlas
+    viewer: mcp_atlas
+    id_column: task_id
+    row_count: 500
+    description: 'Scale AI benchmark for MCP tool-use competency across 36 real MCP
+      servers and 220 tools. Public subset of 500 multi-step tasks with natural-language
+      prompts, enabled tool subsets, verifiable claims, and reference trajectories.
+
+      '
+  - id: osworld_verified
+    label: OSWorld-Verified
+    loader: osworld_verified
+    icon: 🤝
+    archetype: agent_task
+    docs: docs/datasets/osworld_verified.md
+    row_count: 361
+    description: 'XLANG OSWorld-Verified desktop GUI agent benchmark — 361 human-validated
+      tasks across Chrome, LibreOffice, VS Code, GIMP, and other real app environments.
+      Loaded from evaluation_examples/test_nogdrive.json in the upstream GitHub repo.
+
+      '
+    viewer: osworld_verified
+  - id: toolathlon
+    label: Toolathlon
+    loader: toolathlon
+    icon: 🤝
+    archetype: agent_task
+    docs: docs/datasets/toolathlon.md
+    row_count: 108
+    description: 'HKUST Toolathlon (ICLR 2026) — 108 diverse real-world agent tasks
+      requiring MCP servers and local tools across filesystem, terminal, web, and
+      domain-specific APIs. Tasks load from the GitHub benchmark; reference trajectories
+      for 17 models are on Hugging Face.
+
+      '
+    viewer: toolathlon
   games:
   - id: arc_agi_2
     label: ARC-AGI 2

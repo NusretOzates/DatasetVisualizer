@@ -52,5 +52,5 @@ Problems store `problem_idx` as `int64`; outputs store it as `string`. Both load
 
 ## UI notes
 
-- **Overview** — problem count, model-run count, model count; full problem table.
+- **Overview** — problem count, model-run count, model count, sources; problems-by-source summary.
 - **Sample inspector** — two-column layout: LaTeX problem + gold answer; paper metadata; per-problem model-run table with parsed vs gold diff.

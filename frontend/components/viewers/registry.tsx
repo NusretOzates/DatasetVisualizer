@@ -9,6 +9,7 @@ import { AppsViewer } from "./datasets/apps";
 import { ArcAgi2Viewer } from "./datasets/arc_agi_2";
 import { ArcChallengeViewer } from "./datasets/arc_challenge";
 import { Arxivmath0526Viewer } from "./datasets/arxivmath_0526";
+import { BrowsecompViewer } from "./datasets/browsecomp";
 import { CoconotViewer } from "./datasets/coconot";
 import { CommonsenseqaViewer } from "./datasets/commonsenseqa";
 import { DabstepViewer } from "./datasets/dabstep";
@@ -33,6 +34,8 @@ import { IfevalViewer } from "./datasets/ifeval";
 import { LivecodebenchV6Viewer } from "./datasets/livecodebench_v6";
 import { LivemcpbenchViewer } from "./datasets/livemcpbench";
 import { MathViewer } from "./datasets/math";
+import { McpAtlasViewer } from "./datasets/mcp_atlas";
+import { OsworldVerifiedViewer } from "./datasets/osworld_verified";
 import { Math500Viewer } from "./datasets/math_500";
 import { MathArenaViewer } from "./datasets/math_arena";
 import { MathHardViewer } from "./datasets/math_hard";
@@ -44,6 +47,7 @@ import { MmluReduxViewer } from "./datasets/mmlu_redux";
 import { MmmluViewer } from "./datasets/mmmlu";
 import { MrcrViewer } from "./datasets/mrcr";
 import { MtobViewer } from "./datasets/mtob";
+import { NochaViewer } from "./datasets/nocha";
 import { OpenbookqaViewer } from "./datasets/openbookqa";
 import { PaperbenchViewer } from "./datasets/paperbench";
 import { PiqaViewer } from "./datasets/piqa";
@@ -53,6 +57,8 @@ import { SweBenchMultilingualViewer } from "./datasets/swe_bench_multilingual";
 import { SweBenchProViewer } from "./datasets/swe_bench_pro";
 import { SweBenchVerifiedViewer } from "./datasets/swe_bench_verified";
 import { Tau3BenchViewer } from "./datasets/tau3_bench";
+import { TerminalBench21Viewer } from "./datasets/terminal_bench_21";
+import { ToolathlonViewer } from "./datasets/toolathlon";
 import { WinograndeViewer } from "./datasets/winogrande";
 import { ZebraLogicViewer } from "./datasets/zebra_logic";
 
@@ -62,6 +68,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   arc_agi_2: ArcAgi2Viewer,
   arc_challenge: ArcChallengeViewer,
   arxivmath_0526: Arxivmath0526Viewer,
+  browsecomp: BrowsecompViewer,
   coconot: CoconotViewer,
   commonsenseqa: CommonsenseqaViewer,
   dabstep: DabstepViewer,
@@ -86,6 +93,8 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   livecodebench_v6: LivecodebenchV6Viewer,
   livemcpbench: LivemcpbenchViewer,
   math: MathViewer,
+  mcp_atlas: McpAtlasViewer,
+  osworld_verified: OsworldVerifiedViewer,
   math_500: Math500Viewer,
   math_arena: MathArenaViewer,
   math_hard: MathHardViewer,
@@ -97,6 +106,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   mmmlu: MmmluViewer,
   mrcr: MrcrViewer,
   mtob: MtobViewer,
+  nocha: NochaViewer,
   openbookqa: OpenbookqaViewer,
   paperbench: PaperbenchViewer,
   piqa: PiqaViewer,
@@ -106,6 +116,8 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   swe_bench_pro: SweBenchProViewer,
   swe_bench_verified: SweBenchVerifiedViewer,
   tau3_bench: Tau3BenchViewer,
+  terminal_bench_21: TerminalBench21Viewer,
+  toolathlon: ToolathlonViewer,
   winogrande: WinograndeViewer,
   zebra_logic: ZebraLogicViewer,
 };

@@ -8,16 +8,18 @@ import numpy as np
 import pandas as pd
 
 from dataset_visualizer.loaders.benchmark_normalize import (
+    _parse_pythonish_list,
     normalize_agent_task,
     normalize_arc,
     normalize_arc_agi,
     normalize_benchmark,
     normalize_commonsenseqa,
+    normalize_futurebench,
     normalize_gaia,
     normalize_gaia2,
-    normalize_futurebench,
     normalize_hellaswag,
     normalize_instruction,
+    normalize_mcp_atlas,
     normalize_mmlu_redux,
     normalize_piqa,
     normalize_scicode,
@@ -369,6 +371,49 @@ def test_normalize_agent_task_unifies_livemcpbench_columns() -> None:
     assert "Annotator Metadata" not in normalized.columns
     assert normalized["question"].iloc[0] == "Analyze the audio file."
     assert normalized["annotator_metadata"].iloc[0]["Number of steps"] == "5"
+
+
+def test_normalize_mcp_atlas_parses_tool_claim_and_trajectory_fields() -> None:
+    trajectory = json.dumps(
+        [
+            {
+                "content": "Looking up the repository.",
+                "role": "assistant",
+                "tool_calls": [{"function": {"name": "github_search_repositories"}}],
+            }
+        ]
+    )
+    df = pd.DataFrame(
+        {
+            "TASK": ["task-abc"],
+            "PROMPT": ["Find the repository creation year."],
+            "ENABLED_TOOLS": ['["github_search_repositories", "whois_whois_domain"]'],
+            "GTFA_CLAIMS": "['Claim one.', 'Claim two.']",
+            "TRAJECTORY": trajectory,
+        }
+    )
+
+    normalized = normalize_mcp_atlas(df, "task_id")
+
+    assert normalized["task_id"].iloc[0] == "task-abc"
+    assert normalized["question"].iloc[0] == "Find the repository creation year."
+    assert normalized["enabled_tools"].iloc[0] == [
+        "github_search_repositories",
+        "whois_whois_domain",
+    ]
+    assert normalized["gtfa_claims"].iloc[0] == ["Claim one.", "Claim two."]
+    assert normalized["trajectory_step_count"].iloc[0] == 1
+
+
+def test_parse_pythonish_list_falls_back_for_malformed_gtfa_claim() -> None:
+    malformed = (
+        "['The very first version of the main README, translated into Croatian is:\\n\\n```\\n"
+        "# mcp-calculator\\n```\\n']"
+    )
+    claims = _parse_pythonish_list(malformed)
+    assert len(claims) == 1
+    assert "mcp-calculator" in claims[0]
+    assert "```" in claims[0]
 
 
 def test_normalize_futurebench_groups_model_runs_by_event() -> None:

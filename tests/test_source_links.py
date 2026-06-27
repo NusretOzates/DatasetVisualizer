@@ -63,6 +63,71 @@ def test_resolve_source_link_falls_back_to_github_for_tau3_bench() -> None:
     assert link.url == "https://github.com/sierra-research/tau2-bench"
 
 
+def test_resolve_source_link_falls_back_to_github_for_terminal_bench() -> None:
+    link = resolve_source_link(
+        _entry(
+            id="terminal_bench_21",
+            loader="terminal_bench_21",
+            docs="docs/datasets/terminal_bench_21.md",
+        )
+    )
+    assert link is not None
+    assert link.kind == "github"
+    assert link.url == "https://github.com/harbor-framework/terminal-bench-2-1"
+
+
+def test_resolve_source_link_falls_back_to_github_for_nocha() -> None:
+    link = resolve_source_link(
+        _entry(
+            id="nocha",
+            loader="nocha",
+            docs="docs/datasets/nocha.md",
+        )
+    )
+    assert link is not None
+    assert link.kind == "github"
+    assert link.url == "https://github.com/marzenakrp/nocha"
+
+
+def test_resolve_source_link_falls_back_to_github_for_browsecomp() -> None:
+    link = resolve_source_link(
+        _entry(
+            id="browsecomp",
+            loader="browsecomp",
+            docs="docs/datasets/browsecomp.md",
+        )
+    )
+    assert link is not None
+    assert link.kind == "github"
+    assert link.url == "https://github.com/openai/simple-evals"
+
+
+def test_resolve_source_link_falls_back_to_github_for_osworld_verified() -> None:
+    link = resolve_source_link(
+        _entry(
+            id="osworld_verified",
+            loader="osworld_verified",
+            docs="docs/datasets/osworld_verified.md",
+        )
+    )
+    assert link is not None
+    assert link.kind == "github"
+    assert link.url == "https://github.com/xlang-ai/OSWorld"
+
+
+def test_resolve_source_link_falls_back_to_github_for_toolathlon() -> None:
+    link = resolve_source_link(
+        _entry(
+            id="toolathlon",
+            loader="toolathlon",
+            docs="docs/datasets/toolathlon.md",
+        )
+    )
+    assert link is not None
+    assert link.kind == "github"
+    assert link.url == "https://github.com/hkust-nlp/Toolathlon"
+
+
 def test_resolve_source_link_accepts_http_docs_url() -> None:
     link = resolve_source_link(
         _entry(

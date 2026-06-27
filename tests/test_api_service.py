@@ -58,6 +58,46 @@ def test_get_dataset_meta_for_tau3_bench_uses_github_source() -> None:
     assert meta["source_link"]["url"] == "https://github.com/sierra-research/tau2-bench"
 
 
+def test_get_dataset_meta_for_terminal_bench_uses_github_source() -> None:
+    meta = get_dataset_meta("terminal_bench_21")
+    assert meta["source_link"]["kind"] == "github"
+    assert meta["source_link"]["url"] == "https://github.com/harbor-framework/terminal-bench-2-1"
+
+
+def test_get_dataset_meta_for_nocha_uses_github_source() -> None:
+    meta = get_dataset_meta("nocha")
+    assert meta["id"] == "nocha"
+    assert meta["viewer"] == "nocha"
+    assert meta["source_link"]["kind"] == "github"
+    assert meta["source_link"]["url"] == "https://github.com/marzenakrp/nocha"
+
+
+def test_get_dataset_meta_for_browsecomp_uses_github_source() -> None:
+    meta = get_dataset_meta("browsecomp")
+    assert meta["id"] == "browsecomp"
+    assert meta["viewer"] == "browsecomp"
+    assert meta["source_link"]["kind"] == "github"
+    assert meta["source_link"]["url"] == "https://github.com/openai/simple-evals"
+
+
+def test_get_dataset_meta_for_mcp_atlas() -> None:
+    meta = get_dataset_meta("mcp_atlas")
+    assert meta["id"] == "mcp_atlas"
+    assert meta["viewer"] == "mcp_atlas"
+    assert meta["id_column"] == "task_id"
+    assert meta["source_link"]["kind"] == "huggingface"
+    assert meta["source_link"]["label"] == "ScaleAI/MCP-Atlas"
+
+
+def test_get_dataset_meta_for_osworld_verified_uses_github_source() -> None:
+    meta = get_dataset_meta("osworld_verified")
+    assert meta["id"] == "osworld_verified"
+    assert meta["viewer"] == "osworld_verified"
+    assert meta["id_column"] == "task_id"
+    assert meta["source_link"]["kind"] == "github"
+    assert meta["source_link"]["url"] == "https://github.com/xlang-ai/OSWorld"
+
+
 def test_get_catalog_home_rows_include_source_links() -> None:
     catalog = get_catalog()
     mmlu_row = next(row for row in catalog["home_rows"] if row["dataset"] == "MMLU")

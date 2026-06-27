@@ -44,7 +44,8 @@ See [archetype reference](../dataset-system.md#archetype-reference) for normaliz
 | MCQ multilingual | `global_mmlu`, `mmmlu` | `mcq` |
 | Code generation | `livecodebench_v6` | `code_problem` |
 | Issue resolution | `swe_bench_verified` | `issue_resolution` |
-| Agent task | `tau3_bench` | `agent_task` |
+| Agent task | `tau3_bench` | `tau3_bench` |
+| Terminal CLI | `terminal_bench_21` | `terminal_bench_21` |
 | Academic QA | `hle` | `academic_qa` |
 | Math final-answer | `aime_2026` | `math_competition` |
 | Math + model runs | `arxivmath_0526` | `arxiv_math` |

@@ -230,14 +230,16 @@ Filter options for multiselect/radio/date_range are built in `service._filter_op
 
 ### Overview payload shape
 
+Metrics answer “how big / how varied is this dataset?” Tables are **aggregated summaries only** (counts by topic, domain, source, …). Never list every row — titles must not start with “All …”. Per-sample browsing belongs in the **Sample** tab (filters + paginated inspector).
+
 ```python
 {
-    "metrics": [{"label": "Total rows", "value": "1,234"}],
+    "metrics": [{"label": "Problems", "value": "40"}],
     "tables": [
         {
-            "title": "All problems",
-            "columns": ["problem_idx", "problem_preview"],
-            "rows": [{"problem_idx": "1", "problem_preview": "…"}],
+            "title": "Problems by source",
+            "columns": ["source", "problem_count"],
+            "rows": [{"source": "2024-05", "problem_count": 12}],
         }
     ],
 }
@@ -331,33 +333,38 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 
 ## Registered datasets (lookup)
 
-**51 total** in `config/datasets.yaml`: **13 manual loaders** (table below) + **38 `hf_benchmark`** entries auto-registered at import time. Full `hf_benchmark` list by category: [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) and `config/datasets.yaml`.
+**57 total** in `config/datasets.yaml`: **18 manual loaders** + **39 `hf_benchmark`** (table below) + **38 `hf_benchmark`** entries auto-registered at import time. Full `hf_benchmark` list by category: [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) and `config/datasets.yaml`.
 
 ### Manual loaders
 
 | `id` | Category | Config `loader` | Archetype | `viewer` | Cache key |
 |------|----------|-------------------|-----------|----------|-----------|
-| `mmlu` | reasoning | `mmlu` | mcq | `mcq` | `mmlu` |
-| `mmlu_pro` | reasoning | `mmlu_pro` | mcq_cot | `mcq_cot` | `mmlu_pro` |
-| `gpqa_diamond` | reasoning | `gpqa` | mcq | `mcq` | `gpqa` |
-| `global_mmlu` | reasoning | `global_mmlu` | mcq_multilingual | `mcq` | `global_mmlu` |
+| `mmlu` | knowledge | `mmlu` | mcq | `mcq` | `mmlu` |
+| `mmlu_pro` | knowledge | `mmlu_pro` | mcq_cot | `mcq_cot` | `mmlu_pro` |
+| `gpqa_diamond` | knowledge | `gpqa` | mcq | `mcq` | `gpqa` |
+| `global_mmlu` | knowledge | `global_mmlu` | mcq_multilingual | `mcq` | `global_mmlu` |
 | `mmmlu` | reasoning | `mmmlu` | mcq_multilingual | `mcq` | `mmmlu` |
-| `hle` | reasoning | `hle` | academic_qa | `academic_qa` | `hle` |
+| `hle` | knowledge | `hle` | academic_qa | `academic_qa` | `hle` |
 | `livecodebench_v6` | code | `livecodebench` | code_problem | `code_problem` | `livecodebench` |
 | `swe_bench_verified` | code | `swe_bench_verified` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `swe_bench_multilingual` | code | `swe_bench_multilingual` | issue_resolution | `issue_resolution` | `swe_bench` |
 | `swe_bench_pro` | code | `swe_bench_pro` | issue_resolution | `issue_resolution` | `swe_bench` |
-| `tau3_bench` | code | `tau3_bench` | agent_task | `agent_task` | `tau3_bench` |
+| `tau3_bench` | code | `tau3_bench` | agent_task | `tau3_bench` | `tau3_bench` |
+| `terminal_bench_21` | code | `terminal_bench_21` | agent_task | `terminal_bench_21` | `terminal_bench_21` |
+| `nocha` | long_context | `nocha` | long_context_qa | `nocha` | `nocha` |
+| `browsecomp` | agentic_tasks | `browsecomp` | agent_task | `browsecomp` | `browsecomp` |
+| `osworld_verified` | agentic_tasks | `osworld_verified` | agent_task | `osworld_verified` | `osworld_verified` |
 | `aime_2026` | math | `aime_2026` | math_competition | `math_competition` | `aime_2026` |
 | `arxivmath_0526` | math | `arxivmath` | math_competition | `arxiv_math` | `arxivmath` |
 
 ### `hf_benchmark` by category (config `id` → `profile`)
 
-**reasoning:** `arc_challenge` (`arc`), `winogrande`, `hellaswag`, `commonsenseqa`, `piqa`, `openbookqa`, `zebra_logic`, `mmlu_redux`  
+**knowledge:** `mmlu_redux`  
+**reasoning:** `arc_challenge` (`arc`), `winogrande`, `hellaswag`, `commonsenseqa`, `piqa`, `openbookqa`, `zebra_logic`  
 **code:** `mbpp`, `apps`, `humaneval`, `humaneval_plus`, `mbpp_plus`, `evoeval_difficult`  
-**long_context:** `ruler`, `mrcr`, `mtob`  
+**long_context:** `ruler`, `mrcr`, `mtob`, `nocha`  
 **instruction_following:** `ifeval`, `ifbench`, `coconot`  
-**assistant_tasks:** `gaia`, `gdpval`, `gaia2`, `scicode` (`scicode`, viewer `code_eval`), `paperbench`, `dabstep`, `livemcpbench`  
+**agentic_tasks:** `browsecomp`, `osworld_verified`, `toolathlon`, `gaia`, `gdpval`, `gaia2`, `scicode` (`scicode`, viewer `code_eval`), `paperbench`, `dabstep`, `livemcpbench`, `mcp_atlas`  
 **games:** `arc_agi_2` (`arc_agi`, viewer `arc_grid`)  
 **forecasters:** `futurebench`, `futurex`  
 **math:** `gsm8k`, `gsm1k`, `gsm_plus`, `gsm_symbolic`, `math`, `math_500`, `math_hard`, `math_arena`

@@ -9,7 +9,7 @@ The API layer uses [`gradio.Server`](https://huggingface.co/blog/introducing-gra
 | `uv run dataset-viz` | `cli.py` → `server.py` | 7860 (default) |
 | `uv run python src/dataset_visualizer/server.py` | `server.py` | 7860 |
 
-Override port with the `PORT` environment variable.
+Override port with `PORT` or `GRADIO_SERVER_PORT` (e.g. `PORT=7861 uv run dataset-viz`).
 
 ## Module layout
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 from typing import Any
 
@@ -20,6 +21,9 @@ _PRESERVE_LIST_COLUMNS = frozenset({
     "app_names",
     "events_summary",
     "predictions",
+    "enabled_tools",
+    "gtfa_claims",
+    "trajectory",
 })
 GAIA2_EVENTS_SUMMARY_LIMIT = 25
 
@@ -483,6 +487,99 @@ def normalize_agent_task(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def _unescape_hub_string(text: str) -> str:
+    """Decode common escaped sequences in malformed Hub string literals."""
+    return (
+        text.replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace("\\'", "'")
+        .replace('\\"', '"')
+        .replace("\\\\", "\\")
+    )
+
+
+def _fallback_pythonish_list(text: str) -> list[str]:
+    """Best-effort parse when upstream list literals contain unescaped quotes."""
+    stripped = text.strip()
+    if stripped.startswith("[") and stripped.endswith("]"):
+        inner = stripped[1:-1].strip()
+        if inner.startswith("'"):
+            body = inner[1:]
+            if body.endswith("'"):
+                body = body[:-1]
+            return [_unescape_hub_string(body)]
+    return [stripped]
+
+
+def _parse_pythonish_list(value: object) -> list[Any]:
+    """Parse list-like Hub strings stored as Python literals."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return []
+    seq = _sequence_values(value)
+    if seq is not None:
+        return [str(item) for item in seq]
+    text = str(value).strip()
+    if not text:
+        return []
+    try:
+        parsed = ast.literal_eval(text)
+    except (SyntaxError, ValueError):
+        return _fallback_pythonish_list(text)
+    if isinstance(parsed, list):
+        return [str(item) for item in parsed]
+    return [str(parsed)]
+
+
+def _parse_json_list(value: object) -> list[Any]:
+    """Parse JSON-encoded list columns from Hub exports."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return []
+    seq = _sequence_values(value)
+    if seq is not None:
+        return seq
+    text = str(value).strip()
+    if not text:
+        return []
+    parsed = json.loads(text)
+    if isinstance(parsed, list):
+        return parsed
+    return [parsed]
+
+
+def normalize_mcp_atlas(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize ScaleAI MCP-Atlas tool-use benchmark rows."""
+    normalized = df.copy()
+    renames = {
+        "TASK": "task_id",
+        "PROMPT": "prompt",
+        "ENABLED_TOOLS": "enabled_tools_raw",
+        "GTFA_CLAIMS": "gtfa_claims_raw",
+        "TRAJECTORY": "trajectory_raw",
+    }
+    for old_name, new_name in renames.items():
+        if old_name in normalized.columns:
+            normalized = normalized.rename(columns={old_name: new_name})
+
+    if "task_id" not in normalized.columns and id_column in normalized.columns:
+        normalized["task_id"] = normalized[id_column]
+
+    normalized = _ensure_sample_id(normalized, "task_id")
+    prompt = normalized.get("prompt", pd.Series(dtype=str)).astype(str)
+    normalized["question"] = prompt
+    normalized["prompt_preview"] = prompt.str.slice(0, 120)
+    normalized["enabled_tools"] = normalized["enabled_tools_raw"].map(_parse_pythonish_list)
+    normalized["enabled_tool_count"] = normalized["enabled_tools"].map(len)
+    normalized["gtfa_claims"] = normalized["gtfa_claims_raw"].map(_parse_pythonish_list)
+    normalized["gtfa_claim_count"] = normalized["gtfa_claims"].map(len)
+    normalized["trajectory"] = normalized["trajectory_raw"].map(_parse_json_list)
+    normalized["trajectory_step_count"] = normalized["trajectory"].map(len)
+    raw_columns = ("enabled_tools_raw", "gtfa_claims_raw", "trajectory_raw")
+    drop_cols = [col for col in raw_columns if col in normalized.columns]
+    if drop_cols:
+        normalized = normalized.drop(columns=drop_cols)
+    return normalized
+
+
 def normalize_gaia(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Normalize GAIA rows."""
     normalized = _ensure_sample_id(df, id_column)
@@ -622,6 +719,7 @@ NORMALIZERS: dict[str, Any] = {
     "instruction": normalize_instruction,
     "coconot": normalize_coconot,
     "agent_task": normalize_agent_task,
+    "mcp_atlas": normalize_mcp_atlas,
     "gaia": normalize_gaia,
     "gaia2": normalize_gaia2,
     "arc_agi": normalize_arc_agi,

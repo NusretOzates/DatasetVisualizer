@@ -23,7 +23,9 @@ from dataset_visualizer.api.service import (
 from dataset_visualizer.compat import apply_warning_filters
 
 FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "out"
-DEFAULT_PORT = int(os.environ.get("PORT", "7860"))
+DEFAULT_PORT = int(
+    os.environ.get("PORT") or os.environ.get("GRADIO_SERVER_PORT") or "7860"
+)
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")

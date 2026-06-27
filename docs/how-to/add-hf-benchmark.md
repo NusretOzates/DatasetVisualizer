@@ -1,6 +1,6 @@
 # How to add a Hugging Face benchmark (YAML-only)
 
-Use this recipe when a benchmark fits an existing **normalization profile** and **viewer** — no custom download logic or column transforms. Most new catalog entries follow this path (38 of 51 datasets today).
+Use this recipe when a benchmark fits an existing **normalization profile** and **viewer** — no custom download logic or column transforms. Most new catalog entries follow this path (38 of 52 datasets today).
 
 ## 1. Pick profile and viewer
 
@@ -10,7 +10,7 @@ Use this recipe when a benchmark fits an existing **normalization profile** and 
 | Grade-school / competition math | `gsm` or `math_competition` | `math_competition` | `gsm8k`, `math` |
 | Python function completion + tests | `code_eval` or `mbpp` or `apps` | `code_eval` (set `viewer:` explicitly) | `humaneval` |
 | Long-context / instruction / forecasting QA | `generic` or `instruction` or `coconot` | `generic` | `ruler`, `ifeval` |
-| Agent / assistant scenarios | `agent_task`, `gaia`, `gaia2` | `agent_task` (set `viewer:` — use `generic` or `gaia`, not `agent_task`) | `gaia`, `livemcpbench`, `dabstep` |
+| Agent / agentic scenarios | `agent_task`, `gaia`, `gaia2`, `mcp_atlas` | dedicated `viewer` (set `viewer:` — use `generic` or `gaia`, not `agent_task`) | `gaia`, `livemcpbench`, `mcp_atlas`, `dabstep` |
 | ARC-AGI grid puzzles | `arc_agi` | `arc_grid` (set `viewer:`) | `arc_agi_2` |
 
 Full profile list: `NORMALIZERS` in `src/dataset_visualizer/loaders/benchmark_normalize.py`.

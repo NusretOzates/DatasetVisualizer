@@ -80,5 +80,5 @@ def test_row_count_uses_config_for_unregistered_dataset(monkeypatch: pytest.Monk
 
 def test_gpqa_diamond_config_has_row_count_fallback() -> None:
     config = load_config()
-    gpqa = next(entry for entry in config.categories["reasoning"] if entry.id == "gpqa_diamond")
+    gpqa = next(entry for entry in config.categories["knowledge"] if entry.id == "gpqa_diamond")
     assert gpqa.row_count == 198

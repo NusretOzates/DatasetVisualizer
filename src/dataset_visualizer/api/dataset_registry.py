@@ -12,6 +12,7 @@ from dataset_visualizer.api.generic_overview import overview_generic
 from dataset_visualizer.api.overview import (
     overview_aime,
     overview_arxivmath,
+    overview_browsecomp,
     overview_global_mmlu,
     overview_gpqa,
     overview_hle,
@@ -19,14 +20,20 @@ from dataset_visualizer.api.overview import (
     overview_mmlu,
     overview_mmlu_pro,
     overview_mmmlu,
+    overview_nocha,
+    overview_osworld_verified,
+    overview_toolathlon,
     overview_swe_bench,
     overview_tau3_bench,
+    overview_terminal_bench,
     sample_extras_aime,
     sample_extras_arxivmath,
+    sample_extras_nocha,
 )
 from dataset_visualizer.config import DatasetEntry, load_config
 from dataset_visualizer.loaders.aime_2026 import load_aime_2026
 from dataset_visualizer.loaders.arxivmath import load_outputs, load_problems
+from dataset_visualizer.loaders.browsecomp import load_browsecomp
 from dataset_visualizer.loaders.global_mmlu import (
     DEFAULT_LANGUAGE,
     POPULAR_LANGUAGES,
@@ -46,12 +53,15 @@ from dataset_visualizer.loaders.mmmlu import (
     list_mmmlu_locales,
     load_mmmlu,
 )
+from dataset_visualizer.loaders.nocha import load_nocha
+from dataset_visualizer.loaders.osworld_verified import load_osworld_verified
 from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_multilingual,
     load_swe_bench_pro,
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
+from dataset_visualizer.loaders.toolathlon import load_toolathlon
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
 OverviewFn = Callable[[pd.DataFrame, dict[str, Any]], dict[str, Any]]
@@ -388,6 +398,112 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         ],
         cache_key="tau3_bench",
     ),
+    "terminal_bench_21": DatasetDescriptor(
+        id_column="task_id",
+        viewer="terminal_bench_21",
+        loader=lambda _p: (load_terminal_bench_21(), {}),
+        overview=overview_terminal_bench,
+        filters=[
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
+            {
+                "name": "difficulties",
+                "label": "Difficulty",
+                "type": "multiselect",
+                "column": "difficulty",
+            },
+        ],
+        cache_key="terminal_bench_21",
+    ),
+    "nocha": DatasetDescriptor(
+        id_column="sample_id",
+        viewer="nocha",
+        loader=lambda _p: load_nocha(),
+        overview=overview_nocha,
+        sample_extras=sample_extras_nocha,
+        filters=[
+            {
+                "name": "books",
+                "label": "Book",
+                "type": "multiselect",
+                "column": "book_title",
+            },
+            {
+                "name": "claim_types",
+                "label": "Claim type",
+                "type": "multiselect",
+                "column": "claim_type",
+            },
+            {
+                "name": "genres",
+                "label": "Genre",
+                "type": "multiselect",
+                "column": "genre",
+            },
+            {
+                "name": "length_groups",
+                "label": "Length bucket",
+                "type": "multiselect",
+                "column": "length_group",
+            },
+        ],
+        cache_key="nocha",
+    ),
+    "browsecomp": DatasetDescriptor(
+        id_column="sample_id",
+        viewer="browsecomp",
+        loader=lambda _p: (load_browsecomp(), {}),
+        overview=overview_browsecomp,
+        filters=[
+            {
+                "name": "topics",
+                "label": "Topic",
+                "type": "multiselect",
+                "column": "problem_topic",
+            },
+        ],
+        cache_key="browsecomp",
+    ),
+    "osworld_verified": DatasetDescriptor(
+        id_column="task_id",
+        viewer="osworld_verified",
+        loader=lambda _p: (load_osworld_verified(), {}),
+        overview=overview_osworld_verified,
+        filters=[
+            {
+                "name": "domains",
+                "label": "Domain",
+                "type": "multiselect",
+                "column": "domain",
+            },
+            {
+                "name": "evaluator_funcs",
+                "label": "Evaluator",
+                "type": "multiselect",
+                "column": "evaluator_func",
+            },
+        ],
+        cache_key="osworld_verified",
+    ),
+    "toolathlon": DatasetDescriptor(
+        id_column="task_id",
+        viewer="toolathlon",
+        loader=lambda _p: (load_toolathlon(), {}),
+        overview=overview_toolathlon,
+        filters=[
+            {
+                "name": "primary_mcp_servers",
+                "label": "Primary MCP server",
+                "type": "multiselect",
+                "column": "primary_mcp",
+            },
+        ],
+        cache_key="toolathlon",
+    ),
     "arxivmath_0526": DatasetDescriptor(
         id_column="problem_idx",
         viewer="arxivmath_0526",
@@ -413,6 +529,12 @@ def build_dataset_registry() -> dict[str, DatasetDescriptor]:
     for datasets in config.categories.values():
         for entry in datasets:
             if entry.loader != "hf_benchmark":
+                if entry.id not in registry:
+                    msg = (
+                        f"Dataset {entry.id!r} is listed in config/datasets.yaml but has no "
+                        f"DatasetDescriptor in api/dataset_registry.py (_MANUAL_REGISTRY)."
+                    )
+                    raise RuntimeError(msg)
                 continue
             if entry.id in registry:
                 continue
@@ -427,6 +549,9 @@ def get_descriptor(dataset_id: str) -> DatasetDescriptor:
     """Return the API descriptor for a dataset id."""
     descriptor = DATASET_REGISTRY.get(dataset_id)
     if descriptor is None:
-        msg = f"No API descriptor registered for dataset id: {dataset_id}"
+        msg = (
+            f"No API descriptor registered for dataset id: {dataset_id}. "
+            "If this dataset was added recently, restart the backend (`uv run dataset-viz`)."
+        )
         raise ValueError(msg)
     return descriptor

@@ -10,6 +10,11 @@ Use this map to locate the right files before searching the whole repository.
 | Config load / validation | `dataset_visualizer.config:load_config` | `config/datasets.yaml`, `src/dataset_visualizer/config.py` | `tests/test_config.py` |
 | Dataset catalog and metadata | `dataset_visualizer.api.service:get_catalog` | `config/datasets.yaml`, `src/dataset_visualizer/api/service.py`, `src/dataset_visualizer/source_links.py` | `tests/test_api_service.py`, `tests/test_home.py`, `tests/test_source_links.py` |
 | Dataset registration | `dataset_visualizer.api.dataset_registry:get_descriptor` | `src/dataset_visualizer/api/dataset_registry.py` | `tests/test_registry.py`, `tests/test_benchmark_registry.py` |
+| Terminal-Bench 2.1 (GitHub) | `dataset_visualizer.loaders.terminal_bench:load_terminal_bench_21` | `src/dataset_visualizer/loaders/terminal_bench.py` | `tests/test_loaders_terminal_bench.py` |
+| NoCha (GitHub) | `dataset_visualizer.loaders.nocha:load_nocha` | `src/dataset_visualizer/loaders/nocha.py` | `tests/test_loaders_nocha.py` |
+| BrowseComp (simple-evals CSV) | `dataset_visualizer.loaders.browsecomp:load_browsecomp` | `src/dataset_visualizer/loaders/browsecomp.py` | `tests/test_loaders_browsecomp.py` |
+| OSWorld-Verified (GitHub) | `dataset_visualizer.loaders.osworld_verified:load_osworld_verified` | `src/dataset_visualizer/loaders/osworld_verified.py` | `tests/test_loaders_osworld_verified.py` |
+| Toolathlon (GitHub) | `dataset_visualizer.loaders.toolathlon:load_toolathlon` | `src/dataset_visualizer/loaders/toolathlon.py` | `tests/test_loaders_toolathlon.py` |
 | Manual Hugging Face loaders | `dataset_visualizer.loaders.*:load_*` | `src/dataset_visualizer/loaders/*.py`, `src/dataset_visualizer/loaders/base.py` | `tests/test_loaders_*.py` |
 | Generic HF benchmark loading | `dataset_visualizer.loaders.hf_benchmark:load_hf_benchmark_entry` | `src/dataset_visualizer/loaders/hf_benchmark.py`, `src/dataset_visualizer/loaders/benchmark_normalize.py` | `tests/test_loaders_hf_benchmark.py`, `tests/test_benchmark_normalize.py` |
 | MTOB ciphertext decryption | `dataset_visualizer.loaders.mtob_crypto:decrypt_mtob_text` | `src/dataset_visualizer/loaders/mtob_crypto.py`, `profile: mtob` in `benchmark_normalize.py` | `tests/test_mtob_crypto.py` |

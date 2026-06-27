@@ -7,7 +7,7 @@ Domain terms used across the Dataset Visualizer codebase and docs. Read this onc
 | Term | Meaning |
 |------|---------|
 | **Config `id`** | Globally unique snake_case key for a dataset (`mmlu`, `arc_agi_2`). Used as API `dataset_id`, frontend route `/dataset/[id]`, and inspect CLI argument. |
-| **Category** | Top-level grouping in `config/datasets.yaml` (`reasoning`, `code`, `math`, …). Drives sidebar sections and the home-page table. |
+| **Category** | Top-level grouping in `config/datasets.yaml` (`knowledge`, `reasoning`, `code`, `math`, …). Drives sidebar sections and the home-page table. |
 | **`DatasetEntry`** | Pydantic model (`dataset_visualizer.config:DatasetEntry`) validating one YAML catalog row. |
 | **Catalog** | Full list of categories and datasets returned by `get_catalog()`. |
 
