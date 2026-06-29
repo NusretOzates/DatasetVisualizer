@@ -9,11 +9,14 @@ import pandas as pd
 
 from dataset_visualizer.loaders.benchmark_normalize import (
     _parse_pythonish_list,
+    normalize_aa_lcr,
+    normalize_aa_omniscience,
     normalize_agent_task,
     normalize_arc,
     normalize_arc_agi,
     normalize_benchmark,
     normalize_commonsenseqa,
+    normalize_critpt,
     normalize_futurebench,
     normalize_gaia,
     normalize_gaia2,
@@ -459,3 +462,66 @@ def test_normalize_mmlu_redux_maps_numeric_answer_to_letter() -> None:
     normalized = normalize_mmlu_redux(df, "sample_id")
 
     assert normalized["answer_letter"].iloc[0] == "B"
+
+
+def test_normalize_aa_lcr_builds_sample_id_and_source_lists() -> None:
+    df = pd.DataFrame(
+        {
+            "Unnamed: 0": [0],
+            "document_category": ["Academia"],
+            "document_set_id": ["ac_markets"],
+            "question_id": [1],
+            "question": ["Summarize the trend."],
+            "answer": ["Airline Industry (12)"],
+            "data_source_filenames": ["a.txt;b.txt"],
+            "data_source_urls": ["https://example.com/a;https://example.com/b"],
+            "input_tokens": [94494],
+        }
+    )
+
+    normalized = normalize_aa_lcr(df, "sample_id")
+
+    assert normalized["sample_id"].iloc[0] == "ac_markets_1"
+    assert normalized["source_filenames"].iloc[0] == ["a.txt", "b.txt"]
+    assert normalized["source_urls"].iloc[0] == [
+        "https://example.com/a",
+        "https://example.com/b",
+    ]
+    assert normalized["source_file_count"].iloc[0] == 2
+    assert normalized["category"].iloc[0] == "Academia"
+
+
+def test_normalize_aa_omniscience_maps_domain_category() -> None:
+    df = pd.DataFrame(
+        {
+            "domain": ["Finance"],
+            "topic": ["Accounting"],
+            "question_id": [1],
+            "question": ["Which ASC reference applies?"],
+            "answer": ["ASC 606-10-25-15"],
+        }
+    )
+
+    normalized = normalize_aa_omniscience(df, "question_id")
+
+    assert normalized["question_id"].iloc[0] == "1"
+    assert normalized["category"].iloc[0] == "Finance"
+    assert normalized["question_preview"].iloc[0].startswith("Which ASC")
+
+
+def test_normalize_critpt_maps_code_eval_columns() -> None:
+    df = pd.DataFrame(
+        {
+            "problem_id": ["Challenge_1_main"],
+            "problem_type": ["main"],
+            "problem_description": ["# Problem setup\nConsider a field theory."],
+            "code_template": ["def answer():\n    pass"],
+            "answer_code": ["def answer():\n    return 1"],
+        }
+    )
+
+    normalized = normalize_critpt(df, "problem_id")
+
+    assert normalized["question_content"].iloc[0].startswith("# Problem setup")
+    assert normalized["canonical_solution"].iloc[0].startswith("def answer()")
+    assert normalized["starter_code"].iloc[0] == "def answer():\n    pass"

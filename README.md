@@ -61,12 +61,12 @@ The backend serves `frontend/out/` at `/` when the build exists.
 
 ## Datasets
 
-[`config/datasets.yaml`](config/datasets.yaml) lists **57 benchmarks** in nine categories: knowledge, reasoning, code, long context, instruction following, agentic tasks, games, forecasters, and math.
+[`config/datasets.yaml`](config/datasets.yaml) lists **60 benchmarks** in nine categories: knowledge, reasoning, code, long context, instruction following, agentic tasks, games, forecasters, and math.
 
 | Path | Count | Registration |
 |------|------:|--------------|
-| Manual loaders | 14 | Custom Python in `loaders/` + `DatasetDescriptor` |
-| `hf_benchmark` | 38 | YAML-only; auto-registered |
+| Manual loaders | 18 | Custom Python in `loaders/` + `DatasetDescriptor` |
+| `hf_benchmark` | 42 | YAML-only; auto-registered |
 
 Add a dataset:
 
