@@ -451,18 +451,16 @@ categories:
     viewer: nocha
   - id: aa_lcr
     label: AA-LCR
-    loader: hf_benchmark
+    loader: aa_lcr
     icon: 📏
     archetype: long_context_qa
     hf_id: ArtificialAnalysis/AA-LCR
-    split: test
-    profile: aa_lcr
-    id_column: sample_id
+    docs: docs/datasets/aa_lcr.md
     row_count: 100
     description: 'Artificial Analysis Long Context Reasoning benchmark — 100 hard
       questions requiring reasoning across real-world document sets averaging ~100k
-      tokens. Document metadata and source links are included; full text is loaded
-      separately at evaluation time.
+      tokens. The loader includes the first 500 words of each source document as a
+      preview; full text lives in the Hub extracted-text archive.
 
       '
     viewer: aa_lcr

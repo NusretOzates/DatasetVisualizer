@@ -65,8 +65,8 @@ The backend serves `frontend/out/` at `/` when the build exists.
 
 | Path | Count | Registration |
 |------|------:|--------------|
-| Manual loaders | 18 | Custom Python in `loaders/` + `DatasetDescriptor` |
-| `hf_benchmark` | 42 | YAML-only; auto-registered |
+| Manual loaders | 19 | Custom Python in `loaders/` + `DatasetDescriptor` |
+| `hf_benchmark` | 41 | YAML-only; auto-registered |
 
 Add a dataset:
 

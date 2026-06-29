@@ -1,6 +1,6 @@
 # How to add a Hugging Face benchmark (YAML-only)
 
-Use this recipe when a benchmark fits an existing **normalization profile** and **viewer** — no custom download logic or column transforms. Most new catalog entries follow this path (42 of 60 datasets today).
+Use this recipe when a benchmark fits an existing **normalization profile** and **viewer** — no custom download logic or column transforms. Most new catalog entries follow this path (41 of 60 datasets today).
 
 ## 1. Pick profile and viewer
 

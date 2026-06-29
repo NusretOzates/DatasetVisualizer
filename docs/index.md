@@ -20,7 +20,7 @@ Internal developer documentation.
 
 ## Datasets
 
-**60 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 18 manual loaders + 42 `hf_benchmark` entries across nine categories.
+**60 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 19 manual loaders + 41 `hf_benchmark` entries across nine categories.
 
 Per-dataset notes (manual loaders and special cases):
 
@@ -33,6 +33,7 @@ Per-dataset notes (manual loaders and special cases):
 | MMMLU | [datasets/mmmlu.md](datasets/mmmlu.md) |
 | AIME 2026 | [datasets/aime_2026.md](datasets/aime_2026.md) |
 | Humanity's Last Exam | [datasets/hle.md](datasets/hle.md) |
+| AA-LCR | [datasets/aa_lcr.md](datasets/aa_lcr.md) |
 | LiveCodeBench v6 | [datasets/livecodebench.md](datasets/livecodebench.md) |
 | SWE-Bench | [datasets/swe_bench.md](datasets/swe_bench.md) |
 | τ³-Bench | [datasets/tau3_bench.md](datasets/tau3_bench.md) |

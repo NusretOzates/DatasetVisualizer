@@ -31,6 +31,7 @@ from dataset_visualizer.api.overview import (
     sample_extras_nocha,
 )
 from dataset_visualizer.config import DatasetEntry, load_config
+from dataset_visualizer.loaders.aa_lcr import load_aa_lcr
 from dataset_visualizer.loaders.aime_2026 import load_aime_2026
 from dataset_visualizer.loaders.arxivmath import load_outputs, load_problems
 from dataset_visualizer.loaders.browsecomp import load_browsecomp
@@ -468,6 +469,21 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
             },
         ],
         cache_key="browsecomp",
+    ),
+    "aa_lcr": DatasetDescriptor(
+        id_column="sample_id",
+        viewer="aa_lcr",
+        loader=lambda _p: (load_aa_lcr(), {}),
+        overview=lambda df, extras: overview_generic(df, {**extras, "dataset_id": "aa_lcr"}),
+        filters=[
+            {
+                "name": "categories",
+                "label": "Document category",
+                "type": "multiselect",
+                "column": "document_category",
+            },
+        ],
+        cache_key="aa_lcr",
     ),
     "osworld_verified": DatasetDescriptor(
         id_column="task_id",

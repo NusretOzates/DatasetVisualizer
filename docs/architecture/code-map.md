@@ -12,6 +12,7 @@ Use this map to locate the right files before searching the whole repository.
 | Dataset registration | `dataset_visualizer.api.dataset_registry:get_descriptor` | `src/dataset_visualizer/api/dataset_registry.py` | `tests/test_registry.py`, `tests/test_benchmark_registry.py` |
 | Terminal-Bench 2.1 (GitHub) | `dataset_visualizer.loaders.terminal_bench:load_terminal_bench_21` | `src/dataset_visualizer/loaders/terminal_bench.py` | `tests/test_loaders_terminal_bench.py` |
 | NoCha (GitHub) | `dataset_visualizer.loaders.nocha:load_nocha` | `src/dataset_visualizer/loaders/nocha.py` | `tests/test_loaders_nocha.py` |
+| AA-LCR (Hub + zip previews) | `dataset_visualizer.loaders.aa_lcr:load_aa_lcr` | `src/dataset_visualizer/loaders/aa_lcr.py` | `tests/test_loaders_aa_lcr.py` |
 | BrowseComp (simple-evals CSV) | `dataset_visualizer.loaders.browsecomp:load_browsecomp` | `src/dataset_visualizer/loaders/browsecomp.py` | `tests/test_loaders_browsecomp.py` |
 | OSWorld-Verified (GitHub) | `dataset_visualizer.loaders.osworld_verified:load_osworld_verified` | `src/dataset_visualizer/loaders/osworld_verified.py` | `tests/test_loaders_osworld_verified.py` |
 | Toolathlon (GitHub) | `dataset_visualizer.loaders.toolathlon:load_toolathlon` | `src/dataset_visualizer/loaders/toolathlon.py` | `tests/test_loaders_toolathlon.py` |
