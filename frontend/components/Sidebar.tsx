@@ -8,6 +8,7 @@ import type { Catalog, CategoryGroup, DatasetSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarFaq } from "@/components/SidebarFaq";
 
 type SidebarProps = {
   catalog: Catalog;
@@ -166,6 +167,8 @@ export function Sidebar({ catalog }: SidebarProps) {
           ))
         )}
       </ScrollArea>
+
+      <SidebarFaq />
 
       <div className="border-t border-sidebar-border px-5 py-3">
         <p className="text-xs text-sidebar-foreground/50">Gradio Server + Next.js</p>

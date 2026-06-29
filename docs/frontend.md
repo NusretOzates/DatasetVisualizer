@@ -11,6 +11,7 @@ The Dataset Visualizer UI is a **Next.js 15** React app in [`frontend/`](../fron
 | Icons | `lucide-react` | Sidebar and action icons |
 | Typography | `next/font` (Inter) | App-wide font |
 | App shell | `components/Sidebar.tsx` | Sidebar + `AppShell` layout |
+| Sidebar FAQ | `components/SidebarFaq.tsx`, `lib/faq.ts` | Collapsible FAQ cards under the dataset nav |
 | Home page | `components/HomePage.tsx` | Dataset catalog table |
 | Dataset routes | `app/dataset/[id]/page.tsx` | Static export; routes from `generateStaticParams` |
 | API client | `lib/api.ts` | `@gradio/client` wrappers |
