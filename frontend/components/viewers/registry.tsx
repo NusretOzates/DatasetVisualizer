@@ -5,6 +5,8 @@ import type { DatasetMeta } from "@/lib/types";
 import { GenericViewer } from "./GenericViewer";
 import type { SampleViewerProps } from "./types";
 import { Aime2026Viewer } from "./datasets/aime_2026";
+import { AaLcrViewer } from "./datasets/aa_lcr";
+import { AaOmniscienceViewer } from "./datasets/aa_omniscience";
 import { AppsViewer } from "./datasets/apps";
 import { ArcAgi2Viewer } from "./datasets/arc_agi_2";
 import { ArcChallengeViewer } from "./datasets/arc_challenge";
@@ -12,6 +14,7 @@ import { Arxivmath0526Viewer } from "./datasets/arxivmath_0526";
 import { BrowsecompViewer } from "./datasets/browsecomp";
 import { CoconotViewer } from "./datasets/coconot";
 import { CommonsenseqaViewer } from "./datasets/commonsenseqa";
+import { CritptViewer } from "./datasets/critpt";
 import { DabstepViewer } from "./datasets/dabstep";
 import { EvoevalDifficultViewer } from "./datasets/evoeval_difficult";
 import { FuturebenchViewer } from "./datasets/futurebench";
@@ -64,6 +67,8 @@ import { ZebraLogicViewer } from "./datasets/zebra_logic";
 
 const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   aime_2026: Aime2026Viewer,
+  aa_lcr: AaLcrViewer,
+  aa_omniscience: AaOmniscienceViewer,
   apps: AppsViewer,
   arc_agi_2: ArcAgi2Viewer,
   arc_challenge: ArcChallengeViewer,
@@ -71,6 +76,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   browsecomp: BrowsecompViewer,
   coconot: CoconotViewer,
   commonsenseqa: CommonsenseqaViewer,
+  critpt: CritptViewer,
   dabstep: DabstepViewer,
   evoeval_difficult: EvoevalDifficultViewer,
   futurebench: FuturebenchViewer,

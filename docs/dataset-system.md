@@ -333,7 +333,7 @@ Pick the archetype closest to your dataset. The table lists **normalized columns
 
 ## Registered datasets (lookup)
 
-**57 total** in `config/datasets.yaml`: **18 manual loaders** + **39 `hf_benchmark`** (table below) + **38 `hf_benchmark`** entries auto-registered at import time. Full `hf_benchmark` list by category: [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) and `config/datasets.yaml`.
+**60 total** in `config/datasets.yaml`: **18 manual loaders** + **42 `hf_benchmark`** entries auto-registered at import time. Full `hf_benchmark` list by category: [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) and `config/datasets.yaml`.
 
 ### Manual loaders
 

@@ -85,6 +85,22 @@ categories:
 
       '
     viewer: hle
+  - id: aa_omniscience
+    label: AA-Omniscience
+    loader: hf_benchmark
+    icon: 🎓
+    archetype: academic_qa
+    hf_id: ArtificialAnalysis/AA-Omniscience-Public
+    split: train
+    profile: aa_omniscience
+    id_column: question_id
+    row_count: 600
+    description: 'Artificial Analysis benchmark for factual recall and hallucination
+      across economically relevant domains. Public 600-question subset of the full 6,000-question
+      library used in the Intelligence Index.
+
+      '
+    viewer: aa_omniscience
   reasoning:
   - id: arc_challenge
     label: ARC Challenge
@@ -194,6 +210,22 @@ categories:
 
       '
     viewer: zebra_logic
+  - id: critpt
+    label: CritPt
+    loader: hf_benchmark
+    icon: 🧠
+    archetype: code_eval
+    hf_id: CritPt-Benchmark/CritPt
+    split: train
+    profile: critpt
+    id_column: problem_id
+    row_count: 70
+    description: 'Complex Research using Integrated Thinking — Physics Test. Research-level
+      physics reasoning challenges with Python answer functions, used in the Artificial
+      Analysis Intelligence Index.
+
+      '
+    viewer: critpt
   code:
   - id: livecodebench_v6
     label: LiveCodeBench v6
@@ -417,6 +449,23 @@ categories:
 
       '
     viewer: nocha
+  - id: aa_lcr
+    label: AA-LCR
+    loader: hf_benchmark
+    icon: 📏
+    archetype: long_context_qa
+    hf_id: ArtificialAnalysis/AA-LCR
+    split: test
+    profile: aa_lcr
+    id_column: sample_id
+    row_count: 100
+    description: 'Artificial Analysis Long Context Reasoning benchmark — 100 hard
+      questions requiring reasoning across real-world document sets averaging ~100k
+      tokens. Document metadata and source links are included; full text is loaded
+      separately at evaluation time.
+
+      '
+    viewer: aa_lcr
   instruction_following:
   - id: ifeval
     label: IFEval

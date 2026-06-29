@@ -1,5 +1,7 @@
 export const CATALOG_DATASET_IDS = [
   "aime_2026",
+  "aa_lcr",
+  "aa_omniscience",
   "apps",
   "arc_agi_2",
   "arc_challenge",
@@ -7,6 +9,7 @@ export const CATALOG_DATASET_IDS = [
   "browsecomp",
   "coconot",
   "commonsenseqa",
+  "critpt",
   "dabstep",
   "evoeval_difficult",
   "futurebench",

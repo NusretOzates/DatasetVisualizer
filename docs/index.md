@@ -20,7 +20,7 @@ Internal developer documentation.
 
 ## Datasets
 
-**57 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 18 manual loaders + 39 `hf_benchmark` entries across nine categories.
+**60 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 18 manual loaders + 42 `hf_benchmark` entries across nine categories.
 
 Per-dataset notes (manual loaders and special cases):
 

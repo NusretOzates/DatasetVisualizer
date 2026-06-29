@@ -696,6 +696,53 @@ def normalize_futurebench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def _split_semicolon_list(value: object) -> list[str]:
+    """Split Hub semicolon-delimited reference strings into a list."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return []
+    text = str(value).strip()
+    if not text:
+        return []
+    return [part.strip() for part in text.split(";") if part.strip()]
+
+
+def normalize_aa_lcr(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize Artificial Analysis long-context reasoning rows."""
+    normalized = df.copy()
+    if "Unnamed: 0" in normalized.columns:
+        normalized = normalized.drop(columns=["Unnamed: 0"])
+    normalized["sample_id"] = (
+        normalized["document_set_id"].astype(str) + "_" + normalized["question_id"].astype(str)
+    )
+    normalized = _ensure_sample_id(normalized, "sample_id")
+    normalized["category"] = normalized["document_category"]
+    normalized["source_filenames"] = normalized["data_source_filenames"].map(_split_semicolon_list)
+    normalized["source_urls"] = normalized["data_source_urls"].map(_split_semicolon_list)
+    normalized["source_file_count"] = normalized["source_filenames"].map(len)
+    question = normalized["question"].astype(str)
+    normalized["question_preview"] = question.str.slice(0, 160)
+    return normalized
+
+
+def normalize_aa_omniscience(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize AA-Omniscience public knowledge rows."""
+    normalized = _ensure_sample_id(df, id_column)
+    normalized["category"] = normalized["domain"]
+    question = normalized["question"].astype(str)
+    normalized["question_preview"] = question.str.slice(0, 160)
+    return normalized
+
+
+def normalize_critpt(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize CritPt physics research coding rows."""
+    normalized = _ensure_sample_id(df, id_column)
+    normalized["question_content"] = normalized["problem_description"]
+    normalized["canonical_solution"] = normalized["answer_code"]
+    normalized["starter_code"] = normalized["code_template"]
+    normalized["question_id"] = normalized[id_column]
+    return normalized
+
+
 def normalize_generic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Pass through rows with a stable sample id."""
     return _ensure_sample_id(df, id_column)
@@ -725,6 +772,9 @@ NORMALIZERS: dict[str, Any] = {
     "arc_agi": normalize_arc_agi,
     "mtob": normalize_mtob,
     "futurebench": normalize_futurebench,
+    "aa_lcr": normalize_aa_lcr,
+    "aa_omniscience": normalize_aa_omniscience,
+    "critpt": normalize_critpt,
     "generic": normalize_generic,
 }
 
