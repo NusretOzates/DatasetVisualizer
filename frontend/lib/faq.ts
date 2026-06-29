@@ -4,7 +4,7 @@ export type FaqItem = {
   answer: string;
 };
 
-export const SIDEBAR_FAQ: FaqItem[] = [
+export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "mmlu-differences",
     question: "What are the differences between MMLU datasets?",
