@@ -52,24 +52,26 @@ export function SidebarFaq() {
         </h2>
       </div>
 
-      <Accordion type="single" collapsible className="space-y-2">
-        {SIDEBAR_FAQ.map((item) => (
-          <AccordionItem key={item.id} value={item.id} className="space-y-0 border-0">
-            <AccordionTrigger
-              className={cn(
-                "rounded-lg border border-sidebar-border bg-sidebar-accent/25 px-3 py-2.5 text-xs font-medium text-sidebar-foreground/90",
-                "hover:bg-sidebar-accent/45 hover:no-underline",
-                "[&[data-state=open]]:rounded-b-none [&[data-state=open]]:border-b-0",
-              )}
-            >
-              <span className="pr-2 text-left leading-snug">{item.question}</span>
-            </AccordionTrigger>
-            <AccordionContent className="rounded-b-lg border border-t-0 border-sidebar-border bg-sidebar-accent/15 px-3 pb-3 text-xs">
-              <ReactMarkdown components={markdownComponents}>{item.answer}</ReactMarkdown>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <div className="max-h-72 overflow-y-auto pr-1">
+        <Accordion type="single" collapsible className="space-y-2">
+          {SIDEBAR_FAQ.map((item) => (
+            <AccordionItem key={item.id} value={item.id} className="space-y-0 border-0">
+              <AccordionTrigger
+                className={cn(
+                  "rounded-lg border border-sidebar-border bg-sidebar-accent/25 px-3 py-2.5 text-xs font-medium text-sidebar-foreground/90",
+                  "hover:bg-sidebar-accent/45 hover:no-underline",
+                  "[&[data-state=open]]:rounded-b-none [&[data-state=open]]:border-b-0",
+                )}
+              >
+                <span className="pr-2 text-left leading-snug">{item.question}</span>
+              </AccordionTrigger>
+              <AccordionContent className="rounded-b-lg border border-t-0 border-sidebar-border bg-sidebar-accent/15 px-3 pb-3 text-xs">
+                <ReactMarkdown components={markdownComponents}>{item.answer}</ReactMarkdown>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
     </section>
   );
 }
