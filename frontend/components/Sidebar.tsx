@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Home, Search } from "lucide-react";
+import { ChevronDown, HelpCircle, Home, Search } from "lucide-react";
 import type { Catalog, CategoryGroup, DatasetSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 type SidebarProps = {
   catalog: Catalog;
 };
@@ -151,6 +150,19 @@ export function Sidebar({ catalog }: SidebarProps) {
         >
           <Home className="size-4" />
           Home
+        </Link>
+
+        <Link
+          href="/faq/"
+          className={cn(
+            "mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            pathname.startsWith("/faq")
+              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+          )}
+        >
+          <HelpCircle className="size-4" />
+          Frequently Asked Question
         </Link>
 
         {filteredCategories.length === 0 ? (
