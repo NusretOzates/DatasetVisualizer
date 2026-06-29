@@ -22,10 +22,10 @@ from dataset_visualizer.api.overview import (
     overview_mmmlu,
     overview_nocha,
     overview_osworld_verified,
-    overview_toolathlon,
     overview_swe_bench,
     overview_tau3_bench,
     overview_terminal_bench,
+    overview_toolathlon,
     sample_extras_aime,
     sample_extras_arxivmath,
     sample_extras_nocha,
@@ -61,6 +61,7 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
+from dataset_visualizer.loaders.terminal_bench import load_terminal_bench_21
 from dataset_visualizer.loaders.toolathlon import load_toolathlon
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
