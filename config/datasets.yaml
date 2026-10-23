@@ -579,6 +579,22 @@ categories:
       and reference oracle solutions.
 
       '
+  - id: frontier_finance
+    label: Frontier Finance
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: kensho/frontierfinance
+    split: train
+    profile: generic
+    viewer: frontier_finance
+    id_column: sample_id
+    row_count: 25
+    description: 'Long-horizon financial modeling benchmark of 25 tasks across
+      three-statement, merger, LBO, DCF, and lender-analysis types, each requiring
+      professional-grade spreadsheet deliverables.
+
+      '
   - id: browsecomp
     label: BrowseComp
     loader: browsecomp

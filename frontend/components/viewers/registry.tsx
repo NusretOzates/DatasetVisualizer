@@ -19,6 +19,7 @@ import { CommonsenseqaViewer } from "./datasets/commonsenseqa";
 import { CritptViewer } from "./datasets/critpt";
 import { DabstepViewer } from "./datasets/dabstep";
 import { EvoevalDifficultViewer } from "./datasets/evoeval_difficult";
+import { FrontierFinanceViewer } from "./datasets/frontier_finance";
 import { FuturebenchViewer } from "./datasets/futurebench";
 import { FuturexViewer } from "./datasets/futurex";
 import { GaiaViewer } from "./datasets/gaia";
@@ -85,6 +86,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   critpt: CritptViewer,
   dabstep: DabstepViewer,
   evoeval_difficult: EvoevalDifficultViewer,
+  frontier_finance: FrontierFinanceViewer,
   futurebench: FuturebenchViewer,
   futurex: FuturexViewer,
   gaia: GaiaViewer,

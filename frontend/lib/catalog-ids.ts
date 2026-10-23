@@ -14,6 +14,7 @@ export const CATALOG_DATASET_IDS = [
   "critpt",
   "dabstep",
   "evoeval_difficult",
+  "frontier_finance",
   "futurebench",
   "futurex",
   "gaia",
