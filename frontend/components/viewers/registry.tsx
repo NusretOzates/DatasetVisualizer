@@ -13,6 +13,7 @@ import { ArcAgi2Viewer } from "./datasets/arc_agi_2";
 import { ArcChallengeViewer } from "./datasets/arc_challenge";
 import { Arxivmath0526Viewer } from "./datasets/arxivmath_0526";
 import { BrowsecompViewer } from "./datasets/browsecomp";
+import { ChartographyViewer } from "./datasets/chartography";
 import { CoconotViewer } from "./datasets/coconot";
 import { CommonsenseqaViewer } from "./datasets/commonsenseqa";
 import { CritptViewer } from "./datasets/critpt";
@@ -77,6 +78,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   arc_challenge: ArcChallengeViewer,
   arxivmath_0526: Arxivmath0526Viewer,
   browsecomp: BrowsecompViewer,
+  chartography: ChartographyViewer,
   coconot: CoconotViewer,
   commonsenseqa: CommonsenseqaViewer,
   critpt: CritptViewer,

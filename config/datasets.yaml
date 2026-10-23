@@ -226,6 +226,24 @@ categories:
 
       '
     viewer: critpt
+  - id: chartography
+    label: ChartoGraphy w/ tools
+    loader: hf_benchmark
+    icon: 📊
+    archetype: generic
+    hf_id: surgeai/chartography
+    split: test
+    profile: generic
+    viewer: chartography
+    id_column: task_id
+    row_count: 100
+    description: 'Surge AI professional chart-understanding benchmark (listed as
+      ChartoGraphy w/ tools in tool-augmented evaluations): 100 expert-written
+      prompts over dense real-world charts across 12 professional domains, with
+      golden answers and acceptable ranges. Held-out test split; access may
+      require accepting the Hub dataset terms.
+
+      '
   code:
   - id: livecodebench_v6
     label: LiveCodeBench v6

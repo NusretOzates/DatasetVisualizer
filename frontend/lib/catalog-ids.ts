@@ -8,6 +8,7 @@ export const CATALOG_DATASET_IDS = [
   "arc_challenge",
   "arxivmath_0526",
   "browsecomp",
+  "chartography",
   "coconot",
   "commonsenseqa",
   "critpt",
