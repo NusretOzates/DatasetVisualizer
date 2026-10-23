@@ -24,6 +24,7 @@ import { FuturebenchViewer } from "./datasets/futurebench";
 import { FuturexViewer } from "./datasets/futurex";
 import { GaiaViewer } from "./datasets/gaia";
 import { Gaia2Viewer } from "./datasets/gaia2";
+import { GdpPdfViewer } from "./datasets/gdp_pdf";
 import { GdpvalViewer } from "./datasets/gdpval";
 import { GlobalMmluViewer } from "./datasets/global_mmlu";
 import { GpqaDiamondViewer } from "./datasets/gpqa_diamond";
@@ -91,6 +92,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   futurex: FuturexViewer,
   gaia: GaiaViewer,
   gaia2: Gaia2Viewer,
+  gdp_pdf: GdpPdfViewer,
   gdpval: GdpvalViewer,
   global_mmlu: GlobalMmluViewer,
   gpqa_diamond: GpqaDiamondViewer,

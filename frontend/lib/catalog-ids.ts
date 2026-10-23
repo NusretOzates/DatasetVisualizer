@@ -19,6 +19,7 @@ export const CATALOG_DATASET_IDS = [
   "futurex",
   "gaia",
   "gaia2",
+  "gdp_pdf",
   "gdpval",
   "global_mmlu",
   "gpqa_diamond",

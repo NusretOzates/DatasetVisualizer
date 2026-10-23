@@ -595,6 +595,22 @@ categories:
       professional-grade spreadsheet deliverables.
 
       '
+  - id: gdp_pdf
+    label: GDP.pdf
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: generic
+    hf_id: Oitaaa/GDP.pdf
+    split: test
+    profile: generic
+    viewer: gdp_pdf
+    id_column: task_id
+    row_count: 100
+    description: 'Surge AI professional document-reasoning benchmark: 100 expert
+      prompts over dense real-world PDFs across ten professional domains, graded
+      against per-task rubric criteria.
+
+      '
   - id: browsecomp
     label: BrowseComp
     loader: browsecomp
