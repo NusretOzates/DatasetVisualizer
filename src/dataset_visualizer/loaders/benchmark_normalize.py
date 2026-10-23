@@ -823,6 +823,55 @@ def normalize_zerobench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+_RUBRIC_SUFFIXES = (
+    "criterion",
+    "criterion_type",
+    "criterion_severity",
+    "criterion_implicitness",
+    "criterion_subjectiveness",
+    "criterion_failure_mode",
+)
+
+
+def _rubric_items(row: pd.Series) -> list[dict[str, object]]:
+    """Collect the numbered ``rubric - N. <field>`` columns into one item list."""
+    items: list[dict[str, object]] = []
+    index = 1
+    while f"rubric - {index}. criterion" in row.index:
+        criterion = row.get(f"rubric - {index}. criterion")
+        if criterion is not None and not (isinstance(criterion, float) and pd.isna(criterion)):
+            if str(criterion).strip():
+                item: dict[str, object] = {"index": index, "criterion": str(criterion)}
+                for suffix in _RUBRIC_SUFFIXES[1:]:
+                    value = row.get(f"rubric - {index}. {suffix}")
+                    if value is not None and not (
+                        isinstance(value, float) and pd.isna(value)
+                    ):
+                        item[suffix.removeprefix("criterion_")] = str(value)
+                items.append(item)
+        index += 1
+    return items
+
+
+def normalize_gdp_pdf(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize GDP.pdf rows, grouping rubric columns and linking source PDFs."""
+    normalized = _ensure_sample_id(df, id_column)
+    normalized["rubric_items"] = normalized.apply(_rubric_items, axis=1)
+    rubric_columns = [c for c in normalized.columns if c.startswith("rubric - ")]
+    if rubric_columns:
+        normalized = normalized.drop(columns=rubric_columns)
+    if "pdf_path" in normalized.columns:
+        normalized["pdf_url"] = normalized["pdf_path"].map(
+            lambda path: (
+                "https://huggingface.co/datasets/Oitaaa/GDP.pdf/resolve/main/"
+                f"{str(path).lstrip('/')}"
+                if isinstance(path, str) and path.strip()
+                else ""
+            )
+        )
+    return normalized
+
+
 def normalize_generic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Pass through rows with a stable sample id."""
     return _ensure_sample_id(df, id_column)
@@ -857,6 +906,7 @@ NORMALIZERS: dict[str, Any] = {
     "critpt": normalize_critpt,
     "benchcad": normalize_benchcad,
     "zerobench": normalize_zerobench,
+    "gdp_pdf": normalize_gdp_pdf,
     "generic": normalize_generic,
 }
 

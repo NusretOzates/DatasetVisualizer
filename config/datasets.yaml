@@ -665,7 +665,7 @@ categories:
     archetype: generic
     hf_id: Oitaaa/GDP.pdf
     split: test
-    profile: generic
+    profile: gdp_pdf
     viewer: gdp_pdf
     id_column: task_id
     row_count: 100
