@@ -66,4 +66,5 @@ export const CATALOG_DATASET_IDS = [
   "toolathlon",
   "winogrande",
   "zebra_logic",
+  "zerobench_main",
 ] as const;

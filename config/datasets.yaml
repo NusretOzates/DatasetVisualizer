@@ -226,6 +226,23 @@ categories:
 
       '
     viewer: critpt
+  - id: zerobench_main
+    label: ZeroBench_main w/ tools (pass@5)
+    loader: hf_benchmark
+    icon: 🧠
+    archetype: generic
+    hf_id: mm-eval/ZeroBench
+    split: zerobench
+    profile: zerobench
+    viewer: zerobench_main
+    id_column: id
+    row_count: 100
+    description: 'ZeroBench main set: 100 hard visual reasoning questions that
+      frontier vision models initially scored near zero on, evaluated as pass@5
+      (tool-augmented in the w/ tools setting). Image payloads are replaced by
+      a media count during normalization.
+
+      '
   - id: chartography
     label: ChartoGraphy w/ tools
     loader: hf_benchmark

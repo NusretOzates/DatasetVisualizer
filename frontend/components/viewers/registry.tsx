@@ -71,6 +71,7 @@ import { TerminalBench21Viewer } from "./datasets/terminal_bench_21";
 import { ToolathlonViewer } from "./datasets/toolathlon";
 import { WinograndeViewer } from "./datasets/winogrande";
 import { ZebraLogicViewer } from "./datasets/zebra_logic";
+import { ZerobenchMainViewer } from "./datasets/zerobench_main";
 
 const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   agents_last_exam: AgentsLastExamViewer,
@@ -140,6 +141,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   toolathlon: ToolathlonViewer,
   winogrande: WinograndeViewer,
   zebra_logic: ZebraLogicViewer,
+  zerobench_main: ZerobenchMainViewer,
 };
 
 export function renderSample(

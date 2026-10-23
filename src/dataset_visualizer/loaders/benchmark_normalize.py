@@ -766,6 +766,35 @@ def normalize_benchcad(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def _zerobench_question(value: object) -> str:
+    """Extract the user question text from a ZeroBench messages payload."""
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return value
+    else:
+        parsed = value
+    if isinstance(parsed, list):
+        for item in parsed:
+            if isinstance(item, dict) and item.get("role") == "user":
+                return str(item.get("question") or item.get("content") or "")
+    return str(value)
+
+
+def normalize_zerobench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize ZeroBench rows, replacing image payloads with a media count."""
+    normalized = _ensure_sample_id(df, id_column)
+    if "media" in normalized.columns:
+        normalized["media_count"] = normalized["media"].map(
+            lambda value: len(value) if isinstance(value, (list, tuple)) else 0
+        )
+        normalized = normalized.drop(columns=["media"])
+    if "messages" in normalized.columns:
+        normalized["question"] = normalized["messages"].map(_zerobench_question)
+    return normalized
+
+
 def normalize_generic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Pass through rows with a stable sample id."""
     return _ensure_sample_id(df, id_column)
@@ -799,6 +828,7 @@ NORMALIZERS: dict[str, Any] = {
     "aa_omniscience": normalize_aa_omniscience,
     "critpt": normalize_critpt,
     "benchcad": normalize_benchcad,
+    "zerobench": normalize_zerobench,
     "generic": normalize_generic,
 }
 

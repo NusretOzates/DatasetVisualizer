@@ -28,6 +28,7 @@ from dataset_visualizer.loaders.benchmark_normalize import (
     normalize_piqa,
     normalize_scicode,
     normalize_winogrande,
+    normalize_zerobench,
 )
 
 
@@ -530,6 +531,24 @@ def test_normalize_benchcad_drops_images_and_maps_code() -> None:
     assert "composite_png" not in normalized.columns
     assert normalized["canonical_solution"].iloc[0].startswith("import cadquery")
     assert "washer" in normalized["question_content"].iloc[0]
+
+
+def test_normalize_zerobench_extracts_question_and_counts_media() -> None:
+    df = pd.DataFrame(
+        {
+            "id": ["1"],
+            "media": [[object(), object()]],
+            "messages": ['[{"role": "user", "question": "How much do I save?"}]'],
+            "answer": ["11.90"],
+            "question_type": ["numeric"],
+        }
+    )
+
+    normalized = normalize_zerobench(df, "id")
+
+    assert "media" not in normalized.columns
+    assert normalized["media_count"].iloc[0] == 2
+    assert normalized["question"].iloc[0] == "How much do I save?"
 
 
 def test_normalize_critpt_maps_code_eval_columns() -> None:
