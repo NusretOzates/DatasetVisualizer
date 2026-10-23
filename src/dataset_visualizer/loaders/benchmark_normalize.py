@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import ast
+import base64
+import io
 import json
 from typing import Any
 
@@ -16,6 +18,8 @@ _PRESERVE_LIST_COLUMNS = frozenset({
     "choices",
     "options",
     "endings",
+    "media_images",
+    "rubric_items",
     "scenario_tags",
     "scenario_hints",
     "app_names",
@@ -753,17 +757,42 @@ def normalize_benchcad(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     ]
     if image_columns:
         normalized = normalized.drop(columns=image_columns)
-    normalized["question_content"] = normalized.apply(
-        lambda row: (
-            f"Write CadQuery code for a {row.get('family', 'CAD part')} "
-            f"({row.get('variant', '')}) on the {row.get('base_plane', '')} plane."
-        ),
-        axis=1,
-    )
     normalized["question_id"] = normalized[id_column]
     if "code" in normalized.columns:
         normalized["canonical_solution"] = normalized["code"]
     return normalized
+
+
+def _image_data_uri(value: object) -> str:
+    """Encode one Hub image cell as a data URI, or return an existing URI string."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bytes):
+        mime = "image/png" if value.startswith(b"\x89PNG") else "image/jpeg"
+        return f"data:{mime};base64,{base64.b64encode(value).decode('ascii')}"
+    if isinstance(value, dict):
+        raw = value.get("bytes")
+        if isinstance(raw, bytes):
+            return _image_data_uri(raw)
+        path = value.get("path")
+        return str(path) if path else ""
+    save = getattr(value, "save", None)
+    if callable(save):
+        buffer = io.BytesIO()
+        image_format = str(getattr(value, "format", None) or "PNG").upper()
+        if image_format not in {"JPEG", "PNG"}:
+            image_format = "PNG"
+        save(buffer, format=image_format)
+        mime = "image/jpeg" if image_format == "JPEG" else "image/png"
+        return f"data:{mime};base64,{base64.b64encode(buffer.getvalue()).decode('ascii')}"
+    return ""
+
+
+def _image_data_uris(value: object) -> list[str]:
+    """Encode a Hub media cell (single image or sequence) as data URIs."""
+    seq = _sequence_values(value)
+    items = seq if seq is not None else [value]
+    return [uri for item in items if (uri := _image_data_uri(item))]
 
 
 def _zerobench_question(value: object) -> str:
@@ -783,15 +812,64 @@ def _zerobench_question(value: object) -> str:
 
 
 def normalize_zerobench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
-    """Normalize ZeroBench rows, replacing image payloads with a media count."""
+    """Normalize ZeroBench rows, encoding images as data URIs for the viewer."""
     normalized = _ensure_sample_id(df, id_column)
     if "media" in normalized.columns:
-        normalized["media_count"] = normalized["media"].map(
-            lambda value: len(value) if isinstance(value, (list, tuple)) else 0
-        )
+        normalized["media_images"] = normalized["media"].map(_image_data_uris)
+        normalized["media_count"] = normalized["media_images"].map(len)
         normalized = normalized.drop(columns=["media"])
     if "messages" in normalized.columns:
         normalized["question"] = normalized["messages"].map(_zerobench_question)
+    return normalized
+
+
+_RUBRIC_SUFFIXES = (
+    "criterion",
+    "criterion_type",
+    "criterion_severity",
+    "criterion_implicitness",
+    "criterion_subjectiveness",
+    "criterion_failure_mode",
+)
+
+
+def _rubric_items(row: pd.Series) -> list[dict[str, object]]:
+    """Collect the numbered ``rubric - N. <field>`` columns into one item list."""
+    items: list[dict[str, object]] = []
+    index = 1
+    while f"rubric - {index}. criterion" in row.index:
+        criterion = row.get(f"rubric - {index}. criterion")
+        if (
+            criterion is not None
+            and not (isinstance(criterion, float) and pd.isna(criterion))
+            and str(criterion).strip()
+        ):
+            item: dict[str, object] = {"index": index, "criterion": str(criterion)}
+            for suffix in _RUBRIC_SUFFIXES[1:]:
+                value = row.get(f"rubric - {index}. {suffix}")
+                if value is not None and not (isinstance(value, float) and pd.isna(value)):
+                    item[suffix.removeprefix("criterion_")] = str(value)
+            items.append(item)
+        index += 1
+    return items
+
+
+def normalize_gdp_pdf(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize GDP.pdf rows, grouping rubric columns and linking source PDFs."""
+    normalized = _ensure_sample_id(df, id_column)
+    normalized["rubric_items"] = normalized.apply(_rubric_items, axis=1)
+    rubric_columns = [c for c in normalized.columns if c.startswith("rubric - ")]
+    if rubric_columns:
+        normalized = normalized.drop(columns=rubric_columns)
+    if "pdf_path" in normalized.columns:
+        normalized["pdf_url"] = normalized["pdf_path"].map(
+            lambda path: (
+                "https://huggingface.co/datasets/Oitaaa/GDP.pdf/resolve/main/"
+                f"{str(path).lstrip('/')}"
+                if isinstance(path, str) and path.strip()
+                else ""
+            )
+        )
     return normalized
 
 
@@ -829,6 +907,7 @@ NORMALIZERS: dict[str, Any] = {
     "critpt": normalize_critpt,
     "benchcad": normalize_benchcad,
     "zerobench": normalize_zerobench,
+    "gdp_pdf": normalize_gdp_pdf,
     "generic": normalize_generic,
 }
 

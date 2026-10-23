@@ -21,6 +21,7 @@ from dataset_visualizer.loaders.benchmark_normalize import (
     normalize_futurebench,
     normalize_gaia,
     normalize_gaia2,
+    normalize_gdp_pdf,
     normalize_hellaswag,
     normalize_instruction,
     normalize_mcp_atlas,
@@ -529,15 +530,15 @@ def test_normalize_benchcad_drops_images_and_maps_code() -> None:
 
     assert "view_0_png" not in normalized.columns
     assert "composite_png" not in normalized.columns
+    assert "question_content" not in normalized.columns
     assert normalized["canonical_solution"].iloc[0].startswith("import cadquery")
-    assert "washer" in normalized["question_content"].iloc[0]
 
 
 def test_normalize_zerobench_extracts_question_and_counts_media() -> None:
     df = pd.DataFrame(
         {
             "id": ["1"],
-            "media": [[object(), object()]],
+            "media": [np.array([b"\x89PNG\r\n", b"\xff\xd8\xff"], dtype=object)],
             "messages": ['[{"role": "user", "question": "How much do I save?"}]'],
             "answer": ["11.90"],
             "question_type": ["numeric"],
@@ -548,7 +549,48 @@ def test_normalize_zerobench_extracts_question_and_counts_media() -> None:
 
     assert "media" not in normalized.columns
     assert normalized["media_count"].iloc[0] == 2
+    assert normalized["media_images"].iloc[0][0].startswith("data:image/png;base64,")
+    assert normalized["media_images"].iloc[0][1].startswith("data:image/jpeg;base64,")
     assert normalized["question"].iloc[0] == "How much do I save?"
+
+
+def test_normalize_gdp_pdf_groups_rubric_and_links_pdf() -> None:
+    df = pd.DataFrame(
+        {
+            "task_id": ["t1"],
+            "pdf_path": ["pdfs/example.pdf"],
+            "prompt": ["Summarize the filing."],
+            "domain": ["Finance"],
+            "rubric - 1. criterion": ["Identifies the revenue figure."],
+            "rubric - 1. criterion_type": ["Primary Intent"],
+            "rubric - 1. criterion_severity": ["Certain dealbreaker"],
+            "rubric - 1. criterion_implicitness": ["Explicit"],
+            "rubric - 1. criterion_subjectiveness": ["Objective"],
+            "rubric - 1. criterion_failure_mode": ["Binary"],
+            "rubric - 2. criterion": [None],
+            "rubric - 2. criterion_type": [None],
+            "rubric - 2. criterion_severity": [None],
+            "rubric - 2. criterion_implicitness": [None],
+            "rubric - 2. criterion_subjectiveness": [None],
+            "rubric - 2. criterion_failure_mode": [None],
+        }
+    )
+
+    normalized = normalize_gdp_pdf(df, "task_id")
+
+    assert not any(column.startswith("rubric - ") for column in normalized.columns)
+    assert normalized["rubric_items"].iloc[0] == [
+        {
+            "index": 1,
+            "criterion": "Identifies the revenue figure.",
+            "type": "Primary Intent",
+            "severity": "Certain dealbreaker",
+            "implicitness": "Explicit",
+            "subjectiveness": "Objective",
+            "failure_mode": "Binary",
+        }
+    ]
+    assert normalized["pdf_url"].iloc[0].endswith("/pdfs/example.pdf")
 
 
 def test_normalize_critpt_maps_code_eval_columns() -> None:
