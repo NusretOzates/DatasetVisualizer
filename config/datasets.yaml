@@ -317,6 +317,23 @@ categories:
 
       '
     viewer: terminal_bench_21
+  - id: benchcad
+    label: BenchCAD w/ tools
+    loader: hf_benchmark
+    icon: 💻
+    archetype: code_eval
+    viewer: benchcad
+    hf_id: BenchCAD/BenchCAD
+    hf_config: code_gen
+    split: code_gen
+    profile: benchcad
+    id_column: stem
+    row_count: 17900
+    description: 'CAD code-generation benchmark (BenchCAD w/ tools evaluations):
+      synthetic CadQuery samples across 106 mechanical part families with ground-truth
+      code; render image columns are dropped during normalization.
+
+      '
   - id: mbpp
     label: MBPP
     loader: hf_benchmark

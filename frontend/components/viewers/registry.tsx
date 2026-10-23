@@ -12,6 +12,7 @@ import { AppsViewer } from "./datasets/apps";
 import { ArcAgi2Viewer } from "./datasets/arc_agi_2";
 import { ArcChallengeViewer } from "./datasets/arc_challenge";
 import { Arxivmath0526Viewer } from "./datasets/arxivmath_0526";
+import { BenchcadViewer } from "./datasets/benchcad";
 import { BrowsecompViewer } from "./datasets/browsecomp";
 import { ChartographyViewer } from "./datasets/chartography";
 import { CoconotViewer } from "./datasets/coconot";
@@ -80,6 +81,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   arc_agi_2: ArcAgi2Viewer,
   arc_challenge: ArcChallengeViewer,
   arxivmath_0526: Arxivmath0526Viewer,
+  benchcad: BenchcadViewer,
   browsecomp: BrowsecompViewer,
   chartography: ChartographyViewer,
   coconot: CoconotViewer,
