@@ -839,16 +839,17 @@ def _rubric_items(row: pd.Series) -> list[dict[str, object]]:
     index = 1
     while f"rubric - {index}. criterion" in row.index:
         criterion = row.get(f"rubric - {index}. criterion")
-        if criterion is not None and not (isinstance(criterion, float) and pd.isna(criterion)):
-            if str(criterion).strip():
-                item: dict[str, object] = {"index": index, "criterion": str(criterion)}
-                for suffix in _RUBRIC_SUFFIXES[1:]:
-                    value = row.get(f"rubric - {index}. {suffix}")
-                    if value is not None and not (
-                        isinstance(value, float) and pd.isna(value)
-                    ):
-                        item[suffix.removeprefix("criterion_")] = str(value)
-                items.append(item)
+        if (
+            criterion is not None
+            and not (isinstance(criterion, float) and pd.isna(criterion))
+            and str(criterion).strip()
+        ):
+            item: dict[str, object] = {"index": index, "criterion": str(criterion)}
+            for suffix in _RUBRIC_SUFFIXES[1:]:
+                value = row.get(f"rubric - {index}. {suffix}")
+                if value is not None and not (isinstance(value, float) and pd.isna(value)):
+                    item[suffix.removeprefix("criterion_")] = str(value)
+            items.append(item)
         index += 1
     return items
 
