@@ -16,6 +16,7 @@ Internal developer documentation.
 | Add a YAML-only Hub benchmark | [how-to/add-hf-benchmark.md](how-to/add-hf-benchmark.md) |
 | Add a custom loader | [how-to/add-dataset.md](how-to/add-dataset.md) |
 | Understand terms (`profile`, `viewer`, …) | [glossary.md](glossary.md) |
+| How each benchmark is scored upstream | [evaluation-methodology.md](evaluation-methodology.md) |
 | User setup and commands | [../README.md](../README.md) |
 
 ## Datasets

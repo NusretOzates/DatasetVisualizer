@@ -58,6 +58,22 @@ export function DatasetExplorer({ catalog, datasetId }: DatasetExplorerProps) {
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             />
           ) : null}
+          {meta?.evaluation ? (
+            <section
+              aria-label="Evaluation methodology"
+              className="max-w-4xl space-y-2 rounded-lg border bg-muted/40 p-4"
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold">How this benchmark is evaluated</h3>
+                <Badge variant="secondary">{meta.evaluation.method_label}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{meta.evaluation.summary}</p>
+              <p className="text-xs text-muted-foreground">
+                Upstream scoring shown for context — this app inspects tasks and does not
+                run evaluations, so scores from different harnesses are not recomputed here.
+              </p>
+            </section>
+          ) : null}
           {columns.length > 0 ? (
             <div className="space-y-2">
               <p className="text-sm font-medium text-muted-foreground">Columns</p>

@@ -1,0 +1,251 @@
+# Upstream evaluation methodology per catalog dataset.
+#
+# This file describes how each benchmark is scored by its own upstream
+# evaluation, not by this app: Dataset Visualizer only loads and displays
+# tasks, it does not run models or compute scores. Keep one entry per
+# dataset id in config/datasets.yaml; tests enforce full coverage.
+#
+# `method` is one of the keys under `methods`. `summary` is one or two
+# plain sentences naming the scorer and the headline metric. Do not name
+# a specific judge model, tolerance, or trial count unless the upstream
+# source states it; when harnesses differ, say so in the summary.
+methods:
+  multiple_choice: Multiple-choice exact match
+  exact_match: Exact-match answer
+  reference_grading: Reference-answer grading
+  llm_judge: LLM-as-a-judge
+  code_execution: Code execution · unit tests
+  container_task_tests: Container task tests
+  desktop_state_check: Desktop state verification
+  tool_task_verification: Tool-task verification
+  agent_simulation: Simulated-user agent evaluation
+  rubric_grading: Rubric grading
+  human_expert_grading: Human-expert grading
+  programmatic_verification: Programmatic verification
+  forecast_outcome: Forecast outcome scoring
+  grid_exact_match: Exact grid match
+  translation_scoring: Reference-based translation scoring
+
+datasets:
+  # Knowledge
+  mmlu:
+    method: multiple_choice
+    summary: The model picks one of four options and the choice is compared with the gold letter; the headline metric is accuracy, often reported per subject and overall.
+  mmlu_pro:
+    method: multiple_choice
+    summary: The selected option (up to ten choices) is compared with the gold answer; chain-of-thought may be elicited, but only the final choice is scored as accuracy.
+  mmlu_redux:
+    method: multiple_choice
+    summary: Scored like MMLU — chosen option against the re-annotated gold letter for accuracy. The Redux error-type metadata explains label quality; it does not change scoring.
+  gpqa_diamond:
+    method: multiple_choice
+    summary: The model answers graduate-level science questions in multiple-choice form and the selected option is matched to the gold letter for accuracy.
+  global_mmlu:
+    method: multiple_choice
+    summary: Multiple-choice accuracy against the gold letter, computed per locale so cross-lingual gaps are visible.
+  mmmlu:
+    method: multiple_choice
+    summary: Multiple-choice accuracy against the gold letter for each locale-specific config.
+  hle:
+    method: llm_judge
+    summary: Short answers are graded by an LLM judge against the reference answer, and multiple-choice items against the gold option. Tool-augmented runs reuse the same tasks with a different scaffold, so scores are not directly comparable to no-tool runs.
+  aa_omniscience:
+    method: reference_grading
+    summary: Responses are graded against reference answers. Artificial Analysis reports accuracy together with a hallucination measure, so a wrong answer is distinguished from not answering.
+  # Reasoning
+  arc_challenge:
+    method: multiple_choice
+    summary: The chosen science option is matched to the gold letter; headline metric is test-set accuracy.
+  winogrande:
+    method: multiple_choice
+    summary: The model picks which of two completions fills the blank correctly; the pick is matched to the gold option for accuracy.
+  hellaswag:
+    method: multiple_choice
+    summary: The model selects the most plausible sentence ending from four candidates; the selection is matched to the gold ending for accuracy.
+  commonsenseqa:
+    method: multiple_choice
+    summary: The chosen answer choice is matched to the gold letter for accuracy.
+  piqa:
+    method: multiple_choice
+    summary: The model picks which of two solutions better achieves the physical goal; the pick is matched to the gold label for accuracy.
+  openbookqa:
+    method: multiple_choice
+    summary: The chosen option is matched to the gold letter for accuracy.
+  zebra_logic:
+    method: multiple_choice
+    summary: Answers to procedurally generated logic-grid puzzles are checked against the verifiable gold solution; this export uses the multiple-choice mode.
+  critpt:
+    method: programmatic_verification
+    summary: Answers produced through the Python answer functions in this export are checked programmatically against reference physics results, with tolerance-based comparison for numeric values.
+  zerobench_main:
+    method: reference_grading
+    summary: Visual-reasoning answers are graded against the reference answer, and the headline setting is pass@5 — a question counts as solved if any of up to five attempts succeeds. Tool-augmented runs add a scaffold, so they are reported separately.
+  chartography:
+    method: reference_grading
+    summary: Answers are compared with expert golden answers and their acceptable ranges, so a chart reading inside the accepted range counts as correct.
+  # Code
+  livecodebench_v6:
+    method: code_execution
+    summary: Generated code is run against public and private test cases in a sandbox; a problem counts as solved when the tests pass, typically reported as pass@1.
+  swe_bench_verified:
+    method: code_execution
+    summary: The agent's patch is applied to the repository and the official harness runs the FAIL_TO_PASS and PASS_TO_PASS test sets in Docker; an instance is resolved only if the required tests pass.
+  swe_bench_multilingual:
+    method: code_execution
+    summary: Same SWE-bench protocol as Verified — apply the patch, run the FAIL_TO_PASS and PASS_TO_PASS tests — across repositories in nine programming languages.
+  swe_bench_pro:
+    method: code_execution
+    summary: The agent's patch is applied and the instance's repository test suite is run; resolution requires the designated tests to pass, as in other SWE-bench variants.
+  tau3_bench:
+    method: agent_simulation
+    summary: A simulated user converses with the tool-using agent, and success is judged from the final environment/database state and task requirements at the end of the dialogue.
+  terminal_bench_21:
+    method: container_task_tests
+    summary: An agent works inside a containerized terminal environment, and task-specific tests run after it finishes; a task is solved when its verifier tests pass.
+  terminal_bench_40:
+    method: container_task_tests
+    summary: Same Harbor protocol as Terminal-Bench 2.1 — an agent acts in a container and per-task verifier tests decide success. Version 4.0 recalibrated resources and verifiers, so scores are not interchangeable with 2.1.
+  terminal_bench_science_01:
+    method: container_task_tests
+    summary: An agent runs computational research workflows in a container, and task-specific verifier tests check the produced results and files.
+  swe_marathon:
+    method: container_task_tests
+    summary: Long-horizon Harbor tasks run an agent in a containerized repository environment for hours; the task's tests decide whether the work is resolved.
+  benchcad:
+    method: programmatic_verification
+    summary: Upstream evaluation executes the generated CadQuery code and compares the resulting part geometry with the reference; scoring is programmatic, not a text match. This export ships ground-truth code and part metadata, and has no text prompt.
+  mbpp:
+    method: code_execution
+    summary: Generated Python is run against the problem's unit tests; a sample passes when all tests pass.
+  apps:
+    method: code_execution
+    summary: Generated solutions are executed against the problem's input/output tests; a problem is solved when outputs match on the test cases.
+  humaneval:
+    method: code_execution
+    summary: Completed functions are run against hand-written unit tests; reported as pass@k, the probability that at least one of k samples passes all tests.
+  humaneval_plus:
+    method: code_execution
+    summary: HumanEval problems scored by execution, but against the much larger EvalPlus test suites, so pass@k is stricter than on the original tests.
+  mbpp_plus:
+    method: code_execution
+    summary: MBPP problems scored by executing generated code against the expanded EvalPlus test suites.
+  evoeval_difficult:
+    method: code_execution
+    summary: Rewritten HumanEval-style problems scored by executing generated code against the problem's unit tests (pass@k).
+  scicode:
+    method: code_execution
+    summary: Scientific problems are decomposed into subproblems, and generated code for each step is executed against unit tests derived from reference solutions.
+  # Long context
+  ruler:
+    method: programmatic_verification
+    summary: Synthetic long-context tasks (retrieval, multi-hop tracing, aggregation, QA) are scored programmatically against generated gold answers, reported by context length.
+  mrcr:
+    method: reference_grading
+    summary: The model must reproduce a specific earlier response from a long multi-turn context; output is graded against that gold needle response.
+  mtob:
+    method: translation_scoring
+    summary: Kalamang translations produced with the in-context grammar book are scored against held-out reference translations with automatic translation-overlap metrics.
+  nocha:
+    method: exact_match
+    summary: Each true/false claim about a novel is classified and matched to the gold label; headline metric is claim accuracy over the full book context.
+  aa_lcr:
+    method: reference_grading
+    summary: Answers over long real-world document sets are graded against Artificial Analysis reference answers; the headline metric is accuracy over the 100 questions.
+  # Instruction following
+  ifeval:
+    method: programmatic_verification
+    summary: Each prompt carries verifiable formatting constraints (length, keywords, structure); deterministic checker code decides whether the response satisfies them, reported as strict and loose accuracy.
+  ifbench:
+    method: programmatic_verification
+    summary: Like IFEval, responses are checked by deterministic verifiers for each prompt's stated constraints, including out-of-domain constraint types.
+  coconot:
+    method: llm_judge
+    summary: A judge classifies whether the response correctly refuses, clarifies, or complies according to the expected behavior for that noncompliance category.
+  # Agentic tasks
+  agents_last_exam:
+    method: tool_task_verification
+    summary: Computer-use agents complete professional tasks in real software; success is decided by task-specific verification of the resulting outcomes and artifacts.
+  officeqa_pro_v2:
+    method: reference_grading
+    summary: Answers grounded in the source financial documents are checked against gold answers. The Hub repo is gated, so grader details should be confirmed on first access.
+  frontier_finance:
+    method: rubric_grading
+    summary: Agents produce professional spreadsheet deliverables (three-statement, merger, LBO, DCF, lender analyses) that are graded against task expectations for the model and its outputs.
+  gdp_pdf:
+    method: rubric_grading
+    summary: Document-reasoning answers over source PDFs are graded criterion by criterion against the per-task rubric stored in this dataset (grouped as rubric_items in the inspector).
+  browsecomp:
+    method: llm_judge
+    summary: A judge model compares the browsing agent's final short answer with the reference answer; the questions are designed so a correct answer is hard to find but easy to verify.
+  gaia:
+    method: exact_match
+    summary: The final answer is compared with the gold answer using GAIA's normalized quasi-exact match over strings, numbers, and lists, after tool-assisted web work.
+  gdpval:
+    method: human_expert_grading
+    summary: In the original GDPval evaluation, professional experts blind-compare agent deliverables against human-produced work for real occupational tasks, yielding win-rate/Elo-style results rather than an automatic score.
+  gaia2:
+    method: tool_task_verification
+    summary: Agents act in simulated, time-evolving app environments; scenario verifiers check the resulting state and event outcomes, including ambiguous and time-sensitive tasks.
+  paperbench:
+    method: rubric_grading
+    summary: Paper-replication work is graded node by node against rubric trees written by the papers' authors; the official setup uses an LLM judge per rubric node, validated against human grades.
+  dabstep:
+    method: exact_match
+    summary: Data-analysis agents answer operational questions over real files, and final answers are matched to ground-truth answers.
+  livemcpbench:
+    method: tool_task_verification
+    summary: Agents must select and call tools from many live MCP servers; task success is verified from the tool-use outcome against the task's expected result.
+  mcp_atlas:
+    method: tool_task_verification
+    summary: Multi-step MCP tasks are verified against the verifiable ground-truth claims (GTFA claims) shipped per task, using the agent's tool trajectory and final answer.
+  osworld_verified:
+    method: desktop_state_check
+    summary: A computer-use agent operates a real desktop VM, and per-task checker functions inspect the final application, file, or OS state to decide success.
+  osworld_v21:
+    method: desktop_state_check
+    summary: Same OSWorld protocol — checker functions inspect the final desktop state in the VM. Task implementations are gated upstream, so this catalog lists the public release manifest until access is granted.
+  toolathlon:
+    method: tool_task_verification
+    summary: Agents complete real-world tasks across MCP servers and local tools; evaluation scripts verify the final state of files, terminals, and APIs touched by the task.
+  # Games
+  arc_agi_2:
+    method: grid_exact_match
+    summary: The predicted output grid must match the gold grid exactly, cell by cell and size; a small number of attempts per puzzle is allowed in the official protocol.
+  # Forecasters
+  futurebench:
+    method: forecast_outcome
+    summary: Forecasts on prediction-market and news events are scored after the events resolve, comparing predicted probabilities or picks with the actual outcome.
+  futurex:
+    method: forecast_outcome
+    summary: This Past split contains already-resolved forecasting questions, so predictions can be scored offline against the known outcomes.
+  # Math
+  aime_2026:
+    method: exact_match
+    summary: The final integer answer (0–999) is matched exactly against the gold answer; headline metric is problem accuracy.
+  arxivmath_0526:
+    method: llm_judge
+    summary: MathArena grades final answers for mathematical equivalence with the gold answer using judge-assisted checking rather than literal string match; this app also joins recorded model runs for inspection.
+  gsm8k:
+    method: exact_match
+    summary: The final numeric answer after the reasoning chain is extracted and matched exactly against the gold number.
+  gsm1k:
+    method: exact_match
+    summary: Same GSM-style scoring as GSM8K — extract the final number and match it exactly — on newly written problems used to probe contamination.
+  gsm_plus:
+    method: exact_match
+    summary: The final numeric answer is matched exactly against the gold answer for each perturbed GSM8K-style problem.
+  gsm_symbolic:
+    method: exact_match
+    summary: The final numeric answer is matched exactly against the instantiated template's gold answer, across many symbolic variants per template.
+  math:
+    method: reference_grading
+    summary: The final answer is checked for equivalence with the reference solution's answer; harnesses use symbolic/math verification or judge-assisted equivalence rather than literal string match.
+  math_500:
+    method: reference_grading
+    summary: Same MATH protocol — final-answer equivalence with the reference — on the curated 500-problem subset.
+  math_hard:
+    method: reference_grading
+    summary: Same MATH protocol — final-answer equivalence with the reference — restricted to the hardest difficulty levels.
+  math_arena:
+    method: llm_judge
+    summary: MathArena grades final answers for mathematical equivalence with the gold answer using judge-assisted checking, aggregated over recent competition sources.

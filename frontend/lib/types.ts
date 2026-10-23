@@ -99,10 +99,17 @@ export type FilterControlSpec =
       column?: string;
     };
 
+export type EvaluationMethod = {
+  method: string;
+  method_label: string;
+  summary: string;
+};
+
 export type DatasetMeta = {
   id: string;
   label: string;
   description: string;
+  evaluation?: EvaluationMethod | null;
   archetype?: string | null;
   viewer?: string | null;
   supports_private_tests?: boolean;
