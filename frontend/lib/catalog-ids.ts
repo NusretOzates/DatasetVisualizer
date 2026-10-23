@@ -52,6 +52,7 @@ export const CATALOG_DATASET_IDS = [
   "nocha",
   "officeqa_pro_v2",
   "openbookqa",
+  "osworld_v21",
   "osworld_verified",
   "paperbench",
   "piqa",

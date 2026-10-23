@@ -55,6 +55,7 @@ from dataset_visualizer.loaders.mmmlu import (
     load_mmmlu,
 )
 from dataset_visualizer.loaders.nocha import load_nocha
+from dataset_visualizer.loaders.osworld_v2 import load_osworld_v21
 from dataset_visualizer.loaders.osworld_verified import load_osworld_verified
 from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_multilingual,
@@ -551,6 +552,21 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
             },
         ],
         cache_key="osworld_verified",
+    ),
+    "osworld_v21": DatasetDescriptor(
+        id_column="task_id",
+        viewer="osworld_v21",
+        loader=lambda _p: (load_osworld_v21(), {}),
+        overview=lambda df, extras: overview_generic(df, {**extras, "dataset_id": "osworld_v21"}),
+        filters=[
+            {
+                "name": "releases",
+                "label": "Release",
+                "type": "multiselect",
+                "column": "release",
+            },
+        ],
+        cache_key="osworld_v21",
     ),
     "toolathlon": DatasetDescriptor(
         id_column="task_id",

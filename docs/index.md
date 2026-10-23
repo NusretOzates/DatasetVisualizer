@@ -20,7 +20,7 @@ Internal developer documentation.
 
 ## Datasets
 
-**60 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 19 manual loaders + 41 `hf_benchmark` entries across nine categories.
+**71 datasets** in [`config/datasets.yaml`](../config/datasets.yaml): 22 manual loaders + 49 `hf_benchmark` entries across nine categories.
 
 Per-dataset notes (manual loaders and special cases):
 
@@ -43,6 +43,7 @@ Per-dataset notes (manual loaders and special cases):
 | NoCha | [datasets/nocha.md](datasets/nocha.md) |
 | BrowseComp | [datasets/browsecomp.md](datasets/browsecomp.md) |
 | OSWorld-Verified | [datasets/osworld_verified.md](datasets/osworld_verified.md) |
+| OSWorld V2.1 | [datasets/osworld_v21.md](datasets/osworld_v21.md) |
 | Toolathlon | [datasets/toolathlon.md](datasets/toolathlon.md) |
 | ArXiv Math 0526 | [datasets/arxivmath.md](datasets/arxivmath.md) |
 | ARC-AGI 2 | [datasets/arc_agi_2.md](datasets/arc_agi_2.md) |

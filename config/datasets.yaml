@@ -825,6 +825,20 @@ categories:
 
       '
     viewer: osworld_verified
+  - id: osworld_v21
+    label: OSWorld V2.1
+    loader: osworld_v21
+    icon: 🤝
+    archetype: agent_task
+    docs: docs/datasets/osworld_v21.md
+    row_count: 108
+    description: 'XLANG OSWorld V2.1 desktop GUI agent benchmark: 108 task classes
+      for the osworld-v2.1 release. Task implementations are gated on Hugging
+      Face to reduce leakage, so rows catalog the public release manifest
+      (task file, SHA-256, and size) rather than task content.
+
+      '
+    viewer: osworld_v21
   - id: toolathlon
     label: Toolathlon
     loader: toolathlon

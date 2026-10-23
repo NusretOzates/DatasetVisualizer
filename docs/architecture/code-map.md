@@ -15,6 +15,8 @@ Use this map to locate the right files before searching the whole repository.
 | AA-LCR (Hub + zip previews) | `dataset_visualizer.loaders.aa_lcr:load_aa_lcr` | `src/dataset_visualizer/loaders/aa_lcr.py` | `tests/test_loaders_aa_lcr.py` |
 | BrowseComp (simple-evals CSV) | `dataset_visualizer.loaders.browsecomp:load_browsecomp` | `src/dataset_visualizer/loaders/browsecomp.py` | `tests/test_loaders_browsecomp.py` |
 | OSWorld-Verified (GitHub) | `dataset_visualizer.loaders.osworld_verified:load_osworld_verified` | `src/dataset_visualizer/loaders/osworld_verified.py` | `tests/test_loaders_osworld_verified.py` |
+| OSWorld V2.1 (GitHub manifest) | `dataset_visualizer.loaders.osworld_v2:load_osworld_v21` | `src/dataset_visualizer/loaders/osworld_v2.py` | `tests/test_loaders_osworld_v2.py` |
+| Terminal-Bench 4.0 / Science 0.1 (GitHub) | `dataset_visualizer.loaders.terminal_bench:load_terminal_bench_40` / `load_terminal_bench_science` | `src/dataset_visualizer/loaders/terminal_bench.py` | `tests/test_loaders_terminal_bench.py` |
 | Toolathlon (GitHub) | `dataset_visualizer.loaders.toolathlon:load_toolathlon` | `src/dataset_visualizer/loaders/toolathlon.py` | `tests/test_loaders_toolathlon.py` |
 | Manual Hugging Face loaders | `dataset_visualizer.loaders.*:load_*` | `src/dataset_visualizer/loaders/*.py`, `src/dataset_visualizer/loaders/base.py` | `tests/test_loaders_*.py` |
 | Generic HF benchmark loading | `dataset_visualizer.loaders.hf_benchmark:load_hf_benchmark_entry` | `src/dataset_visualizer/loaders/hf_benchmark.py`, `src/dataset_visualizer/loaders/benchmark_normalize.py` | `tests/test_loaders_hf_benchmark.py`, `tests/test_benchmark_normalize.py` |
