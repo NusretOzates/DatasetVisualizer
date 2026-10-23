@@ -529,8 +529,8 @@ def test_normalize_benchcad_drops_images_and_maps_code() -> None:
 
     assert "view_0_png" not in normalized.columns
     assert "composite_png" not in normalized.columns
+    assert "question_content" not in normalized.columns
     assert normalized["canonical_solution"].iloc[0].startswith("import cadquery")
-    assert "washer" in normalized["question_content"].iloc[0]
 
 
 def test_normalize_zerobench_extracts_question_and_counts_media() -> None:

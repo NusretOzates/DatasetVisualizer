@@ -757,13 +757,6 @@ def normalize_benchcad(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     ]
     if image_columns:
         normalized = normalized.drop(columns=image_columns)
-    normalized["question_content"] = normalized.apply(
-        lambda row: (
-            f"Write CadQuery code for a {row.get('family', 'CAD part')} "
-            f"({row.get('variant', '')}) on the {row.get('base_plane', '')} plane."
-        ),
-        axis=1,
-    )
     normalized["question_id"] = normalized[id_column]
     if "code" in normalized.columns:
         normalized["canonical_solution"] = normalized["code"]

@@ -3,13 +3,15 @@ import type { SampleViewerProps } from "../types";
 
 const CONFIG = {
   "heroFields": [
-    "question_content",
     "canonical_solution"
   ],
   "badgeFields": [
     "stem",
     "family",
-    "difficulty"
+    "variant",
+    "difficulty",
+    "base_plane",
+    "standard"
   ],
   "hideFields": [
     "code"

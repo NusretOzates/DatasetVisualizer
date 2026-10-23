@@ -376,7 +376,8 @@ categories:
     row_count: 17900
     description: 'CAD code-generation benchmark (BenchCAD w/ tools evaluations):
       synthetic CadQuery samples across 106 mechanical part families with ground-truth
-      code; render image columns are dropped during normalization.
+      code. Upstream rows have no text prompt; the inspector shows the ground-truth
+      code and part metadata, and render images are not displayed.
 
       '
   - id: mbpp
