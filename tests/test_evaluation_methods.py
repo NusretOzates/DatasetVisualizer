@@ -48,9 +48,7 @@ def test_get_evaluation_for_unknown_dataset_returns_none() -> None:
 
 
 def test_dataset_meta_exposes_evaluation(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
-        "dataset_visualizer.api.service.get_dataset_readme", lambda _dataset_id: ""
-    )
+    monkeypatch.setattr("dataset_visualizer.api.service.get_dataset_readme", lambda _dataset_id: "")
     meta = get_dataset_meta("swe_bench_verified")
     assert meta["evaluation"]["method"] == "code_execution"
     assert "FAIL_TO_PASS" in meta["evaluation"]["summary"]

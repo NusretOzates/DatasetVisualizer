@@ -10,9 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "datasets.yaml"
 DEFAULT_GLOSSARY_PATH = Path(__file__).resolve().parents[2] / "config" / "column_glossary.yaml"
-DEFAULT_EVALUATION_PATH = (
-    Path(__file__).resolve().parents[2] / "config" / "evaluation_methods.yaml"
-)
+DEFAULT_EVALUATION_PATH = Path(__file__).resolve().parents[2] / "config" / "evaluation_methods.yaml"
 
 
 class DatasetEntry(BaseModel):
@@ -164,9 +162,7 @@ def load_evaluation_methods(path: Path | None = None) -> dict[str, Any]:
     return raw
 
 
-def get_evaluation_for_dataset(
-    dataset_id: str, path: Path | None = None
-) -> dict[str, str] | None:
+def get_evaluation_for_dataset(dataset_id: str, path: Path | None = None) -> dict[str, str] | None:
     """Return the evaluation methodology payload for one dataset id.
 
     The payload carries the method key, its display label, and a short
