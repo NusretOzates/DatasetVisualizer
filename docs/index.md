@@ -50,6 +50,8 @@ Per-dataset notes (manual loaders and special cases):
 
 `hf_benchmark` entries usually need no per-dataset doc — use the inspect CLI and [add-hf-benchmark.md](how-to/add-hf-benchmark.md).
 
+Access notes for gated Hub repos (OfficeQA Pro v2, ChartoGraphy, OSWorld V2.1 task classes): [datasets/gated-benchmarks.md](datasets/gated-benchmarks.md).
+
 ## Architecture
 
 ```
