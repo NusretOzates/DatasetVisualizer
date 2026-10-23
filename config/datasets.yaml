@@ -512,6 +512,22 @@ categories:
       '
     viewer: coconot
   agentic_tasks:
+  - id: agents_last_exam
+    label: "Agents' Last Exam"
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: agents-last-exam/agents-last-exam
+    split: v1_1
+    profile: generic
+    viewer: agents_last_exam
+    id_column: task_id
+    row_count: 122
+    description: 'Computer-use agent benchmark of 122 active tasks across professional
+      domains, with task prompts, taxonomy, software requirements, and input-file
+      descriptors from the v1.1 task-card release.
+
+      '
   - id: browsecomp
     label: BrowseComp
     loader: browsecomp

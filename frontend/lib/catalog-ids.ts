@@ -1,4 +1,5 @@
 export const CATALOG_DATASET_IDS = [
+  "agents_last_exam",
   "aime_2026",
   "aa_lcr",
   "aa_omniscience",

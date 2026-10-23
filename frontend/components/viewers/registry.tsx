@@ -4,6 +4,7 @@ import type { ComponentType, ReactNode } from "react";
 import type { DatasetMeta } from "@/lib/types";
 import { GenericViewer } from "./GenericViewer";
 import type { SampleViewerProps } from "./types";
+import { AgentsLastExamViewer } from "./datasets/agents_last_exam";
 import { Aime2026Viewer } from "./datasets/aime_2026";
 import { AaLcrViewer } from "./datasets/aa_lcr";
 import { AaOmniscienceViewer } from "./datasets/aa_omniscience";
@@ -66,6 +67,7 @@ import { WinograndeViewer } from "./datasets/winogrande";
 import { ZebraLogicViewer } from "./datasets/zebra_logic";
 
 const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
+  agents_last_exam: AgentsLastExamViewer,
   aime_2026: Aime2026Viewer,
   aa_lcr: AaLcrViewer,
   aa_omniscience: AaOmniscienceViewer,
