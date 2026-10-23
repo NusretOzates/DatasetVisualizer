@@ -46,6 +46,7 @@ export const CATALOG_DATASET_IDS = [
   "mrcr",
   "mtob",
   "nocha",
+  "officeqa_pro_v2",
   "openbookqa",
   "osworld_verified",
   "paperbench",

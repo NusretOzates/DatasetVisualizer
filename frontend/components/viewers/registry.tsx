@@ -39,6 +39,7 @@ import { LivecodebenchV6Viewer } from "./datasets/livecodebench_v6";
 import { LivemcpbenchViewer } from "./datasets/livemcpbench";
 import { MathViewer } from "./datasets/math";
 import { McpAtlasViewer } from "./datasets/mcp_atlas";
+import { OfficeqaProV2Viewer } from "./datasets/officeqa_pro_v2";
 import { OsworldVerifiedViewer } from "./datasets/osworld_verified";
 import { Math500Viewer } from "./datasets/math_500";
 import { MathArenaViewer } from "./datasets/math_arena";
@@ -102,6 +103,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   livemcpbench: LivemcpbenchViewer,
   math: MathViewer,
   mcp_atlas: McpAtlasViewer,
+  officeqa_pro_v2: OfficeqaProV2Viewer,
   osworld_verified: OsworldVerifiedViewer,
   math_500: Math500Viewer,
   math_arena: MathArenaViewer,

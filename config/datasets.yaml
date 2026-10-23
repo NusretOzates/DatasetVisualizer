@@ -528,6 +528,23 @@ categories:
       descriptors from the v1.1 task-card release.
 
       '
+  - id: officeqa_pro_v2
+    label: OfficeQA Pro v2
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: databricks/officeqa-pro-v2
+    hf_config: officeqa_pro_v2
+    split: train
+    profile: generic
+    viewer: officeqa_pro_v2
+    id_column: uid
+    row_count: 90
+    description: 'Databricks grounded-reasoning benchmark of 90 questions over two
+      centuries of U.S. Federal Accounts of Receipts and Expenditures documents.
+      Gated on Hugging Face; accept the dataset terms to load it.
+
+      '
   - id: browsecomp
     label: BrowseComp
     loader: browsecomp
