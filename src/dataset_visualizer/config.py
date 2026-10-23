@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "datasets.yaml"
 DEFAULT_GLOSSARY_PATH = Path(__file__).resolve().parents[2] / "config" / "column_glossary.yaml"
+DEFAULT_EVALUATION_PATH = Path(__file__).resolve().parents[2] / "config" / "evaluation_methods.yaml"
 
 
 class DatasetEntry(BaseModel):
@@ -142,3 +143,46 @@ def get_column_glossary_for_dataset(dataset_id: str, path: Path | None = None) -
     if not isinstance(columns, dict):
         return {}
     return {str(key): str(value) for key, value in columns.items()}
+
+
+def load_evaluation_methods(path: Path | None = None) -> dict[str, Any]:
+    """Load upstream evaluation methodology entries keyed by dataset id.
+
+    Returns:
+        Mapping with ``methods`` (method key → display label) and
+        ``datasets`` (dataset id → ``{"method", "summary"}``). Empty
+        dict when the file is missing.
+    """
+    evaluation_path = path or DEFAULT_EVALUATION_PATH
+    if not evaluation_path.exists():
+        return {}
+    raw: dict[str, Any] = yaml.safe_load(evaluation_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        return {}
+    return raw
+
+
+def get_evaluation_for_dataset(dataset_id: str, path: Path | None = None) -> dict[str, str] | None:
+    """Return the evaluation methodology payload for one dataset id.
+
+    The payload carries the method key, its display label, and a short
+    summary of how the upstream benchmark scores model outputs. Returns
+    ``None`` when the dataset has no recorded methodology.
+    """
+    data = load_evaluation_methods(path)
+    methods = data.get("methods", {})
+    datasets = data.get("datasets", {})
+    if not isinstance(methods, dict) or not isinstance(datasets, dict):
+        return None
+    entry = datasets.get(dataset_id, {})
+    if not isinstance(entry, dict):
+        return None
+    method = str(entry.get("method", "")).strip()
+    summary = str(entry.get("summary", "")).strip()
+    if not method or not summary:
+        return None
+    return {
+        "method": method,
+        "method_label": str(methods.get(method, method)),
+        "summary": summary,
+    }

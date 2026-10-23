@@ -11,7 +11,12 @@ import pandas as pd
 from dataset_visualizer.api.dataset_registry import DatasetDescriptor, get_descriptor
 from dataset_visualizer.api.filters import apply_filters, build_filter_options
 from dataset_visualizer.api.serializers import serialize_row, serialize_value
-from dataset_visualizer.config import DatasetEntry, get_dataset_by_id, load_config
+from dataset_visualizer.config import (
+    DatasetEntry,
+    get_dataset_by_id,
+    get_evaluation_for_dataset,
+    load_config,
+)
 from dataset_visualizer.dataset_readme import get_dataset_readme
 from dataset_visualizer.loaders.livecodebench import decode_private_test_cases
 from dataset_visualizer.row_count import row_count
@@ -95,6 +100,7 @@ def get_dataset_meta(dataset_id: str) -> dict[str, Any]:
         "id": entry.id,
         "label": entry.label,
         "description": entry.description,
+        "evaluation": get_evaluation_for_dataset(dataset_id),
         "archetype": entry.archetype,
         "icon": entry.icon,
         "viewer": descriptor.viewer,

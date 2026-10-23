@@ -75,6 +75,8 @@ Add a dataset:
 
 Full reference: [`docs/dataset-system.md`](docs/dataset-system.md)
 
+Each dataset page shows a short **“How this benchmark is evaluated”** section (exact match, LLM judge, code execution, desktop state checks, rubric grading, …) describing the upstream scoring method. This app only inspects tasks — it does not run evaluations. Background: [`docs/evaluation-methodology.md`](docs/evaluation-methodology.md)
+
 ### Visual audit
 
 Every catalog dataset has a dedicated Sample Inspector viewer. Audit matrix: [`docs/audit/dataset-audit-matrix.md`](docs/audit/dataset-audit-matrix.md)

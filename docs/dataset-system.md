@@ -30,8 +30,9 @@ There are two registration paths. Pick the one that matches your benchmark — s
 | # | File | What to add |
 |---|------|-------------|
 | 1 | `config/datasets.yaml` | Entry with `loader: hf_benchmark`, `hf_id`, `profile`, `split`, `id_column`, … |
-| 2 | `tests/test_benchmark_registry.py` | Optional assertion that `get_descriptor(id)` resolves |
-| 3 | `docs/datasets/<name>.md` | Only when schema or visualization is non-obvious |
+| 2 | `config/evaluation_methods.yaml` | Upstream scoring `method` + `summary` for the new `id` (required; enforced by `tests/test_evaluation_methods.py`, shown on the dataset page) |
+| 3 | `tests/test_benchmark_registry.py` | Optional assertion that `get_descriptor(id)` resolves |
+| 4 | `docs/datasets/<name>.md` | Only when schema or visualization is non-obvious |
 
 Auto-handled: `dataset_registry.py` (`build_dataset_registry()`), `overview_generic()`, `hf_benchmark` loader, inspect CLI cache via config `id`.
 
@@ -40,15 +41,16 @@ Auto-handled: `dataset_registry.py` (`build_dataset_registry()`), `overview_gene
 | # | File | What to add |
 |---|------|-------------|
 | 1 | `config/datasets.yaml` | YAML entry (`id`, `label`, `loader`, `description`, …) |
-| 2 | `src/dataset_visualizer/loaders/<module>.py` | Loader function(s) returning normalized `DataFrame` |
-| 3 | `src/dataset_visualizer/api/dataset_registry.py` | `DatasetDescriptor` with loader, overview, viewer, controls, filters |
-| 4 | `src/dataset_visualizer/api/overview.py` | `overview_<dataset>()` builder (or reuse existing) |
-| 5 | `frontend/components/viewers/` | New viewer + `registry.tsx` entry only if `viewer` key is new |
-| 6 | `DatasetDescriptor.cache_key` | When on-disk cache dir ≠ config `loader` field |
-| 7 | `tests/test_loaders_<module>.py` | Mocked HF download tests |
-| 8 | `tests/test_api_service.py` | Optional smoke test for overview/meta if behavior is non-trivial |
-| 9 | `docs/datasets/<name>.md` + link in `docs/index.md` | Schema notes |
-| 10 | `README.md` | Update when user-facing catalog or setup changes |
+| 2 | `config/evaluation_methods.yaml` | Upstream scoring `method` + `summary` for the new `id` (required, as in Path A) |
+| 3 | `src/dataset_visualizer/loaders/<module>.py` | Loader function(s) returning normalized `DataFrame` |
+| 4 | `src/dataset_visualizer/api/dataset_registry.py` | `DatasetDescriptor` with loader, overview, viewer, controls, filters |
+| 5 | `src/dataset_visualizer/api/overview.py` | `overview_<dataset>()` builder (or reuse existing) |
+| 6 | `frontend/components/viewers/` | New viewer + `registry.tsx` entry only if `viewer` key is new |
+| 7 | `DatasetDescriptor.cache_key` | When on-disk cache dir ≠ config `loader` field |
+| 8 | `tests/test_loaders_<module>.py` | Mocked HF download tests |
+| 9 | `tests/test_api_service.py` | Optional smoke test for overview/meta if behavior is non-trivial |
+| 10 | `docs/datasets/<name>.md` + link in `docs/index.md` | Schema notes |
+| 11 | `README.md` | Update when user-facing catalog or setup changes |
 
 **Also update** `docs/dataset-system.md`, `docs/how-to/`, `docs/backend.md`, or `docs/frontend.md` when registration steps or architecture change.
 
