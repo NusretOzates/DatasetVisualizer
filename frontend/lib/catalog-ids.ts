@@ -57,6 +57,7 @@ export const CATALOG_DATASET_IDS = [
   "swe_bench_multilingual",
   "swe_bench_pro",
   "swe_bench_verified",
+  "swe_marathon",
   "tau3_bench",
   "terminal_bench_21",
   "toolathlon",

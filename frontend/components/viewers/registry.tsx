@@ -62,6 +62,7 @@ import { ScicodeViewer } from "./datasets/scicode";
 import { SweBenchMultilingualViewer } from "./datasets/swe_bench_multilingual";
 import { SweBenchProViewer } from "./datasets/swe_bench_pro";
 import { SweBenchVerifiedViewer } from "./datasets/swe_bench_verified";
+import { SweMarathonViewer } from "./datasets/swe_marathon";
 import { Tau3BenchViewer } from "./datasets/tau3_bench";
 import { TerminalBench21Viewer } from "./datasets/terminal_bench_21";
 import { ToolathlonViewer } from "./datasets/toolathlon";
@@ -127,6 +128,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   swe_bench_multilingual: SweBenchMultilingualViewer,
   swe_bench_pro: SweBenchProViewer,
   swe_bench_verified: SweBenchVerifiedViewer,
+  swe_marathon: SweMarathonViewer,
   tau3_bench: Tau3BenchViewer,
   terminal_bench_21: TerminalBench21Viewer,
   toolathlon: ToolathlonViewer,

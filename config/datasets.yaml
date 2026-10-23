@@ -563,6 +563,22 @@ categories:
       Gated on Hugging Face; accept the dataset terms to load it.
 
       '
+  - id: swe_marathon
+    label: SWE Marathon
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: rdesai2/swe-marathon
+    split: tasks
+    profile: generic
+    viewer: swe_marathon
+    id_column: task_id
+    row_count: 20
+    description: 'Abundant AI ultra long-horizon software engineering benchmark:
+      20 multi-hour Harbor-format tasks with containerized environments, tests,
+      and reference oracle solutions.
+
+      '
   - id: browsecomp
     label: BrowseComp
     loader: browsecomp
