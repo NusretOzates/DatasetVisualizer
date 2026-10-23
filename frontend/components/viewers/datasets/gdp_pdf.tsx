@@ -59,11 +59,6 @@ export function GdpPdfViewer({ row }: SampleViewerProps) {
               Open source PDF
             </a>
           </p>
-          <iframe
-            src={pdfUrl}
-            title="GDP.pdf source document"
-            className="mt-3 h-[36rem] w-full rounded-lg border"
-          />
         </div>
       ) : null}
 
