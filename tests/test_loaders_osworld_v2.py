@@ -41,9 +41,7 @@ def test_load_rows_sorts_tasks_and_reads_revision(tmp_path: Path) -> None:
     assert rows[0]["source_revision"] == "abc123"
 
 
-def test_load_osworld_v21_uses_cached_archive(
-    tmp_path: Path, monkeypatch
-) -> None:  # noqa: ANN001 - pytest monkeypatch fixture
+def test_load_osworld_v21_uses_cached_archive(tmp_path: Path, monkeypatch) -> None:
     upstream = tmp_path / "upstream"
     _write_release_manifest(upstream)
 

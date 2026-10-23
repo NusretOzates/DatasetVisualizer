@@ -120,8 +120,7 @@ def _parse_task_dir(
         "instruction": instruction,
         "instruction_preview": preview_source[:120],
         "task_readme": readme,
-        "category": _metadata_value(task_meta, "category")
-        or _metadata_value(task_meta, "domain"),
+        "category": _metadata_value(task_meta, "category") or _metadata_value(task_meta, "domain"),
         "domain": _metadata_value(task_meta, "domain"),
         "field": _metadata_value(task_meta, "field"),
         "task_path": task_path,
@@ -187,9 +186,7 @@ def _extracted_dir_name_for_tag(repo: str, ref: str) -> str:
     return f"{repo_name}-{ref.removeprefix('v')}"
 
 
-def _download_repo_tasks_archive(
-    cache_root: Path, zip_url: str, extracted_dir_name: str
-) -> Path:
+def _download_repo_tasks_archive(cache_root: Path, zip_url: str, extracted_dir_name: str) -> Path:
     """Download and extract a Harbor-format GitHub repository archive."""
     tasks_root = cache_root / extracted_dir_name / "tasks"
     marker = cache_root / ".extracted"

@@ -24,8 +24,7 @@ from dataset_visualizer.loaders.cache import loader_cache
 OSWORLD_V2_GITHUB_REPO = "xlang-ai/OSWorld-V2"
 OSWORLD_V2_RELEASE = "osworld-v2.1"
 OSWORLD_V2_ZIP_URL = (
-    f"https://github.com/{OSWORLD_V2_GITHUB_REPO}/archive/refs/tags/"
-    f"{OSWORLD_V2_RELEASE}.zip"
+    f"https://github.com/{OSWORLD_V2_GITHUB_REPO}/archive/refs/tags/{OSWORLD_V2_RELEASE}.zip"
 )
 EXTRACTED_DIR_NAME = f"OSWorld-V2-{OSWORLD_V2_RELEASE}"
 RELEASE_MANIFEST = f"benchmark_releases/{OSWORLD_V2_RELEASE}.json"
