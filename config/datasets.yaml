@@ -348,6 +348,20 @@ categories:
 
       '
     viewer: terminal_bench_40
+  - id: terminal_bench_science_01
+    label: Terminal-Bench Science 0.1
+    loader: terminal_bench_science_01
+    icon: 🖥️
+    archetype: agent_task
+    docs: docs/datasets/terminal_bench_science_01.md
+    row_count: 70
+    description: 'Terminal-Bench Science 0.1 tasks: 70 real-world computational
+      research workflows across life, physical, earth, mathematical, and
+      engineering sciences in containerized CLI environments. Loaded from the
+      Harbor GitHub repository at tag v0.1.0.
+
+      '
+    viewer: terminal_bench_science_01
   - id: benchcad
     label: BenchCAD w/ tools
     loader: hf_benchmark

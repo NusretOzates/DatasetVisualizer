@@ -39,6 +39,7 @@ Per-dataset notes (manual loaders and special cases):
 | τ³-Bench | [datasets/tau3_bench.md](datasets/tau3_bench.md) |
 | Terminal-Bench 2.1 | [datasets/terminal_bench_21.md](datasets/terminal_bench_21.md) |
 | Terminal-Bench 4.0 | [datasets/terminal_bench_40.md](datasets/terminal_bench_40.md) |
+| Terminal-Bench Science 0.1 | [datasets/terminal_bench_science_01.md](datasets/terminal_bench_science_01.md) |
 | NoCha | [datasets/nocha.md](datasets/nocha.md) |
 | BrowseComp | [datasets/browsecomp.md](datasets/browsecomp.md) |
 | OSWorld-Verified | [datasets/osworld_verified.md](datasets/osworld_verified.md) |

@@ -65,6 +65,7 @@ from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
 from dataset_visualizer.loaders.terminal_bench import (
     load_terminal_bench_21,
     load_terminal_bench_40,
+    load_terminal_bench_science,
 )
 from dataset_visualizer.loaders.toolathlon import load_toolathlon
 
@@ -444,6 +445,27 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
             },
         ],
         cache_key="terminal_bench_40",
+    ),
+    "terminal_bench_science_01": DatasetDescriptor(
+        id_column="task_id",
+        viewer="terminal_bench_science_01",
+        loader=lambda _p: (load_terminal_bench_science(), {}),
+        overview=overview_terminal_bench,
+        filters=[
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
+            {
+                "name": "domains",
+                "label": "Domain",
+                "type": "multiselect",
+                "column": "domain",
+            },
+        ],
+        cache_key="terminal_bench_science_01",
     ),
     "nocha": DatasetDescriptor(
         id_column="sample_id",

@@ -260,6 +260,21 @@ def load_terminal_bench_40() -> pd.DataFrame:
     )
 
 
+@loader_cache(show_spinner="Downloading Terminal-Bench Science 0.1 from GitHub …")
+def load_terminal_bench_science() -> pd.DataFrame:
+    """Load Terminal-Bench Science 0.1 tasks from the upstream GitHub release.
+
+    Returns:
+        Normalized task DataFrame for the 70-task ``v0.1.0`` release, with
+        tasks nested under domain and field directories.
+    """
+    return _load_terminal_bench_release(
+        TERMINAL_BENCH_SCIENCE_GITHUB_REPO,
+        TERMINAL_BENCH_SCIENCE_REF,
+        "terminal_bench_science_01",
+    )
+
+
 @loader_cache(show_spinner="Downloading Terminal-Bench 2.1 from GitHub …")
 def load_terminal_bench_21() -> pd.DataFrame:
     """Load Terminal-Bench 2.1 tasks from the upstream GitHub repository.
