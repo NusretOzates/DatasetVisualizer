@@ -59,6 +59,40 @@ def test_parse_task_dir_reads_instruction_and_metadata(tmp_path: Path) -> None:
     assert row["docker_image"] == "example/sample:20260101"
 
 
+TB40_TASK_TOML = b"""
+schema_version = "1.0"
+
+[task]
+name = "terminal-bench/sample-40"
+description = "Rebuild evaluation infrastructure."
+
+[metadata]
+author_name = ["Alice Example", "Bob Example"]
+category = "ML"
+expert_time_estimate_hours = 2.0
+
+[environment]
+cpus = 1
+memory_mb = 4096
+network_mode = "public"
+"""
+
+
+def test_parse_task_dir_handles_v4_schema(tmp_path: Path) -> None:
+    task_dir = tmp_path / "sample-40"
+    task_dir.mkdir()
+    (task_dir / "task.toml").write_bytes(TB40_TASK_TOML)
+    (task_dir / "instruction.md").write_text("Fix the scorer.", encoding="utf-8")
+
+    row = _parse_task_dir(task_dir, split="v4.0.0")
+
+    assert row is not None
+    assert row["author_name"] == "Alice Example, Bob Example"
+    assert row["expert_time_estimate_min"] == 120.0
+    assert row["allow_internet"] is True
+    assert row["split"] == "v4.0.0"
+
+
 def test_normalize_terminal_bench_frame_casts_bools() -> None:
     raw = pd.DataFrame([{"allow_internet": None}])
     df = _normalize_terminal_bench_frame(raw)

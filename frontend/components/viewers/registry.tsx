@@ -4,6 +4,7 @@ import type { ComponentType, ReactNode } from "react";
 import type { DatasetMeta } from "@/lib/types";
 import { GenericViewer } from "./GenericViewer";
 import type { SampleViewerProps } from "./types";
+import { AgentsLastExamViewer } from "./datasets/agents_last_exam";
 import { Aime2026Viewer } from "./datasets/aime_2026";
 import { AaLcrViewer } from "./datasets/aa_lcr";
 import { AaOmniscienceViewer } from "./datasets/aa_omniscience";
@@ -11,16 +12,20 @@ import { AppsViewer } from "./datasets/apps";
 import { ArcAgi2Viewer } from "./datasets/arc_agi_2";
 import { ArcChallengeViewer } from "./datasets/arc_challenge";
 import { Arxivmath0526Viewer } from "./datasets/arxivmath_0526";
+import { BenchcadViewer } from "./datasets/benchcad";
 import { BrowsecompViewer } from "./datasets/browsecomp";
+import { ChartographyViewer } from "./datasets/chartography";
 import { CoconotViewer } from "./datasets/coconot";
 import { CommonsenseqaViewer } from "./datasets/commonsenseqa";
 import { CritptViewer } from "./datasets/critpt";
 import { DabstepViewer } from "./datasets/dabstep";
 import { EvoevalDifficultViewer } from "./datasets/evoeval_difficult";
+import { FrontierFinanceViewer } from "./datasets/frontier_finance";
 import { FuturebenchViewer } from "./datasets/futurebench";
 import { FuturexViewer } from "./datasets/futurex";
 import { GaiaViewer } from "./datasets/gaia";
 import { Gaia2Viewer } from "./datasets/gaia2";
+import { GdpPdfViewer } from "./datasets/gdp_pdf";
 import { GdpvalViewer } from "./datasets/gdpval";
 import { GlobalMmluViewer } from "./datasets/global_mmlu";
 import { GpqaDiamondViewer } from "./datasets/gpqa_diamond";
@@ -38,6 +43,8 @@ import { LivecodebenchV6Viewer } from "./datasets/livecodebench_v6";
 import { LivemcpbenchViewer } from "./datasets/livemcpbench";
 import { MathViewer } from "./datasets/math";
 import { McpAtlasViewer } from "./datasets/mcp_atlas";
+import { OfficeqaProV2Viewer } from "./datasets/officeqa_pro_v2";
+import { OsworldV21Viewer } from "./datasets/osworld_v21";
 import { OsworldVerifiedViewer } from "./datasets/osworld_verified";
 import { Math500Viewer } from "./datasets/math_500";
 import { MathArenaViewer } from "./datasets/math_arena";
@@ -59,13 +66,18 @@ import { ScicodeViewer } from "./datasets/scicode";
 import { SweBenchMultilingualViewer } from "./datasets/swe_bench_multilingual";
 import { SweBenchProViewer } from "./datasets/swe_bench_pro";
 import { SweBenchVerifiedViewer } from "./datasets/swe_bench_verified";
+import { SweMarathonViewer } from "./datasets/swe_marathon";
 import { Tau3BenchViewer } from "./datasets/tau3_bench";
 import { TerminalBench21Viewer } from "./datasets/terminal_bench_21";
+import { TerminalBench40Viewer } from "./datasets/terminal_bench_40";
+import { TerminalBenchScience01Viewer } from "./datasets/terminal_bench_science_01";
 import { ToolathlonViewer } from "./datasets/toolathlon";
 import { WinograndeViewer } from "./datasets/winogrande";
 import { ZebraLogicViewer } from "./datasets/zebra_logic";
+import { ZerobenchMainViewer } from "./datasets/zerobench_main";
 
 const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
+  agents_last_exam: AgentsLastExamViewer,
   aime_2026: Aime2026Viewer,
   aa_lcr: AaLcrViewer,
   aa_omniscience: AaOmniscienceViewer,
@@ -73,16 +85,20 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   arc_agi_2: ArcAgi2Viewer,
   arc_challenge: ArcChallengeViewer,
   arxivmath_0526: Arxivmath0526Viewer,
+  benchcad: BenchcadViewer,
   browsecomp: BrowsecompViewer,
+  chartography: ChartographyViewer,
   coconot: CoconotViewer,
   commonsenseqa: CommonsenseqaViewer,
   critpt: CritptViewer,
   dabstep: DabstepViewer,
   evoeval_difficult: EvoevalDifficultViewer,
+  frontier_finance: FrontierFinanceViewer,
   futurebench: FuturebenchViewer,
   futurex: FuturexViewer,
   gaia: GaiaViewer,
   gaia2: Gaia2Viewer,
+  gdp_pdf: GdpPdfViewer,
   gdpval: GdpvalViewer,
   global_mmlu: GlobalMmluViewer,
   gpqa_diamond: GpqaDiamondViewer,
@@ -100,6 +116,8 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   livemcpbench: LivemcpbenchViewer,
   math: MathViewer,
   mcp_atlas: McpAtlasViewer,
+  officeqa_pro_v2: OfficeqaProV2Viewer,
+  osworld_v21: OsworldV21Viewer,
   osworld_verified: OsworldVerifiedViewer,
   math_500: Math500Viewer,
   math_arena: MathArenaViewer,
@@ -121,11 +139,15 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   swe_bench_multilingual: SweBenchMultilingualViewer,
   swe_bench_pro: SweBenchProViewer,
   swe_bench_verified: SweBenchVerifiedViewer,
+  swe_marathon: SweMarathonViewer,
   tau3_bench: Tau3BenchViewer,
   terminal_bench_21: TerminalBench21Viewer,
+  terminal_bench_40: TerminalBench40Viewer,
+  terminal_bench_science_01: TerminalBenchScience01Viewer,
   toolathlon: ToolathlonViewer,
   winogrande: WinograndeViewer,
   zebra_logic: ZebraLogicViewer,
+  zerobench_main: ZerobenchMainViewer,
 };
 
 export function renderSample(

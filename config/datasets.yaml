@@ -226,6 +226,41 @@ categories:
 
       '
     viewer: critpt
+  - id: zerobench_main
+    label: ZeroBench_main w/ tools (pass@5)
+    loader: hf_benchmark
+    icon: 🧠
+    archetype: generic
+    hf_id: mm-eval/ZeroBench
+    split: zerobench
+    profile: zerobench
+    viewer: zerobench_main
+    id_column: id
+    row_count: 100
+    description: 'ZeroBench main set: 100 hard visual reasoning questions that
+      frontier vision models initially scored near zero on, evaluated as pass@5
+      (tool-augmented in the w/ tools setting). Image payloads are replaced by
+      a media count during normalization.
+
+      '
+  - id: chartography
+    label: ChartoGraphy w/ tools
+    loader: hf_benchmark
+    icon: 📊
+    archetype: generic
+    hf_id: surgeai/chartography
+    split: test
+    profile: generic
+    viewer: chartography
+    id_column: task_id
+    row_count: 100
+    description: 'Surge AI professional chart-understanding benchmark (listed as
+      ChartoGraphy w/ tools in tool-augmented evaluations): 100 expert-written
+      prompts over dense real-world charts across 12 professional domains, with
+      golden answers and acceptable ranges. Held-out test split; access may
+      require accepting the Hub dataset terms.
+
+      '
   code:
   - id: livecodebench_v6
     label: LiveCodeBench v6
@@ -299,6 +334,51 @@ categories:
 
       '
     viewer: terminal_bench_21
+  - id: terminal_bench_40
+    label: Terminal-Bench 4.0
+    loader: terminal_bench_40
+    icon: 🖥️
+    archetype: agent_task
+    docs: docs/datasets/terminal_bench_40.md
+    row_count: 66
+    description: 'Terminal-Bench 4.0 tasks for measuring agents in containerized
+      CLI environments: the 66-task v4.0.0 Harbor release with calibrated
+      resources, fixed verifiers, and saturated tasks removed. Loaded from the
+      Harbor GitHub repository.
+
+      '
+    viewer: terminal_bench_40
+  - id: terminal_bench_science_01
+    label: Terminal-Bench Science 0.1
+    loader: terminal_bench_science_01
+    icon: 🖥️
+    archetype: agent_task
+    docs: docs/datasets/terminal_bench_science_01.md
+    row_count: 70
+    description: 'Terminal-Bench Science 0.1 tasks: 70 real-world computational
+      research workflows across life, physical, earth, mathematical, and
+      engineering sciences in containerized CLI environments. Loaded from the
+      Harbor GitHub repository at tag v0.1.0.
+
+      '
+    viewer: terminal_bench_science_01
+  - id: benchcad
+    label: BenchCAD w/ tools
+    loader: hf_benchmark
+    icon: 💻
+    archetype: code_eval
+    viewer: benchcad
+    hf_id: BenchCAD/BenchCAD
+    hf_config: code_gen
+    split: code_gen
+    profile: benchcad
+    id_column: stem
+    row_count: 17900
+    description: 'CAD code-generation benchmark (BenchCAD w/ tools evaluations):
+      synthetic CadQuery samples across 106 mechanical part families with ground-truth
+      code; render image columns are dropped during normalization.
+
+      '
   - id: mbpp
     label: MBPP
     loader: hf_benchmark
@@ -512,6 +592,87 @@ categories:
       '
     viewer: coconot
   agentic_tasks:
+  - id: agents_last_exam
+    label: "Agents' Last Exam"
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: agents-last-exam/agents-last-exam
+    split: v1_1
+    profile: generic
+    viewer: agents_last_exam
+    id_column: task_id
+    row_count: 122
+    description: 'Computer-use agent benchmark of 122 active tasks across professional
+      domains, with task prompts, taxonomy, software requirements, and input-file
+      descriptors from the v1.1 task-card release.
+
+      '
+  - id: officeqa_pro_v2
+    label: OfficeQA Pro v2
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: databricks/officeqa-pro-v2
+    hf_config: officeqa_pro_v2
+    split: train
+    profile: generic
+    viewer: officeqa_pro_v2
+    id_column: uid
+    row_count: 90
+    description: 'Databricks grounded-reasoning benchmark of 90 questions over two
+      centuries of U.S. Federal Accounts of Receipts and Expenditures documents.
+      Gated on Hugging Face; accept the dataset terms to load it.
+
+      '
+  - id: swe_marathon
+    label: SWE Marathon
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: rdesai2/swe-marathon
+    split: tasks
+    profile: generic
+    viewer: swe_marathon
+    id_column: task_id
+    row_count: 20
+    description: 'Abundant AI ultra long-horizon software engineering benchmark:
+      20 multi-hour Harbor-format tasks with containerized environments, tests,
+      and reference oracle solutions.
+
+      '
+  - id: frontier_finance
+    label: Frontier Finance
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: agent_task
+    hf_id: kensho/frontierfinance
+    split: train
+    profile: generic
+    viewer: frontier_finance
+    id_column: sample_id
+    row_count: 25
+    description: 'Long-horizon financial modeling benchmark of 25 tasks across
+      three-statement, merger, LBO, DCF, and lender-analysis types, each requiring
+      professional-grade spreadsheet deliverables.
+
+      '
+  - id: gdp_pdf
+    label: GDP.pdf
+    loader: hf_benchmark
+    icon: 🤝
+    archetype: generic
+    hf_id: Oitaaa/GDP.pdf
+    split: test
+    profile: generic
+    viewer: gdp_pdf
+    id_column: task_id
+    row_count: 100
+    description: 'Surge AI professional document-reasoning benchmark: 100 expert
+      prompts over dense real-world PDFs across ten professional domains, graded
+      against per-task rubric criteria.
+
+      '
   - id: browsecomp
     label: BrowseComp
     loader: browsecomp
@@ -664,6 +825,20 @@ categories:
 
       '
     viewer: osworld_verified
+  - id: osworld_v21
+    label: OSWorld V2.1
+    loader: osworld_v21
+    icon: 🤝
+    archetype: agent_task
+    docs: docs/datasets/osworld_v21.md
+    row_count: 108
+    description: 'XLANG OSWorld V2.1 desktop GUI agent benchmark: 108 task classes
+      for the osworld-v2.1 release. Task implementations are gated on Hugging
+      Face to reduce leakage, so rows catalog the public release manifest
+      (task file, SHA-256, and size) rather than task content.
+
+      '
+    viewer: osworld_v21
   - id: toolathlon
     label: Toolathlon
     loader: toolathlon

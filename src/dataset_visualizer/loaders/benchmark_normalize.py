@@ -743,6 +743,58 @@ def normalize_critpt(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def normalize_benchcad(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize BenchCAD code-generation rows, dropping render image columns."""
+    normalized = _ensure_sample_id(df, id_column)
+    image_columns = [
+        column
+        for column in normalized.columns
+        if column.endswith("_png") or column.endswith("_step")
+    ]
+    if image_columns:
+        normalized = normalized.drop(columns=image_columns)
+    normalized["question_content"] = normalized.apply(
+        lambda row: (
+            f"Write CadQuery code for a {row.get('family', 'CAD part')} "
+            f"({row.get('variant', '')}) on the {row.get('base_plane', '')} plane."
+        ),
+        axis=1,
+    )
+    normalized["question_id"] = normalized[id_column]
+    if "code" in normalized.columns:
+        normalized["canonical_solution"] = normalized["code"]
+    return normalized
+
+
+def _zerobench_question(value: object) -> str:
+    """Extract the user question text from a ZeroBench messages payload."""
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return value
+    else:
+        parsed = value
+    if isinstance(parsed, list):
+        for item in parsed:
+            if isinstance(item, dict) and item.get("role") == "user":
+                return str(item.get("question") or item.get("content") or "")
+    return str(value)
+
+
+def normalize_zerobench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
+    """Normalize ZeroBench rows, replacing image payloads with a media count."""
+    normalized = _ensure_sample_id(df, id_column)
+    if "media" in normalized.columns:
+        normalized["media_count"] = normalized["media"].map(
+            lambda value: len(value) if isinstance(value, (list, tuple)) else 0
+        )
+        normalized = normalized.drop(columns=["media"])
+    if "messages" in normalized.columns:
+        normalized["question"] = normalized["messages"].map(_zerobench_question)
+    return normalized
+
+
 def normalize_generic(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Pass through rows with a stable sample id."""
     return _ensure_sample_id(df, id_column)
@@ -775,6 +827,8 @@ NORMALIZERS: dict[str, Any] = {
     "aa_lcr": normalize_aa_lcr,
     "aa_omniscience": normalize_aa_omniscience,
     "critpt": normalize_critpt,
+    "benchcad": normalize_benchcad,
+    "zerobench": normalize_zerobench,
     "generic": normalize_generic,
 }
 

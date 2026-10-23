@@ -55,6 +55,7 @@ from dataset_visualizer.loaders.mmmlu import (
     load_mmmlu,
 )
 from dataset_visualizer.loaders.nocha import load_nocha
+from dataset_visualizer.loaders.osworld_v2 import load_osworld_v21
 from dataset_visualizer.loaders.osworld_verified import load_osworld_verified
 from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_multilingual,
@@ -62,7 +63,11 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
-from dataset_visualizer.loaders.terminal_bench import load_terminal_bench_21
+from dataset_visualizer.loaders.terminal_bench import (
+    load_terminal_bench_21,
+    load_terminal_bench_40,
+    load_terminal_bench_science,
+)
 from dataset_visualizer.loaders.toolathlon import load_toolathlon
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
@@ -421,6 +426,48 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
         ],
         cache_key="terminal_bench_21",
     ),
+    "terminal_bench_40": DatasetDescriptor(
+        id_column="task_id",
+        viewer="terminal_bench_40",
+        loader=lambda _p: (load_terminal_bench_40(), {}),
+        overview=overview_terminal_bench,
+        filters=[
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
+            {
+                "name": "difficulties",
+                "label": "Difficulty",
+                "type": "multiselect",
+                "column": "difficulty",
+            },
+        ],
+        cache_key="terminal_bench_40",
+    ),
+    "terminal_bench_science_01": DatasetDescriptor(
+        id_column="task_id",
+        viewer="terminal_bench_science_01",
+        loader=lambda _p: (load_terminal_bench_science(), {}),
+        overview=overview_terminal_bench,
+        filters=[
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
+            {
+                "name": "domains",
+                "label": "Domain",
+                "type": "multiselect",
+                "column": "domain",
+            },
+        ],
+        cache_key="terminal_bench_science_01",
+    ),
     "nocha": DatasetDescriptor(
         id_column="sample_id",
         viewer="nocha",
@@ -505,6 +552,21 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
             },
         ],
         cache_key="osworld_verified",
+    ),
+    "osworld_v21": DatasetDescriptor(
+        id_column="task_id",
+        viewer="osworld_v21",
+        loader=lambda _p: (load_osworld_v21(), {}),
+        overview=lambda df, extras: overview_generic(df, {**extras, "dataset_id": "osworld_v21"}),
+        filters=[
+            {
+                "name": "releases",
+                "label": "Release",
+                "type": "multiselect",
+                "column": "release",
+            },
+        ],
+        cache_key="osworld_v21",
     ),
     "toolathlon": DatasetDescriptor(
         id_column="task_id",
