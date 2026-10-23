@@ -62,7 +62,10 @@ from dataset_visualizer.loaders.swe_bench import (
     load_swe_bench_verified,
 )
 from dataset_visualizer.loaders.tau3_bench import load_tau3_bench
-from dataset_visualizer.loaders.terminal_bench import load_terminal_bench_21
+from dataset_visualizer.loaders.terminal_bench import (
+    load_terminal_bench_21,
+    load_terminal_bench_40,
+)
 from dataset_visualizer.loaders.toolathlon import load_toolathlon
 
 LoaderFn = Callable[[dict[str, Any]], tuple[pd.DataFrame, dict[str, Any]]]
@@ -420,6 +423,27 @@ _MANUAL_REGISTRY: dict[str, DatasetDescriptor] = {
             },
         ],
         cache_key="terminal_bench_21",
+    ),
+    "terminal_bench_40": DatasetDescriptor(
+        id_column="task_id",
+        viewer="terminal_bench_40",
+        loader=lambda _p: (load_terminal_bench_40(), {}),
+        overview=overview_terminal_bench,
+        filters=[
+            {
+                "name": "categories",
+                "label": "Category",
+                "type": "multiselect",
+                "column": "category",
+            },
+            {
+                "name": "difficulties",
+                "label": "Difficulty",
+                "type": "multiselect",
+                "column": "difficulty",
+            },
+        ],
+        cache_key="terminal_bench_40",
     ),
     "nocha": DatasetDescriptor(
         id_column="sample_id",

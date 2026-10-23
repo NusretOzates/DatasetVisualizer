@@ -334,6 +334,20 @@ categories:
 
       '
     viewer: terminal_bench_21
+  - id: terminal_bench_40
+    label: Terminal-Bench 4.0
+    loader: terminal_bench_40
+    icon: 🖥️
+    archetype: agent_task
+    docs: docs/datasets/terminal_bench_40.md
+    row_count: 66
+    description: 'Terminal-Bench 4.0 tasks for measuring agents in containerized
+      CLI environments: the 66-task v4.0.0 Harbor release with calibrated
+      resources, fixed verifiers, and saturated tasks removed. Loaded from the
+      Harbor GitHub repository.
+
+      '
+    viewer: terminal_bench_40
   - id: benchcad
     label: BenchCAD w/ tools
     loader: hf_benchmark

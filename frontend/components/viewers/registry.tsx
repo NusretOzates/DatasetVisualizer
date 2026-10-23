@@ -68,6 +68,7 @@ import { SweBenchVerifiedViewer } from "./datasets/swe_bench_verified";
 import { SweMarathonViewer } from "./datasets/swe_marathon";
 import { Tau3BenchViewer } from "./datasets/tau3_bench";
 import { TerminalBench21Viewer } from "./datasets/terminal_bench_21";
+import { TerminalBench40Viewer } from "./datasets/terminal_bench_40";
 import { ToolathlonViewer } from "./datasets/toolathlon";
 import { WinograndeViewer } from "./datasets/winogrande";
 import { ZebraLogicViewer } from "./datasets/zebra_logic";
@@ -138,6 +139,7 @@ const DATASET_VIEWERS: Record<string, ComponentType<SampleViewerProps>> = {
   swe_marathon: SweMarathonViewer,
   tau3_bench: Tau3BenchViewer,
   terminal_bench_21: TerminalBench21Viewer,
+  terminal_bench_40: TerminalBench40Viewer,
   toolathlon: ToolathlonViewer,
   winogrande: WinograndeViewer,
   zebra_logic: ZebraLogicViewer,

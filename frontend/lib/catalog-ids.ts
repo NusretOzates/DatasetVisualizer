@@ -63,6 +63,7 @@ export const CATALOG_DATASET_IDS = [
   "swe_marathon",
   "tau3_bench",
   "terminal_bench_21",
+  "terminal_bench_40",
   "toolathlon",
   "winogrande",
   "zebra_logic",
