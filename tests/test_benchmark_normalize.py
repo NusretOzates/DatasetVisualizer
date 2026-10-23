@@ -537,7 +537,7 @@ def test_normalize_zerobench_extracts_question_and_counts_media() -> None:
     df = pd.DataFrame(
         {
             "id": ["1"],
-            "media": [[object(), object()]],
+            "media": [np.array([object(), object()], dtype=object)],
             "messages": ['[{"role": "user", "question": "How much do I save?"}]'],
             "answer": ["11.90"],
             "question_type": ["numeric"],

@@ -787,7 +787,7 @@ def normalize_zerobench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     normalized = _ensure_sample_id(df, id_column)
     if "media" in normalized.columns:
         normalized["media_count"] = normalized["media"].map(
-            lambda value: len(value) if isinstance(value, (list, tuple)) else 0
+            lambda value: len(_sequence_values(value) or [])
         )
         normalized = normalized.drop(columns=["media"])
     if "messages" in normalized.columns:
