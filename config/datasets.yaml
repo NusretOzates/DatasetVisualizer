@@ -239,8 +239,8 @@ categories:
     row_count: 100
     description: 'ZeroBench main set: 100 hard visual reasoning questions that
       frontier vision models initially scored near zero on, evaluated as pass@5
-      (tool-augmented in the w/ tools setting). Image payloads are replaced by
-      a media count during normalization.
+      (tool-augmented in the w/ tools setting). Source images are shown in the
+      Sample Inspector.
 
       '
   - id: chartography

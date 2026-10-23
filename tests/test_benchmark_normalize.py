@@ -537,7 +537,7 @@ def test_normalize_zerobench_extracts_question_and_counts_media() -> None:
     df = pd.DataFrame(
         {
             "id": ["1"],
-            "media": [np.array([object(), object()], dtype=object)],
+            "media": [np.array([b"\x89PNG\r\n", b"\xff\xd8\xff"], dtype=object)],
             "messages": ['[{"role": "user", "question": "How much do I save?"}]'],
             "answer": ["11.90"],
             "question_type": ["numeric"],
@@ -548,6 +548,8 @@ def test_normalize_zerobench_extracts_question_and_counts_media() -> None:
 
     assert "media" not in normalized.columns
     assert normalized["media_count"].iloc[0] == 2
+    assert normalized["media_images"].iloc[0][0].startswith("data:image/png;base64,")
+    assert normalized["media_images"].iloc[0][1].startswith("data:image/jpeg;base64,")
     assert normalized["question"].iloc[0] == "How much do I save?"
 
 

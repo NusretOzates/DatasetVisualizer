@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import ast
+import base64
+import io
 import json
 from typing import Any
 
@@ -16,6 +18,8 @@ _PRESERVE_LIST_COLUMNS = frozenset({
     "choices",
     "options",
     "endings",
+    "media_images",
+    "rubric_items",
     "scenario_tags",
     "scenario_hints",
     "app_names",
@@ -766,6 +770,38 @@ def normalize_benchcad(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     return normalized
 
 
+def _image_data_uri(value: object) -> str:
+    """Encode one Hub image cell as a data URI, or return an existing URI string."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bytes):
+        mime = "image/png" if value.startswith(b"\x89PNG") else "image/jpeg"
+        return f"data:{mime};base64,{base64.b64encode(value).decode('ascii')}"
+    if isinstance(value, dict):
+        raw = value.get("bytes")
+        if isinstance(raw, bytes):
+            return _image_data_uri(raw)
+        path = value.get("path")
+        return str(path) if path else ""
+    save = getattr(value, "save", None)
+    if callable(save):
+        buffer = io.BytesIO()
+        image_format = str(getattr(value, "format", None) or "PNG").upper()
+        if image_format not in {"JPEG", "PNG"}:
+            image_format = "PNG"
+        save(buffer, format=image_format)
+        mime = "image/jpeg" if image_format == "JPEG" else "image/png"
+        return f"data:{mime};base64,{base64.b64encode(buffer.getvalue()).decode('ascii')}"
+    return ""
+
+
+def _image_data_uris(value: object) -> list[str]:
+    """Encode a Hub media cell (single image or sequence) as data URIs."""
+    seq = _sequence_values(value)
+    items = seq if seq is not None else [value]
+    return [uri for item in items if (uri := _image_data_uri(item))]
+
+
 def _zerobench_question(value: object) -> str:
     """Extract the user question text from a ZeroBench messages payload."""
     if isinstance(value, str):
@@ -783,12 +819,11 @@ def _zerobench_question(value: object) -> str:
 
 
 def normalize_zerobench(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
-    """Normalize ZeroBench rows, replacing image payloads with a media count."""
+    """Normalize ZeroBench rows, encoding images as data URIs for the viewer."""
     normalized = _ensure_sample_id(df, id_column)
     if "media" in normalized.columns:
-        normalized["media_count"] = normalized["media"].map(
-            lambda value: len(_sequence_values(value) or [])
-        )
+        normalized["media_images"] = normalized["media"].map(_image_data_uris)
+        normalized["media_count"] = normalized["media_images"].map(len)
         normalized = normalized.drop(columns=["media"])
     if "messages" in normalized.columns:
         normalized["question"] = normalized["messages"].map(_zerobench_question)
